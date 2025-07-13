@@ -1,12 +1,12 @@
 name: Release CI
-
 on:
   push:
     branches:
       - main
     tags:
-      - 'v*.*.*'
-
+      - "v*.*.*"
+permissions:
+  contents: write # 🔥 required to create a release
 jobs:
   test:
     name: Run Tests
@@ -14,18 +14,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
-
+          go-version: "1.24"
       - name: Download Go modules
         run: go mod download
-
       - name: Run tests
         run: go test ./...
-
   release:
     name: Create Release
     runs-on: ubuntu-latest
@@ -34,27 +30,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
-
+          go-version: "1.22"
       - name: Build for Linux (amd64)
         run: GOOS=linux GOARCH=amd64 go build -o logma-linux-amd64
-
       - name: Build for Linux (arm64)
         run: GOOS=linux GOARCH=arm64 go build -o logma-linux-arm64
-
       - name: Build for Windows (amd64)
         run: GOOS=windows GOARCH=amd64 go build -o logma-windows-amd64.exe
-
       - name: Build for macOS (amd64)
         run: GOOS=darwin GOARCH=amd64 go build -o logma-darwin-amd64
-
       - name: Build for macOS (arm64)
         run: GOOS=darwin GOARCH=arm64 go build -o logma-darwin-arm64
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
