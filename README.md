@@ -1,4 +1,4 @@
-# Logma: High-Performance, Zero-Allocation Structured Logging for Go
+# Logma <img src="logma_logo.svg" alt="Logma Logo" width="30" height="30">: High-Performance, Zero-Allocation Structured Logging for Go
 
 Logma is a new Go logging library designed to solve the "Logger's Trilemma" by balancing uncompromising performance, superior developer experience, and first-class observability.
 
