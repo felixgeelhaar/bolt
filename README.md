@@ -13,7 +13,7 @@ Logma is a new Go logging library designed to solve the "Logger's Trilemma" by b
 ## Installation
 
 ```bash
-go get github.com/your-username/logma
+go get github.com/felixgeelhaar/logma
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ go get github.com/your-username/logma
 ```go
 package main
 
-import "github.com/your-username/logma"
+import "github.com/felixgeelhaar/logma"
 
 func main() {
 	logma.Info().Msg("Hello, Logma!")
@@ -35,7 +35,7 @@ func main() {
 ```go
 package main
 
-import "github.com/your-username/logma"
+import "github.com/felixgeelhaar/logma"
 
 func main() {
 	logma.Info().
@@ -52,7 +52,7 @@ package main
 
 import (
 	"errors"
-	"github.com/your-username/logma"
+	"github.com/felixgeelhaar/logma"
 )
 
 func main() {
@@ -66,7 +66,7 @@ func main() {
 ```go
 package main
 
-import "github.com/your-username/logma"
+import "github.com/felixgeelhaar/logma"
 
 func main() {
 	requestLogger := logma.Info().Str("request_id", "abc-123").Logger()
@@ -82,7 +82,7 @@ package main
 
 import (
 	"context"
-	"github.com/your-username/logma"
+	"github.com/felixgeelhaar/logma"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
