@@ -1,0 +1,14 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#ffffff"/>
+
+  <!-- Three overlapping rectangles (log entries) -->
+  <rect x="40" y="40" width="120" height="35" fill="#00ADD8" rx="5" ry="5"/>
+  <rect x="50" y="70" width="120" height="35" fill="#F06529" rx="5" ry="5"/>
+  <rect x="60" y="100" width="120" height="35" fill="#333333" rx="5" ry="5"/>
+
+  <!-- Subtle central glow/observability point -->
+  <circle cx="100" cy="85" r="10" fill="#ffffff" opacity="0.8"/>
+  <circle cx="100" cy="85" r="5" fill="#00ADD8"/>
+
+  <text x="100" y="165" font-family="Arial, sans-serif" font-size="28" fill="#333333" text-anchor="middle">Logma</text>
+</svg>
