@@ -1,4 +1,4 @@
-module logma
+module github.com/felixgeelhaar/logma 
 
 go 1.24.4
 
