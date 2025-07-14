@@ -38,7 +38,7 @@ class LogmaLandingPage {
         ];
 
         const maxValue = Math.max(...data.map(d => d.value));
-        const logScale = (value) => Math.log(value) / Math.log(maxValue) * 200 + 20;
+        const logScale = (value) => Math.log(value) / Math.log(maxValue) * 180 + 20; // Reduced from 200 to 180 to stay within bounds
 
         // Use requestAnimationFrame for smooth rendering
         requestAnimationFrame(() => {
@@ -49,7 +49,7 @@ class LogmaLandingPage {
                 
                 return `
                     <div class="chart-bar" title="${item.label}: ${item.value}ns/op${improvement}">
-                        <div class="bar ${item.class}" style="height: ${height}px;">
+                        <div class="bar ${item.class}" style="height: ${height}px; max-height: 180px;">
                             <div class="bar-value">${item.value}ns</div>
                         </div>
                         <div class="bar-label">${item.label}</div>
@@ -83,7 +83,7 @@ class LogmaLandingPage {
                             <span>Zerolog (stable)</span>
                         </div>
                     </div>
-                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 420 200" preserveAspectRatio="none">
+                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 450 210" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
@@ -144,7 +144,7 @@ class LogmaLandingPage {
                         <!-- Value labels on data points -->
                         <text x="45" y="155" font-size="8" fill="#2563EB" font-weight="bold">200ns</text>
                         <text x="245" y="95" font-size="8" fill="#2563EB" font-weight="bold">150ns</text>
-                        <text x="405" y="65" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
+                        <text x="390" y="65" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
                         
                         
                         <!-- Axis labels -->
@@ -152,7 +152,7 @@ class LogmaLandingPage {
                         <text x="15" y="105" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold" transform="rotate(-90 15 105)">Performance (ns/op)</text>
                         
                         <!-- Data source attribution -->
-                        <text x="400" y="195" font-size="7" fill="#9CA3AF" text-anchor="end">Source: GitHub Actions Benchmarks</text>
+                        <text x="440" y="205" font-size="7" fill="#9CA3AF" text-anchor="end">Source: GitHub Actions Benchmarks</text>
                     </svg>
                 </div>
             `;

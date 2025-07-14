@@ -284,11 +284,12 @@ body {
     display: flex;
     align-items: end;
     justify-content: space-around;
-    padding: 20px;
+    padding: 30px 20px 20px 20px; /* Added top padding for value labels */
     border-radius: 12px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 1px solid #e2e8f0;
     contain: layout style;
+    overflow: hidden; /* Ensure content stays within bounds */
 }
 
 .chart-bar {
