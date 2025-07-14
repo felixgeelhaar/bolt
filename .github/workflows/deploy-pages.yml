@@ -1,0 +1,128 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+    
+    - name: Run benchmarks
+      run: |
+        echo "Running latest benchmarks..."
+        go test -bench=. -benchmem -count=3 > benchmark_results.txt 2>&1 || true
+        echo "Latest benchmark results:"
+        cat benchmark_results.txt
+    
+    - name: Checkout gh-pages branch  
+      run: |
+        git fetch origin gh-pages:gh-pages || echo "gh-pages branch doesn't exist yet"
+        git checkout gh-pages || git checkout --orphan gh-pages
+        
+        # Copy website files from main branch
+        # Copy website files from main branch docs folder
+        git checkout main -- docs/ 2>/dev/null || echo "Copying website files"
+
+        # Move docs contents to root for GitHub Pages
+        if [ -d "docs" ]; then
+          cp -r docs/* .
+          rm -rf docs/
+        fi
+        
+        # Copy benchmark results
+        cp ../benchmark_results.txt . 2>/dev/null || echo "No benchmark results to copy"
+    
+    - name: Update website with benchmark data
+      run: |
+        echo "Processing benchmark data..."
+        if [ -f "benchmark_results.txt" ]; then
+          # Extract the ns/op value for Bolt benchmarks
+          BOLT_NSOP=$(grep -E "BenchmarkZeroAllocation|BenchmarkBolt" benchmark_results.txt | head -1 | awk '{print $3}' | tr -d 'ns/op')
+          
+          if [ -n "$BOLT_NSOP" ]; then
+            echo "Found Bolt benchmark: ${BOLT_NSOP}ns/op"
+            
+            # Calculate improvement percentage (baseline: 175.4 for Zerolog)
+            IMPROVEMENT=$(awk "BEGIN {printf \"%.0f\", (175.4 - $BOLT_NSOP) / 175.4 * 100}")
+            
+            # Create benchmark data JSON
+            mkdir -p assets/data
+            cat > assets/data/latest-benchmarks.json <<EOF
+        {
+          "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+          "bolt_ns_per_op": $BOLT_NSOP,
+          "zerolog_ns_per_op": 175.4,
+          "improvement_percent": $IMPROVEMENT,
+          "source": "ci-automated",
+          "commit": "${GITHUB_SHA}"
+        }
+        EOF
+            echo "Created benchmark data with real values"
+            
+            # Update index.html with new benchmark values
+            if [ -f "index.html" ]; then
+              # Update hero badge
+              sed -i "s/⚡ [0-9.]*ns\/op • 0 allocations • [0-9]*% faster than Zerolog/⚡ ${BOLT_NSOP}ns\/op • 0 allocations • ${IMPROVEMENT}% faster than Zerolog/g" index.html
+              
+              # Update benchmark table (find Bolt row and update the ns/op value)
+              sed -i "/<td><strong>Bolt<\/strong><\/td>/,/<\/tr>/{s/<td><strong>[0-9.]*<\/strong><\/td>/<td><strong>${BOLT_NSOP}<\/strong><\/td>/}" index.html
+              
+              # Update performance advantage
+              sed -i "s/<td class=\"advantage\">[0-9]*% faster than Zerolog<\/td>/<td class=\"advantage\">${IMPROVEMENT}% faster than Zerolog<\/td>/g" index.html
+              
+              echo "Updated index.html with latest benchmarks"
+            fi
+            
+            # Update script.js with new values
+            if [ -f "assets/script.js" ]; then
+              # Update the default bolt value in initPerformanceChart
+              sed -i "s/initPerformanceChart(boltValue = [0-9.]*)/initPerformanceChart(boltValue = ${BOLT_NSOP})/g" assets/script.js
+              
+              # Update the data array
+              sed -i "s/{ label: 'Bolt', value: [0-9.]*, class: 'bolt' }/{ label: 'Bolt', value: ${BOLT_NSOP}, class: 'bolt' }/g" assets/script.js
+              
+              echo "Updated script.js with latest benchmarks"
+            fi
+          else
+            echo "No Bolt benchmark found in results"
+          fi
+        else
+          echo "No benchmark results file found"
+        fi
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+    
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

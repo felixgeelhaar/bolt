@@ -1,4 +1,4 @@
-package logma
+package bolt
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 
 func TestDefaultLogger_FormatEnvVar(t *testing.T) {
 	t.Run("json format", func(t *testing.T) {
-		os.Setenv("LOGMA_FORMAT", "json")
+		os.Setenv("BOLT_FORMAT", "json")
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*JSONHandler); !ok {
@@ -16,7 +16,7 @@ func TestDefaultLogger_FormatEnvVar(t *testing.T) {
 	})
 
 	t.Run("console format", func(t *testing.T) {
-		os.Setenv("LOGMA_FORMAT", "console")
+		os.Setenv("BOLT_FORMAT", "console")
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*ConsoleHandler); !ok {
@@ -25,21 +25,21 @@ func TestDefaultLogger_FormatEnvVar(t *testing.T) {
 	})
 
 	// Unset the env var to avoid affecting other tests.
-	os.Unsetenv("LOGMA_FORMAT")
+	os.Unsetenv("BOLT_FORMAT")
 	// Restore the original isTerminal function
 	isTerminal = isatty
 }
 
 func TestDefaultLogger_Isatty(t *testing.T) {
 	// Unset env var to ensure we test the isatty logic
-	os.Unsetenv("LOGMA_FORMAT")
+	os.Unsetenv("BOLT_FORMAT")
 
 	originalIsTerminal := isTerminal
 	defer func() { isTerminal = originalIsTerminal }()
 
 	t.Run("isatty true", func(t *testing.T) {
 		// Mock isatty to return true
-		isTerminal = func(f *os.File) bool { return true }
+		isTerminal = func(*os.File) bool { return true }
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*ConsoleHandler); !ok {
@@ -49,7 +49,7 @@ func TestDefaultLogger_Isatty(t *testing.T) {
 
 	t.Run("isatty false", func(t *testing.T) {
 		// Mock isatty to return false
-		isTerminal = func(f *os.File) bool { return false }
+		isTerminal = func(*os.File) bool { return false }
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*JSONHandler); !ok {
@@ -76,7 +76,7 @@ func TestDefaultLogger_LevelEnvVar(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("LOGMA_LEVEL", tt.envValue)
+			os.Setenv("BOLT_LEVEL", tt.envValue)
 			initDefaultLogger()
 
 			if defaultLogger.level != tt.expected {
@@ -85,5 +85,5 @@ func TestDefaultLogger_LevelEnvVar(t *testing.T) {
 		})
 	}
 	// Unset the env var to avoid affecting other tests.
-	os.Unsetenv("LOGMA_LEVEL")
+	os.Unsetenv("BOLT_LEVEL")
 }

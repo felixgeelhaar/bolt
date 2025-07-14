@@ -1,0 +1,80 @@
+run:
+  timeout: 5m
+  go: '1.21'
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  
+  goimports:
+    local-prefixes: github.com/felixgeelhaar/logma
+  
+  govet:
+    enable:
+      - shadow
+  
+  misspell:
+    locale: US
+  
+  nolintlint:
+    allow-leading-space: true
+    allow-unused: false
+    require-explanation: false
+    require-specific: false
+
+linters:
+  enable:
+    - asciicheck
+    - bodyclose
+    - errcheck
+    - goconst
+    - gocyclo
+    - gofmt
+    - goimports
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nolintlint
+    - staticcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - revive  # Replacement for golint
+  
+  disable:
+    - gochecknoinits   # We need init for default logger
+    - gochecknoglobals # We need some globals for performance (pools, etc)
+    - funlen          # Some functions are necessarily long for performance
+    - cyclop          # Duplicate of gocyclo
+
+issues:
+  exclude-rules:
+    # Exclude some lints from running on tests files
+    - path: _test\.go
+      linters:
+        - gosec
+        - dupl
+    
+    # Performance-critical code may have longer functions
+    - path: logma\.go
+      linters:
+        - funlen
+    
+    # Benchmark files can import testing dependencies
+    - path: .*_bench_test\.go
+      linters:
+        - goimports
+
+  exclude:
+    # Allow dot imports in tests
+    - "should not use dot imports"
+    
+    # Allow long lines in generated code
+    - "Line is too long"

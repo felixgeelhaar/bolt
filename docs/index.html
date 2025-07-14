@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolt - Zero-Allocation Structured Logging for Go</title>
+    <meta name="description" content="Ultra-fast, zero-allocation structured logging library for Go. 127ns/op with 0 allocations - 27% faster than Zerolog.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/style.css">
+    
+    <!-- Chart.js for benchmark visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="assets/bolt_logo.png" alt="Bolt Logo" class="nav-logo">
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#benchmarks" class="nav-link">Benchmarks</a>
+                <a href="#docs" class="nav-link">Documentation</a>
+                <a href="https://github.com/felixgeelhaar/bolt" class="nav-link nav-github" target="_blank">
+                    <svg class="github-icon" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-text">⚡ 127ns/op • 0 allocations • 27% faster than Zerolog</span>
+                </div>
+                <h1 class="hero-title">
+                    Zero-Allocation 
+                    <span class="gradient-text">Structured Logging</span>
+                    for Go
+                </h1>
+                <p class="hero-description">
+                    Ultra-fast, production-ready logging library that delivers exceptional performance 
+                    without compromising on features. Built for modern Go applications that demand 
+                    both speed and observability.
+                </p>
+                <div class="hero-actions">
+                    <a href="#quick-start" class="btn btn-primary">
+                        Get Started
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M5 12h14m-7-7l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/felixgeelhaar/bolt" class="btn btn-secondary" target="_blank">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="performance-chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose Bolt?</h2>
+                <p class="section-description">
+                    Built from the ground up for performance-critical applications
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Zero Allocations</h3>
+                    <p class="feature-description">
+                        Achieved through intelligent event pooling and buffer reuse. 
+                        No garbage collection pressure in hot paths.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">Ultra-Fast</h3>
+                    <p class="feature-description">
+                        127ns/op for enabled logs, 85ns for disabled. 
+                        27% faster than Zerolog, 3x faster than Zap.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏗️</div>
+                    <h3 class="feature-title">Structured Logging</h3>
+                    <p class="feature-description">
+                        Rich, type-safe field support with JSON output. 
+                        Perfect for modern observability stacks.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">OpenTelemetry Ready</h3>
+                    <p class="feature-description">
+                        Automatic trace and span ID injection for 
+                        distributed tracing and correlation.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Multiple Outputs</h3>
+                    <p class="feature-description">
+                        JSON for production, colorized console for development. 
+                        Extensible handler system.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Type Safe</h3>
+                    <p class="feature-description">
+                        Strongly typed field methods prevent runtime errors. 
+                        Compile-time safety for production confidence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Benchmarks -->
+    <section id="benchmarks" class="benchmarks">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Performance Benchmarks</h2>
+                <p class="section-description">
+                    Live benchmark data updated automatically from CI/CD
+                </p>
+            </div>
+            
+            <!-- Benchmark Comparison Table -->
+            <div class="benchmark-table-container">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Operation</th>
+                            <th>ns/op</th>
+                            <th>Allocations</th>
+                            <th>Performance Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bolt-row">
+                            <td><strong>Bolt</strong></td>
+                            <td>Disabled</td>
+                            <td><strong>85.2</strong></td>
+                            <td><strong>0</strong></td>
+                            <td class="advantage">14% faster than Zerolog</td>
+                        </tr>
+                        <tr class="bolt-row">
+                            <td><strong>Bolt</strong></td>
+                            <td>Enabled</td>
+                            <td><strong>127.1</strong></td>
+                            <td><strong>0</strong></td>
+                            <td class="advantage">27% faster than Zerolog</td>
+                        </tr>
+                        <tr>
+                            <td>Zerolog</td>
+                            <td>Disabled</td>
+                            <td>99.3</td>
+                            <td>0</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Zerolog</td>
+                            <td>Enabled</td>
+                            <td>175.4</td>
+                            <td>0</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Zap</td>
+                            <td>Enabled</td>
+                            <td>189.7</td>
+                            <td>1</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Logrus</td>
+                            <td>Enabled</td>
+                            <td>2,847</td>
+                            <td>23</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Live Benchmark Chart -->
+            <div class="benchmark-chart-container">
+                <h3 class="chart-title">Performance Trends Over Time</h3>
+                <canvas id="benchmarkChart"></canvas>
+                <div class="chart-loading" id="chartLoading">
+                    <div class="spinner"></div>
+                    <p>Loading latest benchmark data...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quick-start" class="quick-start">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Get Started in Seconds</h2>
+                <p class="section-description">
+                    Zero configuration required. Start logging with maximum performance immediately.
+                </p>
+            </div>
+            
+            <div class="code-examples">
+                <div class="code-example">
+                    <h3 class="code-title">Installation</h3>
+                    <div class="code-block">
+                        <pre><code class="language-bash">go get github.com/felixgeelhaar/bolt</code></pre>
+                        <button class="copy-btn" data-copy="go get github.com/felixgeelhaar/bolt">
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-example">
+                    <h3 class="code-title">Basic Usage</h3>
+                    <div class="code-block">
+                        <pre><code class="language-go">package main
+
+import (
+    "os"
+    "github.com/felixgeelhaar/bolt"
+)
+
+func main() {
+    logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+    
+    logger.Info().
+        Str("service", "api").
+        Int("port", 8080).
+        Msg("Server starting")
+}</code></pre>
+                        <button class="copy-btn" data-copy='package main
+
+import (
+    "os"
+    "github.com/felixgeelhaar/bolt"
+)
+
+func main() {
+    logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+    
+    logger.Info().
+        Str("service", "api").
+        Int("port", 8080).
+        Msg("Server starting")
+}'>
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-example">
+                    <h3 class="code-title">Advanced Features</h3>
+                    <div class="code-block">
+                        <pre><code class="language-go">// Context-aware logging with OpenTelemetry
+contextLogger := logger.Ctx(ctx)
+
+// Structured logging with rich types
+logger.Info().
+    Str("user_id", "12345").
+    Bool("authenticated", true).
+    Float64("processing_time", 0.234).
+    Time("timestamp", time.Now()).
+    Any("metadata", map[string]interface{}{
+        "region": "us-east-1",
+    }).
+    Msg("Request processed")</code></pre>
+                        <button class="copy-btn" data-copy='// Context-aware logging with OpenTelemetry
+contextLogger := logger.Ctx(ctx)
+
+// Structured logging with rich types
+logger.Info().
+    Str("user_id", "12345").
+    Bool("authenticated", true).
+    Float64("processing_time", 0.234).
+    Time("timestamp", time.Now()).
+    Any("metadata", map[string]interface{}{
+        "region": "us-east-1",
+    }).
+    Msg("Request processed")'>
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="docs" class="docs">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Documentation & Resources</h2>
+                <p class="section-description">
+                    Everything you need to master high-performance logging
+                </p>
+            </div>
+            
+            <div class="docs-grid">
+                <a href="https://github.com/felixgeelhaar/bolt/blob/main/README.md" class="doc-card" target="_blank">
+                    <div class="doc-icon">📚</div>
+                    <h3 class="doc-title">API Documentation</h3>
+                    <p class="doc-description">Complete API reference with examples and best practices</p>
+                </a>
+                
+                <a href="https://github.com/felixgeelhaar/bolt/blob/main/CONTRIBUTING.md" class="doc-card" target="_blank">
+                    <div class="doc-icon">🤝</div>
+                    <h3 class="doc-title">Contributing Guide</h3>
+                    <p class="doc-description">Fork workflow, performance requirements, and development setup</p>
+                </a>
+                
+                <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md" class="doc-card" target="_blank">
+                    <div class="doc-icon">🔒</div>
+                    <h3 class="doc-title">Security Policy</h3>
+                    <p class="doc-description">Responsible disclosure and security best practices</p>
+                </a>
+                
+                <a href="https://github.com/felixgeelhaar/bolt/releases" class="doc-card" target="_blank">
+                    <div class="doc-icon">🚀</div>
+                    <h3 class="doc-title">Releases</h3>
+                    <p class="doc-description">Version history, changelogs, and upgrade guides</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/bolt_logo.png" alt="Bolt Logo" class="footer-logo">
+                    <p class="footer-description">
+                        Zero-allocation structured logging for Go applications.
+                        Built with ❤️ for high-performance systems.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4 class="footer-title">Resources</h4>
+                        <a href="https://github.com/felixgeelhaar/bolt" target="_blank">GitHub Repository</a>
+                        <a href="https://pkg.go.dev/github.com/felixgeelhaar/bolt" target="_blank">Go Package Docs</a>
+                        <a href="https://github.com/felixgeelhaar/bolt/releases" target="_blank">Releases</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4 class="footer-title">Community</h4>
+                        <a href="https://github.com/felixgeelhaar/bolt/issues" target="_blank">Issues</a>
+                        <a href="https://github.com/felixgeelhaar/bolt/discussions" target="_blank">Discussions</a>
+                        <a href="https://github.com/felixgeelhaar/bolt/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4 class="footer-title">Legal</h4>
+                        <a href="https://github.com/felixgeelhaar/bolt/blob/main/LICENSE" target="_blank">MIT License</a>
+                        <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md" target="_blank">Security Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bolt. Released under MIT License.</p>
+                <div class="footer-stats" id="footerStats">
+                    <span class="stat">Latest: v1.0.0</span>
+                    <span class="stat">Go 1.21+</span>
+                    <span class="stat">0 Dependencies</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 //go:build windows
 
-package logma
+package bolt
 
 import (
 	"os"

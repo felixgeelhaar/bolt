@@ -1,24 +1,27 @@
-# Logma
+# Bolt
 
 <div align="center">
-  <img src="misc/logo.svg" alt="Logma Logo" width="300"/>
+  <img src="assets/bolt_logo.png" alt="Bolt Logo" width="300"/>
   
+  [![Build Status](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml)
+  [![codecov](https://codecov.io/gh/felixgeelhaar/bolt/branch/main/graph/badge.svg)](https://codecov.io/gh/felixgeelhaar/bolt)
   [![Go Version](https://img.shields.io/badge/go-%3E%3D1.19-blue.svg)](https://golang.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/logma)](https://goreportcard.com/report/github.com/felixgeelhaar/logma)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt)
   [![Performance](https://img.shields.io/badge/performance-127ns%2Fop%20%7C%200%20allocs-brightgreen.svg)](#performance)
+  [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://felixgeelhaar.github.io/bolt/)
 </div>
 
 ## ⚡ Zero-Allocation Structured Logging
 
-Logma is a high-performance, zero-allocation structured logging library for Go that delivers exceptional speed without compromising on features. Built from the ground up for modern applications that demand both performance and observability.
+Bolt is a high-performance, zero-allocation structured logging library for Go that delivers exceptional speed without compromising on features. Built from the ground up for modern applications that demand both performance and observability. Live benchmarks update automatically.
 
 ### 🚀 Performance First
 
 | Library | Operation | ns/op | Allocations | Performance Advantage |
 |---------|-----------|-------|-------------|----------------------|
-| **Logma** | Disabled | **85.2** | **0** | **14% faster than Zerolog** |
-| **Logma** | Enabled | **127.1** | **0** | **27% faster than Zerolog** |
+| **Bolt** | Disabled | **85.2** | **0** | **14% faster than Zerolog** |
+| **Bolt** | Enabled | **127.1** | **0** | **27% faster than Zerolog** |
 | Zerolog | Disabled | 99.3 | 0 | - |
 | Zerolog | Enabled | 175.4 | 0 | - |
 | Zap | Disabled | 104.2 | 0 | - |
@@ -41,7 +44,7 @@ Logma is a high-performance, zero-allocation structured logging library for Go t
 ## 📦 Installation
 
 ```bash
-go get github.com/felixgeelhaar/logma
+go get github.com/felixgeelhaar/bolt
 ```
 
 ## 🏃 Quick Start
@@ -53,12 +56,12 @@ package main
 
 import (
     "os"
-    "github.com/felixgeelhaar/logma"
+    "github.com/felixgeelhaar/bolt"
 )
 
 func main() {
     // Create a JSON logger for production
-    logger := logma.New(logma.NewJSONHandler(os.Stdout))
+    logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
     
     // Simple logging
     logger.Info().Str("service", "api").Int("port", 8080).Msg("Server starting")
@@ -103,7 +106,7 @@ userLogger.Info().Msg("User action logged") // Always includes user_id and sessi
 
 ```go
 // Pretty console output for development
-logger := logma.New(logma.NewConsoleHandler(os.Stdout))
+logger := bolt.New(bolt.NewConsoleHandler(os.Stdout))
 
 logger.Info().
     Str("env", "development").
@@ -117,7 +120,7 @@ logger.Info().
 
 ### Zero-Allocation Design
 
-Logma achieves zero allocations through several key innovations:
+Bolt achieves zero allocations through several key innovations:
 
 1. **Event Pooling**: Reuses event objects via `sync.Pool`
 2. **Buffer Management**: Pre-allocated buffers with intelligent growth
@@ -137,11 +140,11 @@ Logma achieves zero allocations through several key innovations:
 
 ```go
 // Automatic format selection based on environment
-logger := logma.New(logma.NewJSONHandler(os.Stdout))
+logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 
 // Set via environment variables:
-// LOGMA_LEVEL=info
-// LOGMA_FORMAT=json (production) or console (development)
+// BOLT_LEVEL=info
+// BOLT_FORMAT=json (production) or console (development)
 ```
 
 ### OpenTelemetry Integration
@@ -150,7 +153,7 @@ logger := logma.New(logma.NewJSONHandler(os.Stdout))
 import (
     "context"
     "go.opentelemetry.io/otel"
-    "github.com/felixgeelhaar/logma"
+    "github.com/felixgeelhaar/bolt"
 )
 
 func handleRequest(ctx context.Context) {
@@ -168,7 +171,7 @@ func handleRequest(ctx context.Context) {
 
 ## 📊 Benchmarks
 
-Run the included benchmarks to see Logma's performance on your system:
+Run the included benchmarks to see Bolt's performance on your system:
 
 ```bash
 go test -bench=. -benchmem ./...
@@ -177,44 +180,55 @@ go test -bench=. -benchmem ./...
 ### Sample Results
 
 ```
-BenchmarkLogmaDisabled-10       14,129,394    85.2 ns/op     0 B/op    0 allocs/op
-BenchmarkLogmaEnabled-10         7,864,321   127.1 ns/op     0 B/op    0 allocs/op
+BenchmarkBoltDisabled-10       14,129,394    85.2 ns/op     0 B/op    0 allocs/op
+BenchmarkBoltEnabled-10         7,864,321   127.1 ns/op     0 B/op    0 allocs/op
 BenchmarkZerologDisabled-10     12,077,472    99.3 ns/op     0 B/op    0 allocs/op
 BenchmarkZerologEnabled-10       5,698,320   175.4 ns/op     0 B/op    0 allocs/op
 ```
 
 ## 🔧 Custom Handlers
 
-Extend Logma with custom output formats:
+Extend Bolt with custom output formats:
 
 ```go
 type CustomHandler struct {
     output io.Writer
 }
 
-func (h *CustomHandler) Write(e *logma.Event) error {
+func (h *CustomHandler) Write(e *bolt.Event) error {
     // Custom formatting logic
     formatted := customFormat(e)
     _, err := h.output.Write(formatted)
     return err
 }
 
-logger := logma.New(&CustomHandler{output: os.Stdout})
+logger := bolt.New(&CustomHandler{output: os.Stdout})
 ```
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! **Please fork the repository** and submit pull requests from your fork.
 
-### Development Setup
+### Quick Start for Contributors
 
-```bash
-git clone https://github.com/felixgeelhaar/logma.git
-cd logma
-go mod tidy
-go test ./...
-go test -bench=. -benchmem
-```
+1. **Fork** this repository on GitHub
+2. **Clone** your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/bolt.git
+   cd bolt
+   ```
+3. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make your changes** and ensure tests pass:
+   ```bash
+   go test ./...
+   go test -bench=. -benchmem -tags=bench
+   ```
+5. **Submit a pull request** from your fork
+
+📖 **Detailed guidelines**: See [CONTRIBUTING.md](CONTRIBUTING.md) for complete contribution workflow, coding standards, and performance requirements.
 
 ## 📄 License
 
@@ -222,12 +236,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🎖️ Recognition
 
-Logma draws inspiration from excellent logging libraries like Zerolog and Zap, while pushing the boundaries of what's possible in Go logging performance.
+Bolt draws inspiration from excellent logging libraries like Zerolog and Zap, while pushing the boundaries of what's possible in Go logging performance.
 
 ---
 
 <div align="center">
-  <img src="misc/logo_icon.svg" alt="Logma Icon" width="64"/>
+  <img src="assets/bolt_logo.png" alt="Bolt Icon" width="64"/>
   
   **Built with ❤️ for high-performance Go applications**
 </div>

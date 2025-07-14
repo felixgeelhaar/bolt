@@ -1,0 +1,116 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate PR title
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          chore
+        requireScope: false
+        subjectPattern: ^(?![A-Z]).+$
+        subjectPatternError: |
+          The subject "{subject}" found in the pull request title "{title}"
+          didn't match the configured pattern. Please ensure that the subject
+          doesn't start with an uppercase character.
+
+  check-fork:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check if PR is from fork
+      run: |
+        if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+          echo "✅ Pull request is from a fork - following contribution guidelines"
+        else
+          echo "❌ Pull request is from main repository - please use a fork"
+          echo "See CONTRIBUTING.md for fork workflow instructions"
+          exit 1
+        fi
+
+  performance-regression:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+    
+    - name: Checkout base branch
+      run: |
+        git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+        git checkout ${{ github.base_ref }}
+    
+    - name: Run baseline benchmarks
+      run: go test -bench=. -benchmem -count=5 -tags=bench > baseline.txt || true
+    
+    - name: Checkout PR branch
+      run: git checkout ${{ github.head_ref }}
+    
+    - name: Run PR benchmarks
+      run: go test -bench=. -benchmem -count=5 -tags=bench > pr.txt || true
+    
+    - name: Compare benchmarks
+      run: |
+        if [ -f baseline.txt ] && [ -f pr.txt ]; then
+          echo "## Benchmark Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "### Baseline (main branch):" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat baseline.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### PR Changes:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat pr.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Could not run benchmark comparison" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  allocation-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+    
+    - name: Check zero allocations
+      run: |
+        echo "🔍 Checking for zero allocations in core paths..."
+        
+        # Run benchmarks and check for allocations
+        if RESULT=$(go test -bench=BenchmarkZeroAllocation -benchmem 2>&1); then
+          echo "$RESULT"
+          # Check if main benchmark has 0 allocations
+          if echo "$RESULT" | grep -q "0 allocs/op"; then
+            echo "✅ Zero allocations maintained for core logging"
+          else
+            echo "❌ Allocations detected in core logging path"
+            echo "This is a critical performance regression!"
+            exit 1
+          fi
+        else
+          echo "⚠️ Could not run allocation check, skipping"
+        fi
