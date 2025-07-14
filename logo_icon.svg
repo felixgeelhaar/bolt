@@ -1,0 +1,45 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Performance gradient -->
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0099FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0066FF;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Speed accent -->
+    <linearGradient id="iconSpeedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect for icon -->
+    <filter id="iconGlow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#iconGradient)" opacity="0.1" stroke="url(#iconGradient)" stroke-width="2"/>
+  
+  <!-- Main L shape - centered and scaled -->
+  <g transform="translate(16, 16)">
+    <path d="M8 8 L8 32 L28 32 L28 27 L13 27 L13 8 Z" fill="url(#iconGradient)" filter="url(#iconGlow)" stroke-width="1"/>
+    
+    <!-- Speed indicators -->
+    <g opacity="0.9">
+      <!-- Performance speed lines -->
+      <path d="M20 12 L35 10 L33 13 L35 10 L33 7" stroke="url(#iconSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M20 18 L32 16 L30 19 L32 16 L30 13" stroke="url(#iconSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M20 24 L28 22 L26 25 L28 22 L26 19" stroke="url(#iconSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    
+    <!-- Zero-allocation dots -->
+    <circle cx="32" cy="20" r="2.5" fill="url(#iconSpeedGradient)" opacity="0.8"/>
+    <circle cx="36" cy="12" r="1.5" fill="url(#iconGradient)" opacity="0.7"/>
+  </g>
+</svg>

@@ -11,7 +11,9 @@ import (
 )
 
 func BenchmarkLogma(b *testing.B) {
-	logger := New(NewJSONHandler(&bytes.Buffer{}))
+	config := DefaultEncoderConfig()
+	config.IncludeTime = false // Disable timestamps to match Zerolog benchmark
+	logger := New(NewJSONHandlerWithConfig(&bytes.Buffer{}, config))
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -20,11 +22,24 @@ func BenchmarkLogma(b *testing.B) {
 }
 
 func BenchmarkLogma5Fields(b *testing.B) {
-	logger := New(NewJSONHandler(&bytes.Buffer{}))
+	config := DefaultEncoderConfig()
+	config.IncludeTime = false // Disable timestamps to match Zerolog benchmark
+	logger := New(NewJSONHandlerWithConfig(&bytes.Buffer{}, config))
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		logger.Info().Str("f1", "v1").Str("f2", "v2").Str("f3", "v3").Str("f4", "v4").Str("f5", "v5").Msg("hello world")
+	}
+}
+
+func BenchmarkLogmaWithTimestamp(b *testing.B) {
+	config := DefaultEncoderConfig()
+	config.IncludeTime = true // Enable timestamps with allocation-free RFC3339
+	logger := New(NewJSONHandlerWithConfig(&bytes.Buffer{}, config))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		logger.Info().Str("foo", "bar").Int("baz", 123).Msg("hello world")
 	}
 }
 
@@ -66,15 +81,15 @@ func BenchmarkZerologDisabled(b *testing.B) {
 
 func BenchmarkZap(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
@@ -94,15 +109,15 @@ func BenchmarkZap(b *testing.B) {
 
 func BenchmarkZap5Fields(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
@@ -122,15 +137,15 @@ func BenchmarkZap5Fields(b *testing.B) {
 
 func BenchmarkZapDisabled(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}

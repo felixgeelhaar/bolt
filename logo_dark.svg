@@ -1,0 +1,80 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Dark theme performance gradient -->
+    <linearGradient id="darkPerformanceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00FFFF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00CCFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0099FF;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Dark theme speed accent -->
+    <linearGradient id="darkSpeedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF8A50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFB84D;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Enhanced glow for dark theme -->
+    <filter id="darkGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Dark background -->
+  <rect width="200" height="60" fill="#1a1a1a" rx="8"/>
+  
+  <!-- Main logo container -->
+  <g transform="translate(10, 10)">
+    
+    <!-- Logma icon - stylized "L" with performance elements -->
+    <g transform="translate(0, 5)">
+      <!-- Main L shape with enhanced glow for dark theme -->
+      <path d="M5 5 L5 35 L25 35 L25 30 L10 30 L10 5 Z" fill="url(#darkPerformanceGradient)" filter="url(#darkGlow)"/>
+      
+      <!-- Speed/performance indicators with enhanced visibility -->
+      <g opacity="0.9">
+        <!-- Top speed line -->
+        <path d="M15 8 L35 6 L33 9 L35 6 L33 3" stroke="url(#darkSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Middle speed line -->
+        <path d="M15 15 L30 13 L28 16 L30 13 L28 10" stroke="url(#darkSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Bottom speed line -->
+        <path d="M15 22 L25 20 L23 23 L25 20 L23 17" stroke="url(#darkSpeedGradient)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </g>
+      
+      <!-- Zero-allocation indicator with glow -->
+      <circle cx="30" cy="25" r="3" fill="url(#darkSpeedGradient)" opacity="0.8" filter="url(#darkGlow)"/>
+      <circle cx="35" cy="15" r="2" fill="url(#darkPerformanceGradient)" opacity="0.7"/>
+    </g>
+    
+    <!-- LOGMA text in white -->
+    <g transform="translate(45, 0)">
+      <text x="0" y="25" font-family="'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif" 
+            font-size="24" font-weight="700" fill="#FFFFFF" letter-spacing="-0.02em">
+        LOGMA
+      </text>
+      
+      <!-- Performance tagline in light gray -->
+      <text x="0" y="40" font-family="'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif" 
+            font-size="8" font-weight="500" fill="#CCCCCC" letter-spacing="0.1em" opacity="0.9">
+        ZERO-ALLOCATION LOGGING
+      </text>
+    </g>
+    
+    <!-- Tech accent elements with glow -->
+    <g opacity="0.6">
+      <!-- Performance metric visualization -->
+      <rect x="150" y="15" width="2" height="8" fill="url(#darkPerformanceGradient)" rx="1" filter="url(#darkGlow)"/>
+      <rect x="153" y="12" width="2" height="11" fill="url(#darkPerformanceGradient)" rx="1" filter="url(#darkGlow)"/>
+      <rect x="156" y="18" width="2" height="5" fill="url(#darkPerformanceGradient)" rx="1" filter="url(#darkGlow)"/>
+      <rect x="159" y="10" width="2" height="13" fill="url(#darkPerformanceGradient)" rx="1" filter="url(#darkGlow)"/>
+      <rect x="162" y="16" width="2" height="7" fill="url(#darkPerformanceGradient)" rx="1" filter="url(#darkGlow)"/>
+    </g>
+    
+  </g>
+  
+  <!-- Subtle border with glow -->
+  <rect width="200" height="60" fill="none" stroke="url(#darkPerformanceGradient)" stroke-width="1" rx="8" opacity="0.3"/>
+</svg>
