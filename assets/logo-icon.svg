@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon version - just the L symbol -->
+  <g transform="translate(16, 16)">
+    <!-- Modern L shape -->
+    <path d="M0 0 L0 24 L20 24 L20 18 L6 18 L6 0 Z" 
+          fill="#2563EB" 
+          stroke="none"/>
+    <!-- Accent dot -->
+    <circle cx="24" cy="22" r="3" fill="#DC2626"/>
+  </g>
+</svg>
