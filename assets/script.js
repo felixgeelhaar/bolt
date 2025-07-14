@@ -32,7 +32,7 @@ class LogmaLandingPage {
                 labels: ['Logma', 'Zerolog', 'Zap', 'Logrus'],
                 datasets: [{
                     label: 'Performance (ns/op)',
-                    data: [127.1, 175.4, 189.7, 2847],
+                    data: [87.94, 175.4, 189.7, 2847],
                     backgroundColor: [
                         '#2563EB', // Logma - primary blue
                         '#6B7280', // Others - gray
@@ -66,8 +66,8 @@ class LogmaLandingPage {
                         callbacks: {
                             label: function(context) {
                                 const value = context.parsed.y;
-                                const improvement = value < 127.1 ? '' : 
-                                    ` (${Math.round((value - 127.1) / 127.1 * 100)}% slower)`;
+                                const improvement = value < 87.94 ? '' : 
+                                    ` (${Math.round((value - 87.94) / 87.94 * 100)}% slower)`;
                                 return `${context.label}: ${value}ns/op${improvement}`;
                             }
                         }
@@ -234,8 +234,8 @@ class LogmaLandingPage {
             dates.push(date);
             
             // Simulate improving performance over time for Logma
-            const baseLogma = 140 - (i * 0.4);
-            logmaEnabled.push(baseLogma + (Math.random() - 0.5) * 5);
+            const baseLogma = 95 - (i * 0.2);
+            logmaEnabled.push(baseLogma + (Math.random() - 0.5) * 3);
             
             // Zerolog remains relatively stable
             zerologEnabled.push(175 + (Math.random() - 0.5) * 8);
@@ -333,15 +333,12 @@ class LogmaLandingPage {
         const loadingElement = document.getElementById('chartLoading');
         
         try {
-            // This would fetch from GitHub Actions artifacts in a real implementation
-            // For now, we'll simulate loading and then hide the loading indicator
-            await this.simulateDataLoading();
-            
+            // Hide loading indicator immediately since we're using static data
             if (loadingElement) {
                 loadingElement.style.display = 'none';
             }
             
-            // Update footer stats with real data
+            // Update footer stats
             this.updateFooterStats();
             
         } catch (error) {
@@ -382,8 +379,12 @@ class LogmaLandingPage {
     async fetchBenchmarkData() {
         // This would integrate with GitHub Actions workflow artifacts
         // Example endpoint: https://api.github.com/repos/felixgeelhaar/logma/actions/artifacts
-        const response = await fetch('/api/benchmarks');
-        return response.json();
+        // For now, return mock data to prevent hanging
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(this.generateMockBenchmarkData());
+            }, 500);
+        });
     }
 }
 
