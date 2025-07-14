@@ -83,27 +83,58 @@ class LogmaLandingPage {
                             <span>Zerolog (stable)</span>
                         </div>
                     </div>
-                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 20px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 400 200" preserveAspectRatio="none">
+                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 420 200" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
                                 <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0" />
                             </linearGradient>
                         </defs>
+                        
+                        <!-- Y-axis grid lines and labels -->
+                        <g stroke="#E5E7EB" stroke-width="0.5">
+                            <line x1="40" y1="40" x2="400" y2="40"/>
+                            <line x1="40" y1="80" x2="400" y2="80"/>
+                            <line x1="40" y1="120" x2="400" y2="120"/>
+                            <line x1="40" y1="160" x2="400" y2="160"/>
+                        </g>
+                        
+                        <!-- Y-axis labels (ns/op values) -->
+                        <text x="35" y="45" font-size="9" fill="#6B7280" text-anchor="end">50ns</text>
+                        <text x="35" y="85" font-size="9" fill="#6B7280" text-anchor="end">100ns</text>
+                        <text x="35" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
+                        <text x="35" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
+                        
+                        <!-- Y-axis line -->
+                        <line x1="40" y1="40" x2="40" y2="170" stroke="#9CA3AF" stroke-width="1"/>
+                        
                         <!-- Logma trend line (improving - going down is better) -->
-                        <path d="M0,80 Q100,95 200,120 T400,150" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M0,80 Q100,95 200,120 T400,150 L400,200 L0,200 Z" fill="url(#logmaGradient)"/>
-                        <!-- Zerolog trend line (stable) -->
-                        <path d="M0,120 Q100,115 200,118 T400,115" stroke="#6B7280" stroke-width="2" fill="none"/>
-                        <!-- Data points -->
-                        <circle cx="0" cy="80" r="4" fill="#2563EB"/>
-                        <circle cx="100" cy="95" r="4" fill="#2563EB"/>
-                        <circle cx="200" cy="120" r="4" fill="#2563EB"/>
-                        <circle cx="300" cy="135" r="4" fill="#2563EB"/>
-                        <circle cx="400" cy="150" r="4" fill="#2563EB"/>
-                        <!-- Labels -->
-                        <text x="20" y="190" font-size="10" fill="#6B7280">30 days ago (slower)</text>
-                        <text x="320" y="190" font-size="10" fill="#6B7280">Today (faster)</text>
+                        <!-- Scale: 50ns=40px, 100ns=80px, 150ns=120px, 200ns=160px -->
+                        <path d="M40,160 Q140,135 240,100 T400,70" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M40,160 Q140,135 240,100 T400,70 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
+                        
+                        <!-- Zerolog trend line (stable around 175ns) -->
+                        <path d="M40,145 Q140,148 240,142 T400,145" stroke="#6B7280" stroke-width="2" fill="none"/>
+                        
+                        <!-- Data points with values -->
+                        <circle cx="40" cy="160" r="3" fill="#2563EB"/>
+                        <circle cx="140" cy="135" r="3" fill="#2563EB"/>
+                        <circle cx="240" cy="100" r="3" fill="#2563EB"/>
+                        <circle cx="340" cy="85" r="3" fill="#2563EB"/>
+                        <circle cx="400" cy="70" r="3" fill="#2563EB"/>
+                        
+                        <!-- Value labels on data points -->
+                        <text x="45" y="155" font-size="8" fill="#2563EB" font-weight="bold">200ns</text>
+                        <text x="245" y="95" font-size="8" fill="#2563EB" font-weight="bold">150ns</text>
+                        <text x="405" y="65" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
+                        
+                        <!-- Time axis labels -->
+                        <text x="60" y="185" font-size="10" fill="#6B7280">30 days ago</text>
+                        <text x="350" y="185" font-size="10" fill="#6B7280">Today</text>
+                        
+                        <!-- Axis labels -->
+                        <text x="220" y="195" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold">Time</text>
+                        <text x="15" y="105" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold" transform="rotate(-90 15 105)">Performance (ns/op)</text>
                     </svg>
                 </div>
             `;
