@@ -126,7 +126,15 @@ class LogmaLandingPage {
                         <path d="M40,120 Q130,100 220,85 T400,75 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
                         
                         <!-- Zerolog reference line (stable around 175ns) -->
-                        <path d="M40,150 L400,150" stroke="#6B7280" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                        <path d="M40,148 L400,148" stroke="#6B7280" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                        
+                        <!-- Zerolog reference points -->
+                        <circle cx="40" cy="148" r="2" fill="#6B7280"/>
+                        <circle cx="220" cy="148" r="2" fill="#6B7280"/>
+                        <circle cx="400" cy="148" r="2" fill="#6B7280"/>
+                        
+                        <!-- Zerolog reference label -->
+                        <text x="410" y="153" font-size="8" fill="#6B7280" font-weight="bold">175ns</text>
                         
                         <!-- Data points with values - realistic timeline -->
                         <circle cx="40" cy="120" r="3" fill="#2563EB"/>
