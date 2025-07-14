@@ -203,9 +203,13 @@ class LogmaLandingPage {
             if (response.ok) {
                 const data = await response.json();
                 this.updateChartsWithLiveData(data);
+                console.log('Loaded live benchmark data:', data.logma_ns_per_op + 'ns/op');
+            } else {
+                console.log('Live benchmark data not available, using static values');
             }
         } catch (error) {
-            console.log('Using static benchmark data');
+            // Silently handle 404 - this is expected when no live data exists yet
+            console.log('Using static benchmark data (live data will be available after next CI run)');
         }
         
         // Update footer stats

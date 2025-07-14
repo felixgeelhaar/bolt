@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-07-14T12:00:00Z",
+  "logma_ns_per_op": 62.96,
+  "zerolog_ns_per_op": 175.4,
+  "improvement_percent": 64,
+  "source": "static-placeholder",
+  "commit": "placeholder"
+}
