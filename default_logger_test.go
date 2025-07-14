@@ -39,7 +39,7 @@ func TestDefaultLogger_Isatty(t *testing.T) {
 
 	t.Run("isatty true", func(t *testing.T) {
 		// Mock isatty to return true
-		isTerminal = func(f *os.File) bool { return true }
+		isTerminal = func(*os.File) bool { return true }
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*ConsoleHandler); !ok {
@@ -49,7 +49,7 @@ func TestDefaultLogger_Isatty(t *testing.T) {
 
 	t.Run("isatty false", func(t *testing.T) {
 		// Mock isatty to return false
-		isTerminal = func(f *os.File) bool { return false }
+		isTerminal = func(*os.File) bool { return false }
 		initDefaultLogger()
 
 		if _, ok := defaultLogger.handler.(*JSONHandler); !ok {

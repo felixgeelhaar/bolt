@@ -2,12 +2,12 @@ package logma
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
 	"runtime"
 	"strconv"
@@ -29,6 +29,17 @@ const (
 	DefaultFilePermissions = 0644
 )
 
+// Level string constants
+const (
+	traceStr   = "trace"
+	debugStr   = "debug"
+	infoStr    = "info"
+	warnStr    = "warn"
+	errorStr   = "error"
+	fatalStr   = "fatal"
+	consoleStr = "console"
+)
+
 // Fast number conversion helpers to avoid allocations
 var digits = "0123456789"
 
@@ -37,13 +48,13 @@ func appendInt(buf []byte, i int) []byte {
 	if i == 0 {
 		return append(buf, '0')
 	}
-	
+
 	// Handle negative numbers
 	if i < 0 {
 		buf = append(buf, '-')
 		i = -i
 	}
-	
+
 	// Fast path for small numbers (0-99) - most common case
 	if i < 100 {
 		if i < 10 {
@@ -51,14 +62,14 @@ func appendInt(buf []byte, i int) []byte {
 		}
 		return append(buf, digits[i/10], digits[i%10])
 	}
-	
+
 	// For larger numbers, build from the end
 	start := len(buf)
 	for i > 0 {
 		buf = append(buf, digits[i%10])
 		i /= 10
 	}
-	
+
 	// Reverse the digits we just added
 	end := len(buf) - 1
 	for start < end {
@@ -66,7 +77,7 @@ func appendInt(buf []byte, i int) []byte {
 		start++
 		end--
 	}
-	
+
 	return buf
 }
 
@@ -75,7 +86,7 @@ func appendUint(buf []byte, i uint64) []byte {
 	if i == 0 {
 		return append(buf, '0')
 	}
-	
+
 	// Fast path for small numbers (0-99) - most common case
 	if i < 100 {
 		if i < 10 {
@@ -83,14 +94,14 @@ func appendUint(buf []byte, i uint64) []byte {
 		}
 		return append(buf, digits[i/10], digits[i%10])
 	}
-	
+
 	// For larger numbers, build from the end
 	start := len(buf)
 	for i > 0 {
 		buf = append(buf, digits[i%10])
 		i /= 10
 	}
-	
+
 	// Reverse the digits we just added
 	end := len(buf) - 1
 	for start < end {
@@ -98,7 +109,7 @@ func appendUint(buf []byte, i uint64) []byte {
 		start++
 		end--
 	}
-	
+
 	return buf
 }
 
@@ -113,47 +124,47 @@ func appendBool(buf []byte, b bool) []byte {
 // RFC3339 timestamp formatting without allocations
 func appendRFC3339(buf []byte, t time.Time) []byte {
 	year, month, day := t.Date()
-	hour, min, sec := t.Clock()
+	hour, minute, sec := t.Clock()
 	nano := t.Nanosecond()
-	
+
 	// Year
 	buf = appendInt(buf, year)
 	buf = append(buf, '-')
-	
+
 	// Month
 	if month < 10 {
 		buf = append(buf, '0')
 	}
 	buf = appendInt(buf, int(month))
 	buf = append(buf, '-')
-	
+
 	// Day
 	if day < 10 {
 		buf = append(buf, '0')
 	}
 	buf = appendInt(buf, day)
 	buf = append(buf, 'T')
-	
+
 	// Hour
 	if hour < 10 {
 		buf = append(buf, '0')
 	}
 	buf = appendInt(buf, hour)
 	buf = append(buf, ':')
-	
+
 	// Minute
-	if min < 10 {
+	if minute < 10 {
 		buf = append(buf, '0')
 	}
-	buf = appendInt(buf, min)
+	buf = appendInt(buf, minute)
 	buf = append(buf, ':')
-	
+
 	// Second
 	if sec < 10 {
 		buf = append(buf, '0')
 	}
 	buf = appendInt(buf, sec)
-	
+
 	// Nanoseconds (if any)
 	if nano != 0 {
 		buf = append(buf, '.')
@@ -164,7 +175,7 @@ func appendRFC3339(buf []byte, t time.Time) []byte {
 			buf = buf[:len(buf)-1]
 		}
 	}
-	
+
 	buf = append(buf, 'Z')
 	return buf
 }
@@ -176,17 +187,17 @@ type Level int8
 func (l Level) String() string {
 	switch l {
 	case TRACE:
-		return "trace"
+		return traceStr
 	case DEBUG:
-		return "debug"
+		return debugStr
 	case INFO:
-		return "info"
+		return infoStr
 	case WARN:
-		return "warn"
+		return warnStr
 	case ERROR:
-		return "error"
+		return errorStr
 	case FATAL:
-		return "fatal"
+		return fatalStr
 	default:
 		return ""
 	}
@@ -473,7 +484,7 @@ func (e *Event) Msg(message string) {
 	e.buf = append(e.buf, '\n')
 
 	// Pass the event to the handler.
-	e.l.handler.Write(e)
+	_ = e.l.handler.Write(e) // Ignore error to maintain performance
 
 	// Reset the buffer and put the event back into the pool.
 	e.buf = e.buf[:0]
@@ -524,31 +535,31 @@ func (h *ConsoleHandler) Write(e *Event) error {
 	timestamp := time.Now().Format("2006-01-02T15:04:05Z")
 
 	// Write level and timestamp
-	h.out.Write([]byte(fmt.Sprintf("%s%s\x1b[0m[%s] ", color, level, timestamp)))
+	_, _ = h.out.Write([]byte(fmt.Sprintf("%s%s\x1b[0m[%s] ", color, level, timestamp)))
 
 	// Write message
-	h.out.Write([]byte(message))
+	_, _ = h.out.Write([]byte(message))
 
 	// Write fields
 	for k, v := range data {
 		if k != "level" && k != "message" {
-			h.out.Write([]byte(fmt.Sprintf(" %s=%v", k, v)))
+			_, _ = h.out.Write([]byte(fmt.Sprintf(" %s=%v", k, v)))
 		}
 	}
-	h.out.Write([]byte("\n"))
+	_, _ = h.out.Write([]byte("\n"))
 
 	return nil
 }
 
 func getColorForLevel(level string) string {
 	switch level {
-	case "info":
+	case infoStr:
 		return "\x1b[34m" // Blue
-	case "warn":
+	case warnStr:
 		return "\x1b[33m" // Yellow
-	case "error", "fatal":
+	case errorStr, fatalStr:
 		return "\x1b[31m" // Red
-	case "debug", "trace":
+	case debugStr, traceStr:
 		return "\x1b[90m" // Bright Black (Gray)
 	default:
 		return "\x1b[0m" // Reset
@@ -567,17 +578,17 @@ var isTerminal = isatty
 // ParseLevel converts a string to a Level.
 func ParseLevel(levelStr string) Level {
 	switch levelStr {
-	case "trace":
+	case traceStr:
 		return TRACE
-	case "debug":
+	case debugStr:
 		return DEBUG
-	case "info":
+	case infoStr:
 		return INFO
-	case "warn":
+	case warnStr:
 		return WARN
-	case "error":
+	case errorStr:
 		return ERROR
-	case "fatal":
+	case fatalStr:
 		return FATAL
 	default:
 		return INFO // Default to INFO if the level is not recognized
@@ -589,7 +600,7 @@ func initDefaultLogger() {
 	format := os.Getenv("LOGMA_FORMAT")
 	if format == "" {
 		if isTerminal(os.Stdout) {
-			format = "console"
+			format = consoleStr
 		} else {
 			format = "json"
 		}
@@ -598,7 +609,7 @@ func initDefaultLogger() {
 	level := ParseLevel(os.Getenv("LOGMA_LEVEL"))
 
 	switch format {
-	case "console":
+	case consoleStr:
 		defaultLogger = New(NewConsoleHandler(os.Stdout)).SetLevel(level)
 	default:
 		// Default to JSON if the format is not specified or is "json"
@@ -713,7 +724,7 @@ func (e *Event) RandID(key string) *Event {
 	}
 	// Generate a random 8-byte ID
 	id := make([]byte, 8)
-	rand.Read(id)
+	_, _ = rand.Read(id) // crypto/rand.Read never fails
 	return e.Hex(key, id)
 }
 

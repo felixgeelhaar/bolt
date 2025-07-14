@@ -13,11 +13,9 @@ linters-settings:
   goimports:
     local-prefixes: github.com/felixgeelhaar/logma
   
-  golint:
-    min-confidence: 0
-  
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
   
   misspell:
     locale: US
@@ -32,14 +30,11 @@ linters:
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
     - errcheck
-    - gochecknoinits
     - goconst
     - gocyclo
     - gofmt
     - goimports
-    - golint
     - gosec
     - gosimple
     - govet
@@ -47,17 +42,17 @@ linters:
     - misspell
     - nolintlint
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
+    - revive  # Replacement for golint
   
   disable:
-    - gochecknoglobals  # We need some globals for performance (pools, etc)
-    - funlen           # Some functions are necessarily long for performance
-    - cyclop           # Duplicate of gocyclo
+    - gochecknoinits   # We need init for default logger
+    - gochecknoglobals # We need some globals for performance (pools, etc)
+    - funlen          # Some functions are necessarily long for performance
+    - cyclop          # Duplicate of gocyclo
 
 issues:
   exclude-rules:

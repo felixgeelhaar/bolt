@@ -59,11 +59,11 @@ func TestJSONHandler(t *testing.T) {
 		traceID := trace.TraceID([16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
 		spanID := trace.SpanID([8]byte{1, 2, 3, 4, 5, 6, 7, 8})
 		scc := trace.NewSpanContext(trace.SpanContextConfig{
-			TraceID: traceID,
-			SpanID:  spanID,
+			TraceID:    traceID,
+			SpanID:     spanID,
 			TraceFlags: trace.FlagsSampled,
 		})
-		ctx := trace.ContextWithSpanContext(context.Background(), scc);
+		ctx := trace.ContextWithSpanContext(context.Background(), scc)
 
 		logger.Ctx(ctx).Info().Msg("doing work inside a trace")
 
@@ -77,7 +77,7 @@ func TestJSONHandler(t *testing.T) {
 	t.Run("log with bool field", func(t *testing.T) {
 		buf.Reset()
 		logger.Info().Bool("is_active", true).Msg("user status")
-		expected := `{"level":"info","is_active":true,"message":"user status"}`+"\n"
+		expected := `{"level":"info","is_active":true,"message":"user status"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -86,7 +86,7 @@ func TestJSONHandler(t *testing.T) {
 	t.Run("log with float64 field", func(t *testing.T) {
 		buf.Reset()
 		logger.Info().Float64("price", 99.99).Msg("item price")
-		expected := `{"level":"info","price":99.99,"message":"item price"}`+"\n"
+		expected := `{"level":"info","price":99.99,"message":"item price"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -96,7 +96,7 @@ func TestJSONHandler(t *testing.T) {
 		buf.Reset()
 		eventTime := time.Date(2025, time.July, 13, 15, 30, 0, 0, time.UTC)
 		logger.Info().Time("event_time", eventTime).Msg("event occurred")
-		expected := `{"level":"info","event_time":"2025-07-13T15:30:00Z","message":"event occurred"}`+"\n"
+		expected := `{"level":"info","event_time":"2025-07-13T15:30:00Z","message":"event occurred"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -106,7 +106,7 @@ func TestJSONHandler(t *testing.T) {
 		buf.Reset()
 		d := 5 * time.Second
 		logger.Info().Dur("duration", d).Msg("operation took")
-		expected := `{"level":"info","duration":5000000000,"message":"operation took"}`+"\n"
+		expected := `{"level":"info","duration":5000000000,"message":"operation took"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -115,7 +115,7 @@ func TestJSONHandler(t *testing.T) {
 	t.Run("log with uint field", func(t *testing.T) {
 		buf.Reset()
 		logger.Info().Uint("count", 12345).Msg("item count")
-		expected := `{"level":"info","count":12345,"message":"item count"}`+"\n"
+		expected := `{"level":"info","count":12345,"message":"item count"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -129,7 +129,7 @@ func TestJSONHandler(t *testing.T) {
 		}
 		user := User{Name: "John Doe", Age: 30}
 		logger.Info().Any("user", user).Msg("user info")
-		expected := `{"level":"info","user":{"name":"John Doe","age":30},"message":"user info"}`+"\n"
+		expected := `{"level":"info","user":{"name":"John Doe","age":30},"message":"user info"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}

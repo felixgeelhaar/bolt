@@ -68,15 +68,15 @@ func BenchmarkZerologDisabled(b *testing.B) {
 
 func BenchmarkZap(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
@@ -96,15 +96,15 @@ func BenchmarkZap(b *testing.B) {
 
 func BenchmarkZap5Fields(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
@@ -124,15 +124,15 @@ func BenchmarkZap5Fields(b *testing.B) {
 
 func BenchmarkZapDisabled(b *testing.B) {
 	encoderCfg := zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey:   "level",
-		TimeKey:    "time",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		StacktraceKey: "stacktrace",
-		LineEnding:    zapcore.DefaultLineEnding,
-		EncodeLevel:   zapcore.LowercaseLevelEncoder,
-		EncodeTime:    zapcore.ISO8601TimeEncoder,
+		MessageKey:     "message",
+		LevelKey:       "level",
+		TimeKey:        "time",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
