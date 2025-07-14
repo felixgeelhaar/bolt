@@ -397,6 +397,21 @@ body {
     contain: layout style size;
 }
 
+.benchmark-chart-container *,
+.trend-chart *,
+.trend-content * {
+    transition: none !important;
+    animation: none !important;
+    height: auto !important;
+    max-height: unset !important;
+}
+
+.benchmark-chart-container .trend-chart,
+.benchmark-chart-container .trend-content {
+    height: 300px !important;
+    max-height: 300px !important;
+}
+
 .chart-title {
     margin-bottom: var(--space-4);
     font-size: 1.25rem;
