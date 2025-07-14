@@ -92,17 +92,13 @@ jobs:
           cat benchmark.txt
         fi
     
-    - name: Store benchmark result
+    - name: Upload benchmark results
       if: hashFiles('benchmark.txt') != ''
-      uses: benchmark-action/github-action-benchmark@v1
+      uses: actions/upload-artifact@v4
       with:
-        tool: 'go'
-        output-file-path: benchmark.txt
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        auto-push: false  # Don't auto-push to avoid permission issues
-        comment-on-alert: true
-        alert-threshold: '200%'  # More lenient threshold
-        fail-on-alert: false     # Don't fail the build on performance regression
+        name: benchmark-results
+        path: benchmark.txt
+        retention-days: 30
 
   cross-platform:
     runs-on: ${{ matrix.os }}
