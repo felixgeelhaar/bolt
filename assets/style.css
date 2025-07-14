@@ -268,15 +268,18 @@ body {
     width: 100%;
     max-width: 500px;
     height: 300px;
+    min-height: 300px;
     background: white;
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
     padding: var(--space-6);
     border: 1px solid var(--gray-200);
+    contain: layout style;
 }
 
 .simple-chart {
     height: 100%;
+    min-height: 260px;
     width: 100%;
     display: flex;
     align-items: end;
@@ -285,6 +288,7 @@ body {
     border-radius: 12px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 1px solid #e2e8f0;
+    contain: layout style;
 }
 
 .chart-bar {
@@ -332,6 +336,8 @@ body {
 
 .trend-chart {
     height: 300px;
+    min-height: 300px;
+    max-height: 300px;
     width: 100%;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-radius: 12px;
@@ -341,6 +347,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 .trend-content {
@@ -374,6 +381,21 @@ body {
 
 .legend-color.logma { background: #2563EB; }
 .legend-color.zerolog { background: #6B7280; }
+
+/* Chart Containers */
+.benchmark-chart-container {
+    margin-top: var(--space-12);
+    height: 360px;
+    min-height: 360px;
+    position: relative;
+}
+
+.chart-title {
+    margin-bottom: var(--space-4);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
 
 /* Sections */
 .section-header {

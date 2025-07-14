@@ -26,6 +26,10 @@ class LogmaLandingPage {
         const container = document.getElementById('performanceChart');
         if (!container) return;
 
+        // Set fixed height immediately to prevent layout shift
+        container.style.height = '100%';
+        container.style.minHeight = '260px';
+
         const data = [
             { label: 'Logma', value: logmaValue, class: 'logma' },
             { label: 'Zerolog', value: 175.4, class: 'other' },
@@ -36,62 +40,72 @@ class LogmaLandingPage {
         const maxValue = Math.max(...data.map(d => d.value));
         const logScale = (value) => Math.log(value) / Math.log(maxValue) * 200 + 20;
 
-        container.innerHTML = data.map(item => {
-            const height = logScale(item.value);
-            const improvement = item.value > logmaValue ? 
-                ` (${Math.round((item.value - logmaValue) / logmaValue * 100)}% slower)` : '';
-            
-            return `
-                <div class="chart-bar" title="${item.label}: ${item.value}ns/op${improvement}">
-                    <div class="bar ${item.class}" style="height: ${height}px;">
-                        <div class="bar-value">${item.value}ns</div>
+        // Use requestAnimationFrame for smooth rendering
+        requestAnimationFrame(() => {
+            container.innerHTML = data.map(item => {
+                const height = logScale(item.value);
+                const improvement = item.value > logmaValue ? 
+                    ` (${Math.round((item.value - logmaValue) / logmaValue * 100)}% slower)` : '';
+                
+                return `
+                    <div class="chart-bar" title="${item.label}: ${item.value}ns/op${improvement}">
+                        <div class="bar ${item.class}" style="height: ${height}px;">
+                            <div class="bar-value">${item.value}ns</div>
+                        </div>
+                        <div class="bar-label">${item.label}</div>
                     </div>
-                    <div class="bar-label">${item.label}</div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        });
     }
 
     initBenchmarkTrendChart() {
         const container = document.getElementById('benchmarkChart');
         if (!container) return;
 
-        container.innerHTML = `
-            <div class="trend-content">
-                <div class="trend-legend">
-                    <div class="legend-item">
-                        <div class="legend-color logma"></div>
-                        <span>Logma (trending down)</span>
+        // Set fixed dimensions immediately to prevent layout shift
+        container.style.height = '300px';
+        container.style.minHeight = '300px';
+        
+        // Use requestAnimationFrame to ensure smooth rendering
+        requestAnimationFrame(() => {
+            container.innerHTML = `
+                <div class="trend-content" style="height: 100%; position: relative;">
+                    <div class="trend-legend">
+                        <div class="legend-item">
+                            <div class="legend-color logma"></div>
+                            <span>Logma (trending down)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color zerolog"></div>
+                            <span>Zerolog (stable)</span>
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color zerolog"></div>
-                        <span>Zerolog (stable)</span>
-                    </div>
+                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 20px; right: 20px;" viewBox="0 0 400 200" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Logma trend line (improving) -->
+                        <path d="M0,150 Q100,120 200,95 T400,80" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M0,150 Q100,120 200,95 T400,80 L400,200 L0,200 Z" fill="url(#logmaGradient)"/>
+                        <!-- Zerolog trend line (stable) -->
+                        <path d="M0,120 Q100,115 200,118 T400,115" stroke="#6B7280" stroke-width="2" fill="none"/>
+                        <!-- Data points -->
+                        <circle cx="0" cy="150" r="4" fill="#2563EB"/>
+                        <circle cx="100" cy="120" r="4" fill="#2563EB"/>
+                        <circle cx="200" cy="95" r="4" fill="#2563EB"/>
+                        <circle cx="300" cy="85" r="4" fill="#2563EB"/>
+                        <circle cx="400" cy="80" r="4" fill="#2563EB"/>
+                        <!-- Labels -->
+                        <text x="20" y="190" font-size="10" fill="#6B7280">30 days ago</text>
+                        <text x="350" y="190" font-size="10" fill="#6B7280">Today</text>
+                    </svg>
                 </div>
-                <svg width="100%" height="200" style="position: absolute; bottom: 20px;">
-                    <defs>
-                        <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
-                            <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0" />
-                        </linearGradient>
-                    </defs>
-                    <!-- Logma trend line (improving) -->
-                    <path d="M0,150 Q100,120 200,95 T400,80" stroke="#2563EB" stroke-width="3" fill="none"/>
-                    <path d="M0,150 Q100,120 200,95 T400,80 L400,200 L0,200 Z" fill="url(#logmaGradient)"/>
-                    <!-- Zerolog trend line (stable) -->
-                    <path d="M0,120 Q100,115 200,118 T400,115" stroke="#6B7280" stroke-width="2" fill="none"/>
-                    <!-- Data points -->
-                    <circle cx="0" cy="150" r="4" fill="#2563EB"/>
-                    <circle cx="100" cy="120" r="4" fill="#2563EB"/>
-                    <circle cx="200" cy="95" r="4" fill="#2563EB"/>
-                    <circle cx="300" cy="85" r="4" fill="#2563EB"/>
-                    <circle cx="400" cy="80" r="4" fill="#2563EB"/>
-                    <!-- Labels -->
-                    <text x="20" y="190" font-size="10" fill="#6B7280">30 days ago</text>
-                    <text x="350" y="190" font-size="10" fill="#6B7280">Today</text>
-                </svg>
-            </div>
-        `;
+            `;
+        });
     }
 
 
