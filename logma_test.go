@@ -13,9 +13,12 @@ import (
 )
 
 func BenchmarkZeroAllocation(b *testing.B) {
+	var buf bytes.Buffer
+	logger := New(NewJSONHandler(&buf))
+	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		Info().Str("hello", "world").Msg("test")
+		logger.Info().Str("hello", "world").Msg("test")
 	}
 }
 
