@@ -38,7 +38,7 @@ class LogmaLandingPage {
         ];
 
         const maxValue = Math.max(...data.map(d => d.value));
-        const logScale = (value) => Math.log(value) / Math.log(maxValue) * 180 + 20; // Reduced from 200 to 180 to stay within bounds
+        const logScale = (value) => Math.log(value) / Math.log(maxValue) * 200 + 20; // Restored to 200px since container now accommodates
 
         // Use requestAnimationFrame for smooth rendering
         requestAnimationFrame(() => {
@@ -49,7 +49,7 @@ class LogmaLandingPage {
                 
                 return `
                     <div class="chart-bar" title="${item.label}: ${item.value}ns/op${improvement}">
-                        <div class="bar ${item.class}" style="height: ${height}px; max-height: 180px;">
+                        <div class="bar ${item.class}" style="height: ${height}px; max-height: 220px;">
                             <div class="bar-value">${item.value}ns</div>
                         </div>
                         <div class="bar-label">${item.label}</div>

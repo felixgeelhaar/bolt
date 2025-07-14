@@ -262,34 +262,37 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 350px; /* Ensure enough height for content */
+    height: auto; /* Allow height to adjust to content */
 }
 
 .performance-chart-container {
     width: 100%;
     max-width: 500px;
-    height: 300px;
-    min-height: 300px;
+    height: auto; /* Allow height to adjust to content */
+    min-height: 320px; /* Increased minimum height */
     background: white;
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
     padding: var(--space-6);
     border: 1px solid var(--gray-200);
-    contain: layout style;
+    contain: layout; /* Removed style containment that can cause overflow issues */
+    overflow: visible; /* Allow content to be visible */
 }
 
 .simple-chart {
-    height: 100%;
-    min-height: 260px;
+    height: auto; /* Allow height to adjust to content */
+    min-height: 280px; /* Increased minimum height for better bar accommodation */
     width: 100%;
     display: flex;
     align-items: end;
     justify-content: space-around;
-    padding: 30px 20px 20px 20px; /* Added top padding for value labels */
+    padding: 40px 20px 30px 20px; /* Increased padding for value labels and bars */
     border-radius: 12px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 1px solid #e2e8f0;
-    contain: layout style;
-    overflow: hidden; /* Ensure content stays within bounds */
+    contain: layout; /* Removed style containment */
+    overflow: visible; /* Allow bars to be fully visible */
 }
 
 .chart-bar {
