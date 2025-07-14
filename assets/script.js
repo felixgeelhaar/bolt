@@ -64,13 +64,15 @@ class LogmaLandingPage {
         if (!container) return;
 
         // Set fixed dimensions immediately to prevent layout shift
-        container.style.height = '300px';
-        container.style.minHeight = '300px';
+        container.style.height = '300px !important';
+        container.style.minHeight = '300px !important';
+        container.style.maxHeight = '300px !important';
+        container.style.overflow = 'hidden';
         
         // Use requestAnimationFrame to ensure smooth rendering
         requestAnimationFrame(() => {
             container.innerHTML = `
-                <div class="trend-content" style="height: 100%; position: relative;">
+                <div class="trend-content" style="height: 100% !important; max-height: 260px !important; position: relative; overflow: hidden !important;">
                     <div class="trend-legend">
                         <div class="legend-item">
                             <div class="legend-color logma"></div>
@@ -81,7 +83,7 @@ class LogmaLandingPage {
                             <span>Zerolog (stable)</span>
                         </div>
                     </div>
-                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 20px; right: 20px;" viewBox="0 0 400 200" preserveAspectRatio="none">
+                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 20px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 400 200" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
