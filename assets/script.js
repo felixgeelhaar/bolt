@@ -22,7 +22,7 @@ class LogmaLandingPage {
         this.initBenchmarkTrendChart();
     }
 
-    initPerformanceChart(logmaValue = 87.94) {
+    initPerformanceChart(logmaValue = 62.96) {
         const container = document.getElementById('performanceChart');
         if (!container) return;
 
@@ -128,23 +128,26 @@ class LogmaLandingPage {
                         
                         <!-- Logma trend line (improving - going down is better) -->
                         <!-- Scale: 50ns=40px, 100ns=80px, 150ns=120px, 200ns=160px -->
-                        <path d="M40,160 Q140,135 240,100 T400,70" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M40,160 Q140,135 240,100 T400,70 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
+                        <!-- Reversed: Start high (200ns) and end low (63ns) to show improvement -->
+                        <path d="M40,160 Q140,130 240,100 T400,50" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M40,160 Q140,130 240,100 T400,50 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
                         
                         <!-- Zerolog trend line (stable around 175ns) -->
                         <path d="M40,145 Q140,148 240,142 T400,145" stroke="#6B7280" stroke-width="2" fill="none"/>
                         
                         <!-- Data points with values -->
                         <circle cx="40" cy="160" r="3" fill="#2563EB"/>
-                        <circle cx="140" cy="135" r="3" fill="#2563EB"/>
+                        <circle cx="140" cy="130" r="3" fill="#2563EB"/>
                         <circle cx="240" cy="100" r="3" fill="#2563EB"/>
-                        <circle cx="340" cy="85" r="3" fill="#2563EB"/>
-                        <circle cx="400" cy="70" r="3" fill="#2563EB"/>
+                        <circle cx="340" cy="75" r="3" fill="#2563EB"/>
+                        <circle cx="400" cy="50" r="3" fill="#2563EB"/>
                         
                         <!-- Value labels on data points -->
                         <text x="45" y="155" font-size="8" fill="#2563EB" font-weight="bold">200ns</text>
+                        <text x="145" y="125" font-size="8" fill="#2563EB" font-weight="bold">170ns</text>
                         <text x="245" y="95" font-size="8" fill="#2563EB" font-weight="bold">150ns</text>
-                        <text x="390" y="65" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
+                        <text x="345" y="70" font-size="8" fill="#2563EB" font-weight="bold">100ns</text>
+                        <text x="390" y="45" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
                         
                         
                         <!-- Axis labels -->
