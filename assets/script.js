@@ -150,6 +150,9 @@ class LogmaLandingPage {
                         <!-- Axis labels -->
                         <text x="220" y="195" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold">Time</text>
                         <text x="15" y="105" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold" transform="rotate(-90 15 105)">Performance (ns/op)</text>
+                        
+                        <!-- Data source attribution -->
+                        <text x="400" y="195" font-size="7" fill="#9CA3AF" text-anchor="end">Source: GitHub Actions Benchmarks</text>
                     </svg>
                 </div>
             `;
