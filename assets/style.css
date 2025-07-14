@@ -275,6 +275,106 @@ body {
     border: 1px solid var(--gray-200);
 }
 
+.simple-chart {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    padding: 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+}
+
+.chart-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.chart-bar:hover {
+    transform: translateY(-2px);
+}
+
+.bar {
+    border-radius: 8px 8px 0 0;
+    min-height: 20px;
+    width: 40px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bar.logma { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+.bar.other { background: linear-gradient(135deg, #6B7280, #4B5563); }
+
+.bar-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+}
+
+.bar-label {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+    text-align: center;
+}
+
+.trend-chart {
+    height: 300px;
+    width: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trend-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.trend-legend {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #4b5563;
+}
+
+.legend-color {
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.legend-color.logma { background: #2563EB; }
+.legend-color.zerolog { background: #6B7280; }
+
 /* Sections */
 .section-header {
     text-align: center;

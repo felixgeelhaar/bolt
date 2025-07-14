@@ -17,9 +17,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="assets/style.css">
     
-    <!-- Chart.js for benchmark visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Lightweight chart rendering -->
 </head>
 <body>
     <!-- Navigation -->
@@ -76,7 +74,7 @@
             </div>
             <div class="hero-visual">
                 <div class="performance-chart-container">
-                    <canvas id="performanceChart"></canvas>
+                    <div id="performanceChart" class="simple-chart"></div>
                 </div>
             </div>
         </div>
@@ -209,11 +207,7 @@
             <!-- Live Benchmark Chart -->
             <div class="benchmark-chart-container">
                 <h3 class="chart-title">Performance Trends Over Time</h3>
-                <canvas id="benchmarkChart"></canvas>
-                <div class="chart-loading" id="chartLoading">
-                    <div class="spinner"></div>
-                    <p>Loading latest benchmark data...</p>
-                </div>
+                <div id="benchmarkChart" class="trend-chart"></div>
             </div>
         </div>
     </section>
