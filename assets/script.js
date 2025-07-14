@@ -91,12 +91,21 @@ class LogmaLandingPage {
                             </linearGradient>
                         </defs>
                         
-                        <!-- Y-axis grid lines and labels -->
+                        <!-- Grid lines -->
                         <g stroke="#E5E7EB" stroke-width="0.5">
+                            <!-- Y-axis grid lines -->
                             <line x1="40" y1="40" x2="400" y2="40"/>
                             <line x1="40" y1="80" x2="400" y2="80"/>
                             <line x1="40" y1="120" x2="400" y2="120"/>
                             <line x1="40" y1="160" x2="400" y2="160"/>
+                            
+                            <!-- X-axis grid lines -->
+                            <line x1="40" y1="40" x2="40" y2="170"/>
+                            <line x1="120" y1="40" x2="120" y2="170"/>
+                            <line x1="200" y1="40" x2="200" y2="170"/>
+                            <line x1="280" y1="40" x2="280" y2="170"/>
+                            <line x1="360" y1="40" x2="360" y2="170"/>
+                            <line x1="400" y1="40" x2="400" y2="170"/>
                         </g>
                         
                         <!-- Y-axis labels (ns/op values) -->
@@ -105,8 +114,17 @@ class LogmaLandingPage {
                         <text x="35" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
                         <text x="35" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
                         
-                        <!-- Y-axis line -->
+                        <!-- X-axis labels (time) -->
+                        <text x="40" y="185" font-size="9" fill="#6B7280" text-anchor="middle">30d</text>
+                        <text x="120" y="185" font-size="9" fill="#6B7280" text-anchor="middle">24d</text>
+                        <text x="200" y="185" font-size="9" fill="#6B7280" text-anchor="middle">18d</text>
+                        <text x="280" y="185" font-size="9" fill="#6B7280" text-anchor="middle">12d</text>
+                        <text x="360" y="185" font-size="9" fill="#6B7280" text-anchor="middle">6d</text>
+                        <text x="400" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Today</text>
+                        
+                        <!-- Axis lines -->
                         <line x1="40" y1="40" x2="40" y2="170" stroke="#9CA3AF" stroke-width="1"/>
+                        <line x1="40" y1="170" x2="400" y2="170" stroke="#9CA3AF" stroke-width="1"/>
                         
                         <!-- Logma trend line (improving - going down is better) -->
                         <!-- Scale: 50ns=40px, 100ns=80px, 150ns=120px, 200ns=160px -->
@@ -128,9 +146,6 @@ class LogmaLandingPage {
                         <text x="245" y="95" font-size="8" fill="#2563EB" font-weight="bold">150ns</text>
                         <text x="405" y="65" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
                         
-                        <!-- Time axis labels -->
-                        <text x="60" y="185" font-size="10" fill="#6B7280">30 days ago</text>
-                        <text x="350" y="185" font-size="10" fill="#6B7280">Today</text>
                         
                         <!-- Axis labels -->
                         <text x="220" y="195" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold">Time</text>
