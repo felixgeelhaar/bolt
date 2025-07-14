@@ -1,0 +1,143 @@
+name: Performance Issue
+description: Report performance problems or regressions
+title: "[PERF]: "
+labels: ["performance", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a performance issue! Performance is critical for Logma, so we take these reports seriously.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing
+      placeholder: Describe the performance issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: benchmark-results
+    attributes:
+      label: Benchmark Results
+      description: Include benchmark results showing the performance issue
+      render: text
+      placeholder: |
+        ```
+        go test -bench=. -benchmem -count=5
+        
+        BenchmarkLogma-8         10000000   150.0 ns/op   64 B/op   2 allocs/op
+        BenchmarkZerolog-8       15000000   100.0 ns/op    0 B/op   0 allocs/op
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Code
+      description: Provide code to reproduce the performance issue
+      placeholder: |
+        ```go
+        package main
+        
+        import (
+            "testing"
+            "github.com/felixgeelhaar/logma"
+        )
+        
+        func BenchmarkYourCase(b *testing.B) {
+            // Your benchmark code here
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-performance
+    attributes:
+      label: Expected Performance
+      description: What performance did you expect?
+      placeholder: Expected 0 allocations and < 100ns/op...
+    validations:
+      required: true
+
+  - type: input
+    id: go-version
+    attributes:
+      label: Go Version
+      description: Output of `go version`
+      placeholder: go version go1.21.0 darwin/arm64
+    validations:
+      required: true
+
+  - type: input
+    id: logma-version
+    attributes:
+      label: Logma Version
+      description: Version of Logma you're using
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cpu-arch
+    attributes:
+      label: CPU Architecture
+      options:
+        - amd64
+        - arm64
+        - 386
+        - arm
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: profiling-data
+    attributes:
+      label: Profiling Data
+      description: Include pprof output or other profiling data if available
+      render: text
+      placeholder: |
+        Include pprof output:
+        ```
+        go tool pprof -top cpu.prof
+        go tool pprof -alloc_space mem.prof
+        ```
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Is this a regression?
+      description: Did this work better in a previous version?
+      options:
+        - Unknown
+        - Yes - performance regression
+        - No - always been slow
+        - Not applicable
+    validations:
+      required: true
+
+  - type: input
+    id: last-good-version
+    attributes:
+      label: Last Good Version
+      description: If this is a regression, what was the last version that worked well?
+      placeholder: v0.9.0
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have included benchmark results
+          required: true
+        - label: I have provided reproduction code
+          required: true
+        - label: I have tested with the latest version
+          required: true

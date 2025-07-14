@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/felixgeelhaar/logma/discussions
+    about: Ask questions or start discussions about Logma usage and features
+  - name: Security Vulnerability
+    url: https://github.com/felixgeelhaar/logma/security/advisories/new
+    about: Report security vulnerabilities privately

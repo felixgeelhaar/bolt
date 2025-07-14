@@ -204,17 +204,28 @@ logger := logma.New(&CustomHandler{output: os.Stdout})
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! **Please fork the repository** and submit pull requests from your fork.
 
-### Development Setup
+### Quick Start for Contributors
 
-```bash
-git clone https://github.com/felixgeelhaar/logma.git
-cd logma
-go mod tidy
-go test ./...
-go test -bench=. -benchmem
-```
+1. **Fork** this repository on GitHub
+2. **Clone** your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/logma.git
+   cd logma
+   ```
+3. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make your changes** and ensure tests pass:
+   ```bash
+   go test ./...
+   go test -bench=. -benchmem -tags=bench
+   ```
+5. **Submit a pull request** from your fork
+
+📖 **Detailed guidelines**: See [CONTRIBUTING.md](CONTRIBUTING.md) for complete contribution workflow, coding standards, and performance requirements.
 
 ## 📄 License
 
