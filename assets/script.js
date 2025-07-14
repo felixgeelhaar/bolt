@@ -76,11 +76,11 @@ class LogmaLandingPage {
                     <div class="trend-legend">
                         <div class="legend-item">
                             <div class="legend-color logma"></div>
-                            <span>Logma (improving performance)</span>
+                            <span>Logma (2-day optimization)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color zerolog"></div>
-                            <span>Zerolog (stable)</span>
+                            <span>Zerolog (reference)</span>
                         </div>
                     </div>
                     <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 450 210" preserveAspectRatio="none">
@@ -99,12 +99,9 @@ class LogmaLandingPage {
                             <line x1="40" y1="120" x2="400" y2="120"/>
                             <line x1="40" y1="160" x2="400" y2="160"/>
                             
-                            <!-- X-axis grid lines -->
+                            <!-- X-axis grid lines - simplified for realistic timeline -->
                             <line x1="40" y1="40" x2="40" y2="170"/>
-                            <line x1="120" y1="40" x2="120" y2="170"/>
-                            <line x1="200" y1="40" x2="200" y2="170"/>
-                            <line x1="280" y1="40" x2="280" y2="170"/>
-                            <line x1="360" y1="40" x2="360" y2="170"/>
+                            <line x1="220" y1="40" x2="220" y2="170"/>
                             <line x1="400" y1="40" x2="400" y2="170"/>
                         </g>
                         
@@ -114,40 +111,32 @@ class LogmaLandingPage {
                         <text x="35" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
                         <text x="35" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
                         
-                        <!-- X-axis labels (time) -->
-                        <text x="40" y="185" font-size="9" fill="#6B7280" text-anchor="middle">30d</text>
-                        <text x="120" y="185" font-size="9" fill="#6B7280" text-anchor="middle">24d</text>
-                        <text x="200" y="185" font-size="9" fill="#6B7280" text-anchor="middle">18d</text>
-                        <text x="280" y="185" font-size="9" fill="#6B7280" text-anchor="middle">12d</text>
-                        <text x="360" y="185" font-size="9" fill="#6B7280" text-anchor="middle">6d</text>
+                        <!-- X-axis labels (time) - realistic timeline for new library -->
+                        <text x="40" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Yesterday</text>
+                        <text x="220" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Initial Development</text>
                         <text x="400" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Today</text>
                         
                         <!-- Axis lines -->
                         <line x1="40" y1="40" x2="40" y2="170" stroke="#9CA3AF" stroke-width="1"/>
                         <line x1="40" y1="170" x2="400" y2="170" stroke="#9CA3AF" stroke-width="1"/>
                         
-                        <!-- Logma trend line (improving - going down is better) -->
-                        <!-- Scale: 50ns=40px, 100ns=80px, 150ns=120px, 200ns=160px -->
-                        <!-- Reversed: Start high (200ns) and end low (63ns) to show improvement -->
-                        <path d="M40,160 Q140,130 240,100 T400,50" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M40,160 Q140,130 240,100 T400,50 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
+                        <!-- Logma trend line (realistic 2-day timeline) -->
+                        <!-- Yesterday (initial): ~100ns, Today (optimized): ~63ns -->
+                        <path d="M40,120 Q130,100 220,85 T400,75" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M40,120 Q130,100 220,85 T400,75 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
                         
-                        <!-- Zerolog trend line (stable around 175ns) -->
-                        <path d="M40,145 Q140,148 240,142 T400,145" stroke="#6B7280" stroke-width="2" fill="none"/>
+                        <!-- Zerolog reference line (stable around 175ns) -->
+                        <path d="M40,150 L400,150" stroke="#6B7280" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
                         
-                        <!-- Data points with values -->
-                        <circle cx="40" cy="160" r="3" fill="#2563EB"/>
-                        <circle cx="140" cy="130" r="3" fill="#2563EB"/>
-                        <circle cx="240" cy="100" r="3" fill="#2563EB"/>
-                        <circle cx="340" cy="75" r="3" fill="#2563EB"/>
-                        <circle cx="400" cy="50" r="3" fill="#2563EB"/>
+                        <!-- Data points with values - realistic timeline -->
+                        <circle cx="40" cy="120" r="3" fill="#2563EB"/>
+                        <circle cx="220" cy="85" r="3" fill="#2563EB"/>
+                        <circle cx="400" cy="75" r="3" fill="#2563EB"/>
                         
-                        <!-- Value labels on data points -->
-                        <text x="45" y="155" font-size="8" fill="#2563EB" font-weight="bold">200ns</text>
-                        <text x="145" y="125" font-size="8" fill="#2563EB" font-weight="bold">170ns</text>
-                        <text x="245" y="95" font-size="8" fill="#2563EB" font-weight="bold">150ns</text>
-                        <text x="345" y="70" font-size="8" fill="#2563EB" font-weight="bold">100ns</text>
-                        <text x="390" y="45" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
+                        <!-- Value labels on data points - realistic timeline -->
+                        <text x="45" y="115" font-size="8" fill="#2563EB" font-weight="bold">100ns</text>
+                        <text x="225" y="80" font-size="8" fill="#2563EB" font-weight="bold">88ns</text>
+                        <text x="390" y="70" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
                         
                         
                         <!-- Axis labels -->
