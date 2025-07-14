@@ -76,7 +76,7 @@ class LogmaLandingPage {
                     <div class="trend-legend">
                         <div class="legend-item">
                             <div class="legend-color logma"></div>
-                            <span>Logma (trending down)</span>
+                            <span>Logma (improving performance)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color zerolog"></div>
@@ -90,20 +90,20 @@ class LogmaLandingPage {
                                 <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0" />
                             </linearGradient>
                         </defs>
-                        <!-- Logma trend line (improving) -->
-                        <path d="M0,150 Q100,120 200,95 T400,80" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M0,150 Q100,120 200,95 T400,80 L400,200 L0,200 Z" fill="url(#logmaGradient)"/>
+                        <!-- Logma trend line (improving - going down is better) -->
+                        <path d="M0,80 Q100,95 200,120 T400,150" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M0,80 Q100,95 200,120 T400,150 L400,200 L0,200 Z" fill="url(#logmaGradient)"/>
                         <!-- Zerolog trend line (stable) -->
                         <path d="M0,120 Q100,115 200,118 T400,115" stroke="#6B7280" stroke-width="2" fill="none"/>
                         <!-- Data points -->
-                        <circle cx="0" cy="150" r="4" fill="#2563EB"/>
-                        <circle cx="100" cy="120" r="4" fill="#2563EB"/>
-                        <circle cx="200" cy="95" r="4" fill="#2563EB"/>
-                        <circle cx="300" cy="85" r="4" fill="#2563EB"/>
-                        <circle cx="400" cy="80" r="4" fill="#2563EB"/>
+                        <circle cx="0" cy="80" r="4" fill="#2563EB"/>
+                        <circle cx="100" cy="95" r="4" fill="#2563EB"/>
+                        <circle cx="200" cy="120" r="4" fill="#2563EB"/>
+                        <circle cx="300" cy="135" r="4" fill="#2563EB"/>
+                        <circle cx="400" cy="150" r="4" fill="#2563EB"/>
                         <!-- Labels -->
-                        <text x="20" y="190" font-size="10" fill="#6B7280">30 days ago</text>
-                        <text x="350" y="190" font-size="10" fill="#6B7280">Today</text>
+                        <text x="20" y="190" font-size="10" fill="#6B7280">30 days ago (slower)</text>
+                        <text x="320" y="190" font-size="10" fill="#6B7280">Today (faster)</text>
                     </svg>
                 </div>
             `;
