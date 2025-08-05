@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -19,13 +20,42 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.23'
+    
+    - name: Validate module
+      run: |
+        go mod download
+        go mod verify
+        go mod tidy
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "go mod tidy resulted in changes. Please run 'go mod tidy' locally and commit."
+          exit 1
+        fi
     
     - name: Run tests
-      run: go test -v ./...
+      run: go test -v -race ./...
     
     - name: Run benchmarks
-      run: go test -bench=. -benchmem -tags=bench
+      run: go test -bench=. -benchmem -run=^$
+    
+    - name: Extract and validate version
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
+        echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+        
+        # Validate module path for v2+ modules
+        if [ "$MAJOR_VERSION" != "v1" ] && [ "$MAJOR_VERSION" != "v0" ]; then
+          MODULE_PATH=$(grep "^module " go.mod | cut -d' ' -f2)
+          if [[ ! "$MODULE_PATH" == *"/$MAJOR_VERSION" ]]; then
+            echo "Error: Module path must include /$MAJOR_VERSION for versions > v1"
+            echo "Current module path: $MODULE_PATH"
+            echo "Expected suffix: /$MAJOR_VERSION"
+            exit 1
+          fi
+        fi
     
     - name: Generate changelog
       id: changelog
@@ -47,31 +77,63 @@ jobs:
         cat CHANGELOG.md >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
         body: |
           ${{ steps.changelog.outputs.changelog }}
           
           ## Installation
           
           ```bash
-          go get github.com/felixgeelhaar/bolt@${{ github.ref }}
+          go get github.com/felixgeelhaar/bolt${{ steps.version.outputs.major != 'v1' && steps.version.outputs.major != 'v0' && format('/{0}', steps.version.outputs.major) || '' }}@${{ steps.version.outputs.version }}
           ```
           
           ## Verification
           
           This release has been automatically tested with:
-          - ✅ All unit tests passing
-          - ✅ Cross-platform compatibility
+          - ✅ All unit tests passing with race detection
+          - ✅ Module validation (go mod verify)
           - ✅ Performance benchmarks
-          - ✅ Security scanning
+          - ✅ Cross-platform compatibility
         draft: false
-        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+        prerelease: ${{ contains(github.ref, '-') }}
+        generate_release_notes: true
+        make_latest: true
+
+    - name: Trigger pkg.go.dev refresh
+      run: |
+        # Request pkg.go.dev to fetch the new version
+        VERSION="${{ steps.version.outputs.version }}"
+        MAJOR="${{ steps.version.outputs.major }}"
+        
+        # Determine module path based on version
+        if [ "$MAJOR" = "v0" ] || [ "$MAJOR" = "v1" ]; then
+          MODULE_PATH="github.com/${{ github.repository }}"
+        else
+          MODULE_PATH="github.com/${{ github.repository }}/$MAJOR"
+        fi
+        
+        echo "📦 Triggering pkg.go.dev refresh for ${MODULE_PATH}@${VERSION}"
+        
+        # Trigger Go proxy to cache the module
+        curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.info" || echo "Failed to fetch .info"
+        curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.mod" || echo "Failed to fetch .mod"
+        curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.zip" || echo "Failed to fetch .zip"
+        
+        # Request pkg.go.dev to fetch and index
+        curl -sf "https://pkg.go.dev/${MODULE_PATH}@${VERSION}" > /dev/null || echo "Failed to trigger pkg.go.dev"
+        
+        # Give it a moment to process
+        sleep 5
+        
+        # Verify it's available
+        if curl -sf -I "https://pkg.go.dev/${MODULE_PATH}@${VERSION}" > /dev/null; then
+          echo "✅ Package successfully published to pkg.go.dev"
+          echo "🔗 View at: https://pkg.go.dev/${MODULE_PATH}@${VERSION}"
+        else
+          echo "⚠️ Package may still be processing on pkg.go.dev"
+        fi
 
   notify:
     needs: release
@@ -80,5 +142,6 @@ jobs:
     steps:
     - name: Notify success
       run: |
-        echo "✅ Release ${{ github.ref }} created successfully!"
-        echo "📦 Available at: https://github.com/felixgeelhaar/bolt/releases/tag/${{ github.ref_name }}"
+        echo "✅ Release ${{ github.ref_name }} published successfully!"
+        echo "📦 View release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+        echo "📚 View on pkg.go.dev: https://pkg.go.dev/github.com/${{ github.repository }}"

@@ -1,0 +1,89 @@
+# GoReleaser configuration for Bolt
+# This is a library, so we skip building binaries
+version: 2
+
+project_name: bolt
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod verify
+
+# Skip builds since this is a library
+builds:
+  - skip: true
+
+# Changelog configuration
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+  groups:
+    - title: '🚀 Features'
+      regexp: '^feat'
+    - title: '🐛 Bug Fixes'
+      regexp: '^fix'
+    - title: '⚡ Performance'
+      regexp: '^perf'
+    - title: '♻️ Refactoring'
+      regexp: '^refactor'
+    - title: '🔧 Other Changes'
+
+# Release configuration
+release:
+  github:
+    owner: felixgeelhaar
+    name: bolt
+  
+  # Custom release notes
+  header: |
+    ## Bolt {{ .Tag }}
+    
+    High-performance, zero-allocation structured logging library for Go.
+  
+  footer: |
+    ## Installation
+    
+    ```bash
+    go get github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}
+    ```
+    
+    ## Documentation
+    
+    📚 [pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}](https://pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }})
+    
+    ---
+    **Full Changelog**: https://github.com/felixgeelhaar/bolt/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+# Announce the release
+announce:
+  skip: false
+
+# Verification
+checksum:
+  disable: true
+
+# Source archive
+source:
+  enabled: true
+  format: 'tar.gz'
+  name_template: '{{ .ProjectName }}_{{ .Version }}_source'
+
+# Milestones (optional - closes milestone on release)
+milestones:
+  - close: true
+    fail_on_error: false
+
+# Module proxy warming
+publishers:
+  - name: pkg.go.dev
+    cmd: |
+      curl -sf "https://proxy.golang.org/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}/@v/{{ .Tag }}.info" &&
+      curl -sf "https://pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}"
+    env:
+      - PATH={{ .Env.PATH }}

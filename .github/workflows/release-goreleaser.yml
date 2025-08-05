@@ -1,0 +1,82 @@
+name: Release with GoReleaser
+
+# This is an alternative release workflow using GoReleaser
+# Enable by commenting out the simple release.yml workflow
+# and uncommenting this one in your workflow triggers
+
+on:
+  push:
+    tags:
+      - 'v*'
+    # Uncomment to enable this workflow
+    # branches:
+    #   - never  # This prevents it from running unless explicitly enabled
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: read
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Validate version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          
+          # Check module path for v2+
+          if [ "$MAJOR" != "v1" ] && [ "$MAJOR" != "v0" ]; then
+            MODULE_PATH=$(grep "^module " go.mod | cut -d' ' -f2)
+            if [[ ! "$MODULE_PATH" == *"/$MAJOR" ]]; then
+              echo "Error: Module path must include /$MAJOR for versions > v1"
+              exit 1
+            fi
+          fi
+
+      - name: Run tests
+        run: |
+          go test -v -race -coverprofile=coverage.txt ./...
+          go test -bench=. -benchmem -run=^$
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Warm module proxy
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          
+          if [ "$MAJOR" = "v0" ] || [ "$MAJOR" = "v1" ]; then
+            MODULE="github.com/${{ github.repository }}"
+          else
+            MODULE="github.com/${{ github.repository }}/$MAJOR"
+          fi
+          
+          # Warm up the module proxy
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.info"
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.mod"
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.zip"
+          
+          # Trigger pkg.go.dev indexing
+          curl -sf "https://pkg.go.dev/${MODULE}@${VERSION}" > /dev/null
+          
+          echo "✅ Module proxy warmed for ${MODULE}@${VERSION}"
