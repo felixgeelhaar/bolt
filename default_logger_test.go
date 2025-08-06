@@ -2,6 +2,7 @@ package bolt
 
 import (
 	"os"
+	"sync/atomic"
 	"testing"
 )
 
@@ -79,8 +80,8 @@ func TestDefaultLogger_LevelEnvVar(t *testing.T) {
 			os.Setenv("BOLT_LEVEL", tt.envValue)
 			initDefaultLogger()
 
-			if defaultLogger.level != tt.expected {
-				t.Errorf("Expected level %s, got %s", tt.expected, defaultLogger.level)
+			if Level(atomic.LoadInt64(&defaultLogger.level)) != tt.expected {
+				t.Errorf("Expected level %s, got %s", tt.expected, Level(atomic.LoadInt64(&defaultLogger.level)))
 			}
 		})
 	}

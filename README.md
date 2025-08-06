@@ -186,6 +186,58 @@ BenchmarkZerologDisabled-10     12,077,472    99.3 ns/op     0 B/op    0 allocs/
 BenchmarkZerologEnabled-10       5,698,320   175.4 ns/op     0 B/op    0 allocs/op
 ```
 
+## 🛡️ Security Features
+
+Bolt includes multiple security features to protect against common logging vulnerabilities:
+
+### Input Validation & Sanitization
+
+```go
+// Automatic input validation prevents log injection attacks
+logger.Info().
+    Str("user_input", userProvidedData).  // Automatically JSON-escaped
+    Msg("User data logged safely")
+
+// Built-in size limits prevent resource exhaustion
+// - Keys: max 256 characters
+// - Values: max 64KB
+// - Total buffer: max 1MB per log entry
+```
+
+### Thread Safety
+
+```go
+// All operations are thread-safe with atomic operations
+var logger = bolt.New(bolt.NewJSONHandler(os.Stdout))
+
+// Safe to use across multiple goroutines
+go func() {
+    logger.SetLevel(bolt.DEBUG) // Thread-safe level changes
+}()
+
+go func() {
+    logger.Info().Msg("Concurrent logging") // Safe concurrent access
+}()
+```
+
+### Error Handling
+
+```go
+// Comprehensive error handling with custom error handlers
+logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
+    SetErrorHandler(func(err error) {
+        // Custom error handling logic
+        fmt.Fprintf(os.Stderr, "Logging error: %v\n", err)
+    })
+```
+
+### Security Best Practices
+
+- **No eval() or injection vectors**: All data is properly escaped during JSON serialization
+- **Memory safety**: Buffer size limits prevent unbounded memory usage
+- **Structured output**: JSON format prevents log format injection
+- **Controlled serialization**: Type-safe field methods prevent data corruption
+
 ## 🔧 Custom Handlers
 
 Extend Bolt with custom output formats:
@@ -204,6 +256,129 @@ func (h *CustomHandler) Write(e *bolt.Event) error {
 
 logger := bolt.New(&CustomHandler{output: os.Stdout})
 ```
+
+## 🔍 Troubleshooting
+
+### Common Issues and Solutions
+
+#### Performance Issues
+
+**Symptom**: Logging is slower than expected
+```bash
+# Check if you're in debug mode accidentally
+echo $BOLT_LEVEL  # Should be 'info' or 'warn' for production
+
+# Run benchmarks to compare
+go test -bench=BenchmarkZeroAllocation -benchmem
+```
+
+**Symptom**: Memory usage is high
+```go
+// Ensure you're calling Msg() to complete log entries
+logger.Info().Str("key", "value")  // ❌ Event not completed
+logger.Info().Str("key", "value").Msg("message")  // ✅ Proper completion
+
+// Check for event leaks in error handling
+if err != nil {
+    // ❌ This leaks events if err is always nil
+    logger.Error().Err(err).Msg("error occurred")  
+}
+
+if err != nil {
+    // ✅ Proper conditional logging
+    logger.Error().Err(err).Msg("error occurred")
+}
+```
+
+#### Thread Safety Issues
+
+**Symptom**: Race conditions detected
+```bash
+# Run tests with race detector
+go test -race ./...
+
+# The library itself is thread-safe, but output destinations may not be
+# Use thread-safe output for concurrent scenarios
+```
+
+**Solution**: Use thread-safe outputs
+```go
+// ❌ bytes.Buffer is not thread-safe
+var buf bytes.Buffer
+logger := bolt.New(bolt.NewJSONHandler(&buf))
+
+// ✅ Use thread-safe alternatives
+type SafeBuffer struct {
+    buf bytes.Buffer
+    mu  sync.Mutex
+}
+
+func (sb *SafeBuffer) Write(p []byte) (n int, err error) {
+    sb.mu.Lock()
+    defer sb.mu.Unlock()
+    return sb.buf.Write(p)
+}
+```
+
+#### Configuration Issues
+
+**Symptom**: Logs not appearing
+```go
+// Check log level configuration
+logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+logger.SetLevel(bolt.ERROR)  // Will suppress Info/Debug logs
+
+logger.Debug().Msg("Debug message")  // Won't appear
+logger.Error().Msg("Error message")  // Will appear
+```
+
+**Symptom**: Wrong output format
+```bash
+# Check environment variables
+echo $BOLT_FORMAT  # Should be 'json' or 'console'
+echo $BOLT_LEVEL   # Should be valid level name
+
+# Override with code if needed
+logger := bolt.New(bolt.NewConsoleHandler(os.Stdout)).SetLevel(bolt.DEBUG)
+```
+
+#### Integration Issues
+
+**Symptom**: OpenTelemetry traces not appearing
+```go
+// Ensure context contains valid span
+span := trace.SpanFromContext(ctx)
+if !span.SpanContext().IsValid() {
+    // No active span in context
+    logger.Info().Msg("No trace context")
+}
+
+// Use context-aware logger
+ctxLogger := logger.Ctx(ctx)
+ctxLogger.Info().Msg("With trace context")
+```
+
+#### Performance Debugging
+
+```bash
+# Profile memory usage
+go test -bench=BenchmarkZeroAllocation -memprofile=mem.prof
+go tool pprof mem.prof
+
+# Profile CPU usage  
+go test -bench=BenchmarkZeroAllocation -cpuprofile=cpu.prof
+go tool pprof cpu.prof
+
+# Check for allocations
+go test -bench=. -benchmem | grep allocs
+```
+
+### Getting Help
+
+1. **Check the documentation**: Review API documentation and examples
+2. **Run diagnostics**: Use built-in benchmarks and race detection
+3. **Community support**: Open GitHub issues with minimal reproduction cases
+4. **Security issues**: Follow responsible disclosure in [SECURITY.md](SECURITY.md)
 
 ## 🤝 Contributing
 
