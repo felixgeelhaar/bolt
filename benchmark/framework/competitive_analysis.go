@@ -221,7 +221,7 @@ func (ca *CompetitiveAnalyzer) WithOutputDir(dir string) *CompetitiveAnalyzer {
 // RunComprehensiveAnalysis executes all configured benchmarks and generates analysis
 func (ca *CompetitiveAnalyzer) RunComprehensiveAnalysis(ctx context.Context) error {
 	// Ensure output directory exists
-	if err := os.MkdirAll(ca.outputDir, 0755); err != nil {
+	if err := os.MkdirAll(ca.outputDir, 0750); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -307,7 +307,7 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 			HeapAllocs:     memStats.HeapAlloc,
 			HeapSys:        memStats.HeapSys,
 			GCCount:        memStats.NumGC,
-			GCPauseTotal:   time.Duration(memStats.PauseTotalNs),
+			GCPauseTotal:   time.Duration(int64(memStats.PauseTotalNs)),
 		}
 
 		results = append(results, benchResult)

@@ -477,10 +477,12 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	maskedUser := app.piiMasker.MaskStruct(user)
 	
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"user":           maskedUser,
 		"correlation_id": correlationID,
-	})
+	}); err != nil {
+		app.logger.Error().Err(err).Msg("Failed to encode response")
+	}
 }
 
 // Search handler demonstrating PII masking in search operations
@@ -529,12 +531,14 @@ func (app *Application) searchUsersHandler(w http.ResponseWriter, r *http.Reques
 		Msg("Search completed")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"query":          maskedQuery,
 		"results":        maskedUsers,
 		"total":          len(users),
 		"correlation_id": correlationID,
-	})
+	}); err != nil {
+		app.logger.Error().Err(err).Msg("Failed to encode response")
+	}
 }
 
 // Error handler demonstrating PII masking in error logs
@@ -581,10 +585,12 @@ func (app *Application) configHandler(w http.ResponseWriter, r *http.Request) {
 		Msg("PII masking configuration retrieved")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"pii_masking_config": config,
 		"correlation_id":     correlationID,
-	})
+	}); err != nil {
+		app.logger.Error().Err(err).Msg("Failed to encode response")
+	}
 }
 
 // Utility functions
@@ -620,8 +626,12 @@ func main() {
 		Msg("Starting PII masking demo server")
 
 	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: handler,
+		Addr:              ":" + port,
+		Handler:           handler,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	if err := server.ListenAndServe(); err != nil {

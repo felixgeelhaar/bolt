@@ -18,6 +18,7 @@ import (
 type EnterpriseBenchmarkSuite struct {
 	scenarios []EnterpriseScenario
 	config    EnterpriseConfig
+	rng       *rand.Rand // Seeded random for reproducible benchmarks
 	results   sync.Map
 	
 	// Monitoring
@@ -302,8 +303,13 @@ var EnterpriseScenarios = []EnterpriseScenario{
 func NewEnterpriseBenchmarkSuite() *EnterpriseBenchmarkSuite {
 	ctx, cancel := context.WithCancel(context.Background())
 	
+	// Use seeded random for reproducible benchmarks
+	src := rand.NewSource(42) // Fixed seed for reproducibility
+	rng := rand.New(src)
+	
 	return &EnterpriseBenchmarkSuite{
 		scenarios: EnterpriseScenarios,
+		rng:       rng,
 		config: EnterpriseConfig{
 			TestDuration:     30 * time.Minute,
 			WarmupDuration:   2 * time.Minute,
@@ -516,14 +522,22 @@ func (ebs *EnterpriseBenchmarkSuite) generateWebAPIMessage(fieldCount int) (stri
 	endpoints := []string{"/api/v1/users", "/api/v1/orders", "/api/v1/products", "/api/v1/payments"}
 	statusCodes := []int{200, 201, 400, 401, 403, 404, 500}
 	
+	// Use suite's seeded random for reproducibility
+	rng := ebs.rng
+	if rng == nil {
+		// Fallback to seeded random if not initialized
+		src := rand.NewSource(time.Now().UnixNano())
+		rng = rand.New(src)
+	}
+	
 	fields := map[string]interface{}{
-		"method":       methods[rand.Intn(len(methods))],
-		"endpoint":     endpoints[rand.Intn(len(endpoints))],
-		"status_code":  statusCodes[rand.Intn(len(statusCodes))],
-		"response_time": rand.Float64() * 1000,
-		"user_id":      rand.Int63n(100000),
-		"request_id":   fmt.Sprintf("req_%d_%d", time.Now().UnixNano(), rand.Int31()),
-		"ip_address":   fmt.Sprintf("192.168.%d.%d", rand.Intn(255), rand.Intn(255)),
+		"method":       methods[rng.Intn(len(methods))],
+		"endpoint":     endpoints[rng.Intn(len(endpoints))],
+		"status_code":  statusCodes[rng.Intn(len(statusCodes))],
+		"response_time": rng.Float64() * 1000,
+		"user_id":      rng.Int63n(100000),
+		"request_id":   fmt.Sprintf("req_%d_%d", time.Now().UnixNano(), rng.Int31()),
+		"ip_address":   fmt.Sprintf("192.168.%d.%d", rng.Intn(255), rng.Intn(255)),
 		"user_agent":   "Mozilla/5.0 (compatible; BenchmarkClient)",
 	}
 	

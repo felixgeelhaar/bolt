@@ -135,7 +135,7 @@ For more information, visit: https://github.com/felixgeelhaar/bolt
 	}()
 
 	// Create output directory
-	if err := os.MkdirAll(*outputDir, 0755); err != nil {
+	if err := os.MkdirAll(*outputDir, 0750); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 

@@ -557,7 +557,7 @@ func (rg *ReportGenerator) getSystemInfo() SystemInfo {
 
 func (rg *ReportGenerator) generateCSVExports(allResults map[string][]BenchmarkResult) error {
 	csvDir := filepath.Join(rg.analyzer.outputDir, "csv")
-	if err := os.MkdirAll(csvDir, 0755); err != nil {
+	if err := os.MkdirAll(csvDir, 0750); err != nil {
 		return err
 	}
 

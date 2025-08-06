@@ -495,13 +495,15 @@ func (app *Application) healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Correlation-ID", correlationID)
 	w.WriteHeader(statusCode)
 	
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":           status,
 		"healthy_backends": healthyCount,
 		"total_backends":   totalCount,
 		"timestamp":        time.Now().UTC().Format(time.RFC3339),
 		"correlation_id":   correlationID,
-	})
+	}); err != nil {
+		lb.logger.Error().Err(err).Msg("Failed to encode health response")
+	}
 }
 
 // Utility functions
@@ -660,8 +662,12 @@ func main() {
 		Msg("Starting load balancer")
 
 	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: mux,
+		Addr:              ":" + port,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	if err := server.ListenAndServe(); err != nil {
