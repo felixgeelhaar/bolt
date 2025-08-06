@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/bolt-org/bolt"
+	"github.com/felixgeelhaar/bolt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"

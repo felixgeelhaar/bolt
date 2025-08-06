@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -636,7 +636,7 @@ func ExampleCompatibilityLayer() {
 
 	// Step 1: Replace import
 	// OLD: import "go.uber.org/zap"
-	// NEW: import zap "github.com/felixgeelhaar/bolt/v2/migrate/zap"
+	// NEW: import zap "github.com/felixgeelhaar/bolt/migrate/zap"
 
 	// Step 2: Existing code continues to work
 	logger, _ := NewProduction()

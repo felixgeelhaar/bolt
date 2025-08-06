@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ExampleBasicLogging demonstrates basic logging migration from Logrus to Bolt.
@@ -245,7 +245,7 @@ func ExamplePerformanceComparison() {
 func ExampleMigrationSteps() {
 	// Step 1: Replace imports
 	// OLD: import "github.com/sirupsen/logrus"
-	// NEW: import "github.com/felixgeelhaar/bolt/v2"
+	// NEW: import "github.com/felixgeelhaar/bolt"
 
 	// Step 2: Replace logger creation
 	// OLD: logger := logrus.New()
@@ -270,7 +270,7 @@ func ExampleMigrationSteps() {
 // ExampleCompatibilityLayer demonstrates using the compatibility layer for gradual migration.
 func ExampleCompatibilityLayer() {
 	// Using the Logrus compatibility layer allows gradual migration
-	// Import: "github.com/felixgeelhaar/bolt/v2/migrate/logrus"
+	// Import: "github.com/felixgeelhaar/bolt/migrate/logrus"
 
 	logger := New() // This creates a Logrus-compatible logger backed by Bolt
 	
@@ -291,11 +291,11 @@ func ExampleCompatibilityLayer() {
 // ExampleFullMigrationWorkflow demonstrates a complete migration workflow.
 func ExampleFullMigrationWorkflow() {
 	// 1. Install Bolt
-	// go get github.com/felixgeelhaar/bolt/v2
+	// go get github.com/felixgeelhaar/bolt
 
 	// 2. Use compatibility layer first (gradual migration)
 	// Replace: import "github.com/sirupsen/logrus"
-	// With:    import logrus "github.com/felixgeelhaar/bolt/v2/migrate/logrus"
+	// With:    import logrus "github.com/felixgeelhaar/bolt/migrate/logrus"
 
 	// 3. Test compatibility - your existing code should work
 
@@ -303,7 +303,7 @@ func ExampleFullMigrationWorkflow() {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 
 	// 5. Use migration tools to automatically transform code
-	// Run: go run github.com/felixgeelhaar/bolt/v2/migrate/cmd migrate --from=logrus --input=./src --output=./migrated
+	// Run: go run github.com/felixgeelhaar/bolt/migrate/cmd migrate --from=logrus --input=./src --output=./migrated
 
 	// 6. Validate migration and run tests
 	// 7. Deploy with significant performance improvements

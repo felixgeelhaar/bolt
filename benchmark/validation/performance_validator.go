@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2/benchmark/framework"
+	"github.com/felixgeelhaar/bolt/benchmark/framework"
 )
 
 // PerformanceThresholds defines acceptable performance limits

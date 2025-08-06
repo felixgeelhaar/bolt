@@ -43,27 +43,9 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 
 ## 📦 Installation
 
-**⚠️ v1 is deprecated. Please use v2 for latest features and security fixes:**
-
 ```bash
-go get github.com/felixgeelhaar/bolt/v2
+go get github.com/felixgeelhaar/bolt
 ```
-
-<details>
-<summary>v1 Installation (deprecated)</summary>
-
-```bash
-go get github.com/felixgeelhaar/bolt  # v1 - deprecated
-```
-
-**Please migrate to v2** for:
-- 27% better performance (98ns vs 127ns)
-- Critical security fixes (JSON injection prevention)
-- Thread-safety improvements
-- Enterprise features and documentation
-
-See [Migration Guide](./migrate/README.md) for easy upgrade steps.
-</details>
 
 ## 🏃 Quick Start
 

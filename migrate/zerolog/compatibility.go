@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // Logger provides a Zerolog-compatible API backed by Bolt for easier migration.

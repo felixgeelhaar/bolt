@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	bolt "github.com/felixgeelhaar/bolt/v2"
+	bolt "github.com/felixgeelhaar/bolt"
 )
 
 func main() {

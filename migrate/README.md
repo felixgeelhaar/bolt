@@ -77,7 +77,7 @@ BenchmarkImprovement:  +27.5% faster, same memory profile
 ### Step 2: Install Bolt
 
 ```bash
-go get github.com/felixgeelhaar/bolt/v2
+go get github.com/felixgeelhaar/bolt
 ```
 
 ### Step 3: Run Migration Tools
@@ -115,7 +115,7 @@ logger.Info().Str("user", "john").Int("age", 30).Msg("User logged in")
 
 **After (Pure Bolt):**
 ```go
-import "github.com/felixgeelhaar/bolt/v2"
+import "github.com/felixgeelhaar/bolt"
 
 logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 logger.Info().Str("user", "john").Int("age", 30).Msg("User logged in")
@@ -265,7 +265,7 @@ go test -bench=. -benchmem ./migrate/benchmarks/
 ## 📞 Getting Help
 
 ### Documentation
-- [Bolt API Documentation](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v2)
+- [Bolt API Documentation](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
 - [Performance Guide](../docs/performance.md)
 - [Best Practices](../docs/best-practices.md)
 

@@ -47,7 +47,7 @@ func (t *StdlogTransformer) initDefaultRules() {
 	// Import transformations
 	t.addRule("log_import", "Replace log import with Bolt import",
 		`"log"`,
-		`"log"\n\t"github.com/felixgeelhaar/bolt/v2"`,
+		`"log"\n\t"github.com/felixgeelhaar/bolt"`,
 		true)
 	
 	// Logger creation - for explicit log.New() calls
@@ -329,7 +329,7 @@ func (t *StdlogTransformer) transformCallExpr(node *ast.CallExpr, changed *bool)
 // addRequiredImports adds necessary imports to the transformed code.
 func (t *StdlogTransformer) addRequiredImports(content string) string {
 	// Check if we need to add bolt import
-	if strings.Contains(content, "bolt.") && !strings.Contains(content, `"github.com/felixgeelhaar/bolt/v2"`) {
+	if strings.Contains(content, "bolt.") && !strings.Contains(content, `"github.com/felixgeelhaar/bolt"`) {
 		// Find the import section and add bolt
 		lines := strings.Split(content, "\n")
 		var result []string
@@ -340,7 +340,7 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 			
 			// Look for import statements
 			if !importAdded && strings.Contains(line, `"log"`) {
-				result = append(result, `	"github.com/felixgeelhaar/bolt/v2"`)
+				result = append(result, `	"github.com/felixgeelhaar/bolt"`)
 				importAdded = true
 			}
 		}
@@ -354,7 +354,7 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 					copy(newResult, result[:i+1])
 					newResult[i+1] = ""
 					newResult[i+2] = "import ("
-					newResult[i+3] = `	"github.com/felixgeelhaar/bolt/v2"`
+					newResult[i+3] = `	"github.com/felixgeelhaar/bolt"`
 					newResult[i+4] = ")"
 					copy(newResult[i+5:], result[i+1:])
 					result = newResult
@@ -567,7 +567,7 @@ func (t *StdlogTransformer) GenerateMigrationGuide(results []*TransformationResu
 	fmt.Fprintln(w, "```go")
 	fmt.Fprintln(w, `import "log"`)
 	fmt.Fprintln(w, "// becomes")
-	fmt.Fprintln(w, `import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"`)
+	fmt.Fprintln(w, `import log "github.com/felixgeelhaar/bolt/migrate/stdlog"`)
 	fmt.Fprintln(w, "```")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "### 2. Gradual Migration (Recommended)")
@@ -685,7 +685,7 @@ func (im *InteractiveMigration) runDropInReplacement() error {
 	fmt.Fprintln(im.output, `   import "log"`)
 	fmt.Fprintln(im.output, "")
 	fmt.Fprintln(im.output, "2. With this import:")
-	fmt.Fprintln(im.output, `   import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"`)
+	fmt.Fprintln(im.output, `   import log "github.com/felixgeelhaar/bolt/migrate/stdlog"`)
 	fmt.Fprintln(im.output, "")
 	fmt.Fprintln(im.output, "3. Run your application - it should work exactly the same but faster!")
 	fmt.Fprintln(im.output, "")

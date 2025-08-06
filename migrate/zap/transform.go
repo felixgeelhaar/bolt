@@ -111,14 +111,14 @@ func (zct *ZapCodeTransformer) transformImport(imp *ast.ImportSpec, result *ZapT
 
 	switch imp.Path.Value {
 	case `"go.uber.org/zap"`:
-		imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
+		imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
 		changed = true
 		result.Changes++
 	case `"go.uber.org/zap/zapcore"`:
 		// zapcore might need special handling
 		result.Warnings = append(result.Warnings,
 			"zapcore import detected - manual review needed for core configuration")
-		imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
+		imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
 		changed = true
 		result.Changes++
 	}
@@ -308,12 +308,12 @@ func (ztt *ZapTextTransformer) GetZapTransformationRules() []ZapTransformationRu
 	return []ZapTransformationRule{
 		{
 			Pattern:     regexp.MustCompile(`"go\.uber\.org/zap"`),
-			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
+			Replacement: `"github.com/felixgeelhaar/bolt"`,
 			Description: "Replace zap import with bolt import",
 		},
 		{
 			Pattern:     regexp.MustCompile(`"go\.uber\.org/zap/zapcore"`),
-			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
+			Replacement: `"github.com/felixgeelhaar/bolt"`,
 			Description: "Replace zapcore import with bolt import",
 			Warning:     "zapcore usage may need manual adjustment",
 		},

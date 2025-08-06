@@ -45,8 +45,8 @@ package main
 
 import (
     "context"
-    "github.com/felixgeelhaar/bolt/v2/benchmark/framework"
-    "github.com/felixgeelhaar/bolt/v2/benchmark/enterprise"
+    "github.com/felixgeelhaar/bolt/benchmark/framework"
+    "github.com/felixgeelhaar/bolt/benchmark/enterprise"
 )
 
 func main() {
@@ -395,7 +395,7 @@ OPTIONS:
 
 ### Programmatic API
 
-See [GoDoc](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v2/benchmark) for complete API documentation.
+See [GoDoc](https://pkg.go.dev/github.com/felixgeelhaar/bolt/benchmark) for complete API documentation.
 
 ## 🤝 Contributing
 

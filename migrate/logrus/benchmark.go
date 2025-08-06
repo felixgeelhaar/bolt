@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 	"github.com/sirupsen/logrus"
 )
 

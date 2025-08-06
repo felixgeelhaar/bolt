@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ConfigMigrator handles migration of Zap configurations to Bolt.
@@ -190,7 +190,7 @@ func (cm *ConfigMigrator) generateCodeSuggestion(config BoltConfig) string {
 	code.WriteString("package main\n\n")
 	code.WriteString("import (\n")
 	code.WriteString("    \"os\"\n")
-	code.WriteString("    \"github.com/felixgeelhaar/bolt/v2\"\n")
+	code.WriteString("    \"github.com/felixgeelhaar/bolt\"\n")
 	code.WriteString(")\n\n")
 
 	code.WriteString("func createLogger() *bolt.Logger {\n")

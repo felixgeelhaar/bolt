@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ExampleBasicMigration demonstrates basic logging migration from standard log to Bolt.
@@ -25,7 +25,7 @@ func ExampleBasicMigration() {
 
 	// AFTER: Bolt (compatibility approach - zero code changes)
 	// Just replace: import "log"
-	// With: import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"
+	// With: import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 	// All existing log.Print, log.Printf, log.Println calls work unchanged!
 }
 
@@ -38,7 +38,7 @@ func ExampleDropInReplacement() {
 	// import "log"
 	// 
 	// To:
-	// import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"
+	// import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 
 	// Step 2: All existing code continues to work:
 	log.Print("Server starting")
@@ -121,7 +121,7 @@ func ExamplePerformanceComparison() {
 // ExampleMigrationStrategies demonstrates different migration approaches.
 func ExampleMigrationStrategies() {
 	// Strategy 1: Drop-in replacement (fastest migration)
-	// Replace import "log" with import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"
+	// Replace import "log" with import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 	// Zero code changes, immediate benefits
 	
 	// Strategy 2: Compatibility layer with gradual enhancement
@@ -272,7 +272,7 @@ func ExampleAdvancedFeatures() {
 func ExampleGradualMigration() {
 	// Phase 1: Drop-in replacement
 	// Change: import "log"
-	// To: import log "github.com/felixgeelhaar/bolt/v2/migrate/stdlog"
+	// To: import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 	log.Print("Phase 1: Using compatibility layer")
 
 	// Phase 2: Access underlying Bolt logger for new code

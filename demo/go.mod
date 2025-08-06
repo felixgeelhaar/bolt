@@ -2,9 +2,9 @@ module demo
 
 go 1.24.4
 
-replace github.com/felixgeelhaar/bolt/v2 => ../
+replace github.com/felixgeelhaar/bolt => ../
 
-require github.com/felixgeelhaar/bolt/v2 v2.0.0-00010101000000-000000000000
+require github.com/felixgeelhaar/bolt v2.0.0-00010101000000-000000000000
 
 require (
 	github.com/mattn/go-colorable v0.1.13 // indirect

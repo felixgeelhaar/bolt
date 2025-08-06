@@ -527,17 +527,17 @@ func (ca *CodeAnalyzer) generateImportSuggestions(importPath string, result *Ana
 	switch {
 	case strings.Contains(importPath, "github.com/rs/zerolog"):
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
-			"Replace 'github.com/rs/zerolog' with 'github.com/felixgeelhaar/bolt/v2'")
+			"Replace 'github.com/rs/zerolog' with 'github.com/felixgeelhaar/bolt'")
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
 			"Use bolt.New(bolt.NewJSONHandler(os.Stdout)) instead of zerolog.New(os.Stdout)")
 	case strings.Contains(importPath, "go.uber.org/zap"):
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
-			"Replace 'go.uber.org/zap' with 'github.com/felixgeelhaar/bolt/v2'")
+			"Replace 'go.uber.org/zap' with 'github.com/felixgeelhaar/bolt'")
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
 			"Use bolt.New(bolt.NewJSONHandler(os.Stdout)) instead of zap.NewProduction()")
 	case strings.Contains(importPath, "github.com/sirupsen/logrus"):
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
-			"Replace 'github.com/sirupsen/logrus' with 'github.com/felixgeelhaar/bolt/v2'")
+			"Replace 'github.com/sirupsen/logrus' with 'github.com/felixgeelhaar/bolt'")
 		result.MigrationSuggestions = append(result.MigrationSuggestions,
 			"Use bolt.New(bolt.NewJSONHandler(os.Stdout)) instead of logrus.New()")
 	}

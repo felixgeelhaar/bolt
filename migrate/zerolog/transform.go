@@ -67,12 +67,12 @@ func (ct *CodeTransformer) TransformFile(filePath string) (*TransformResult, err
 	// Transform imports
 	for _, imp := range file.Imports {
 		if imp.Path.Value == `"github.com/rs/zerolog"` {
-			imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
+			imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
 			changed = true
 			result.Changes++
 		}
 		if imp.Path.Value == `"github.com/rs/zerolog/log"` {
-			imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
+			imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
 			changed = true
 			result.Changes++
 		}
@@ -259,12 +259,12 @@ func (tt *TextTransformer) GetTransformationRules() []TransformationRule {
 	return []TransformationRule{
 		{
 			Pattern:     regexp.MustCompile(`"github\.com/rs/zerolog"`),
-			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
+			Replacement: `"github.com/felixgeelhaar/bolt"`,
 			Description: "Replace zerolog import with bolt import",
 		},
 		{
 			Pattern:     regexp.MustCompile(`"github\.com/rs/zerolog/log"`),
-			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
+			Replacement: `"github.com/felixgeelhaar/bolt"`,
 			Description: "Replace zerolog/log import with bolt import",
 		},
 		{
@@ -495,7 +495,7 @@ func (mg *MigrationGuide) GenerateGuide() string {
 
 	// General migration tips
 	guide.WriteString("## General Migration Tips\n\n")
-	guide.WriteString("1. **Import Changes**: Replace `github.com/rs/zerolog` with `github.com/felixgeelhaar/bolt/v2`\n")
+	guide.WriteString("1. **Import Changes**: Replace `github.com/rs/zerolog` with `github.com/felixgeelhaar/bolt`\n")
 	guide.WriteString("2. **Logger Creation**: Replace `zerolog.New(writer)` with `bolt.New(bolt.NewJSONHandler(writer))`\n")
 	guide.WriteString("3. **Console Output**: Replace `zerolog.ConsoleWriter` with `bolt.NewConsoleHandler(os.Stdout)`\n")
 	guide.WriteString("4. **Levels**: Map zerolog levels to bolt levels (TraceLevel -> TRACE, etc.)\n")
