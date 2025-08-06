@@ -2,15 +2,12 @@
 package zap
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/felixgeelhaar/bolt"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 // ExampleBasicLoggerCreation demonstrates basic logger creation migration.

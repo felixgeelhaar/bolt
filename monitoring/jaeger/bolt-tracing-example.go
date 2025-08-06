@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"time"
@@ -115,6 +114,7 @@ func (bt *BoltTracer) LogWithTrace(ctx context.Context, level bolt.Level, messag
 	
 	// Combine with provided fields
 	allFields := append(traceFields, fields...)
+	_ = allFields // TODO: Use allFields in logging calls
 	
 	// Log the event
 	switch level {

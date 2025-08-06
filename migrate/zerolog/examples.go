@@ -292,7 +292,7 @@ var (
 )
 
 // Pattern 2: Logger Interface Migration
-type Logger interface {
+type LoggerInterface interface {
 	Info() LogEvent
 	Error() LogEvent
 	Debug() LogEvent
@@ -335,7 +335,7 @@ func (ble *BoltLogEvent) Msg(message string) {
 
 // Usage example of the interface-based approach
 func ExampleInterfaceBasedMigration() {
-	var logger Logger = &BoltLogger{
+	var logger LoggerInterface = &BoltLogger{
 		logger: bolt.New(bolt.NewJSONHandler(os.Stdout)),
 	}
 	

@@ -342,6 +342,30 @@ func (e *Event) addField(key string, value interface{}) {
 // Level represents log levels (compatibility)
 type Level int8
 
+// String returns the string representation of the level
+func (l Level) String() string {
+	switch l {
+	case TraceLevel:
+		return "TRACE"
+	case DebugLevel:
+		return "DEBUG"
+	case InfoLevel:
+		return "INFO"
+	case WarnLevel:
+		return "WARN"
+	case ErrorLevel:
+		return "ERROR"
+	case FatalLevel:
+		return "FATAL"
+	case PanicLevel:
+		return "PANIC"
+	case Disabled:
+		return "DISABLED"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 const (
 	DebugLevel Level = iota
 	InfoLevel
@@ -391,9 +415,9 @@ func convertLevel(level Level) bolt.Level {
 	case ErrorLevel:
 		return bolt.ERROR
 	case FatalLevel:
-		return bolt.FatalLevel
+		return bolt.FATAL
 	case PanicLevel:
-		return bolt.FatalLevel
+		return bolt.FATAL
 	case Disabled:
 		return bolt.Level(99) // Higher than any valid level
 	default:

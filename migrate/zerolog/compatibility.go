@@ -9,6 +9,21 @@ import (
 	"github.com/felixgeelhaar/bolt"
 )
 
+// Level constants matching zerolog levels
+const (
+	TraceLevel Level = iota - 1
+	DebugLevel
+	InfoLevel
+	WarnLevel
+	ErrorLevel
+	FatalLevel
+	PanicLevel
+	Disabled
+)
+
+// GlobalLevel holds the global logging level
+var GlobalLevel Level = InfoLevel
+
 // ParseLevel converts a level string into a zerolog Level value.
 func ParseLevel(levelStr string) (Level, error) {
 	switch strings.ToLower(levelStr) {
@@ -130,7 +145,7 @@ func Arr() *Array {
 func Ctx(ctx interface{}) Logger {
 	// For basic compatibility, return global logger
 	// In practice, you would extract from context
-	return New(bolt.NewJSONHandler(os.Stdout))
+	return New(os.Stdout)
 }
 
 // Array provides array marshaling for structured logging.

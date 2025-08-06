@@ -20,7 +20,7 @@ import (
 
 // Application represents the main application
 type Application struct {
-	logger bolt.Logger
+	logger *bolt.Logger
 	config *Config
 	server *http.Server
 }

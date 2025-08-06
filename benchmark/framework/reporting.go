@@ -328,7 +328,7 @@ func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]Benchma
 	for scenario, libraryResults := range scenarioResults {
 		var bestLibrary string
 		var bestTime float64 = math.MaxFloat64
-		var confidenceSum, marginSum float64
+		var confidenceSum, _ float64
 		count := 0
 		
 		for library, times := range libraryResults {

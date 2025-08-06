@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/felixgeelhaar/bolt"
 )
 
 // ConfigMigrator handles migration of Zap configurations to Bolt.

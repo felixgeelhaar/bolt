@@ -182,7 +182,7 @@ func (ct *CodeTransformer) transformSelectorExpr(selector *ast.SelectorExpr, res
 	changed := false
 
 	// Transform method calls
-	if ident, ok := selector.X.(*ast.Ident); ok {
+	if _, ok := selector.X.(*ast.Ident); ok {
 		// Common transformations for method names
 		switch selector.Sel.Name {
 		case "With":

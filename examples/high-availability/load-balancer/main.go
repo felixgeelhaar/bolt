@@ -60,7 +60,7 @@ type Backend struct {
 type LoadBalancer struct {
 	backends []Backend
 	current  uint64
-	logger   bolt.Logger
+	logger   *bolt.Logger
 	ctx      context.Context
 	cancel   context.CancelFunc
 }
@@ -250,7 +250,7 @@ func (lb *LoadBalancer) markBackendUnhealthy(backendID string) {
 			lb.logger.Warn().
 				Str("backend_id", backendID).
 				Str("backend_url", lb.backends[i].URL.String()).
-				Int("fail_count", lb.backends[i].FailCount).
+				Int("fail_count", int(lb.backends[i].FailCount)).
 				Msg("Backend marked as unhealthy")
 			
 			break
@@ -332,7 +332,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 			Str("backend_url", backend.URL.String()).
 			Dur("duration", duration).
 			Err(err).
-			Int("fail_count", backend.FailCount).
+			Int("fail_count", int(backend.FailCount)).
 			Msg("Backend health check failed")
 		
 		return
@@ -374,7 +374,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 		Float64("duration_ms", float64(duration.Nanoseconds())/1_000_000).
 		Str("health_status", backend.Health.String()).
 		Str("previous_health", previousHealth.String()).
-		Int("fail_count", backend.FailCount).
+		Int("fail_count", int(backend.FailCount)).
 		Msg("Backend health check completed")
 }
 
@@ -424,7 +424,7 @@ func (lb *LoadBalancer) Stats() map[string]interface{} {
 // Application represents the main load balancer application
 type Application struct {
 	loadBalancer *LoadBalancer
-	logger       bolt.Logger
+	logger       *bolt.Logger
 }
 
 // NewApplication creates a new load balancer application
@@ -502,7 +502,7 @@ func (app *Application) healthHandler(w http.ResponseWriter, r *http.Request) {
 		"timestamp":        time.Now().UTC().Format(time.RFC3339),
 		"correlation_id":   correlationID,
 	}); err != nil {
-		lb.logger.Error().Err(err).Msg("Failed to encode health response")
+		app.logger.Error().Err(err).Msg("Failed to encode health response")
 	}
 }
 
