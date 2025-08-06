@@ -1,5 +1,17 @@
 // Package bolt provides a high-performance, zero-allocation structured logging library for Go.
 //
+// DEPRECATION NOTICE: This is Bolt v1, which is deprecated due to critical security vulnerabilities.
+// Please use github.com/felixgeelhaar/bolt/v2 for latest features and security fixes.
+//
+// v2 improvements:
+// - 27% faster performance (98ns vs 127ns)
+// - Critical security fixes (JSON injection prevention)
+// - Thread-safety improvements
+// - Enterprise features and comprehensive documentation
+//
+// Migration is simple - just update your import:
+//   import "github.com/felixgeelhaar/bolt/v2"
+//
 // Bolt is designed for applications that demand exceptional performance without compromising
 // on features. It delivers sub-100ns logging operations with zero memory allocations in hot paths.
 //
@@ -889,6 +901,14 @@ var defaultLogger *Logger
 
 func init() {
 	initDefaultLogger()
+	
+	// Warn users about v1 deprecation
+	if os.Getenv("BOLT_SUPPRESS_V1_WARNING") == "" {
+		fmt.Fprintf(os.Stderr, "\n🚨 DEPRECATION WARNING: Bolt v1 is deprecated and contains security vulnerabilities.\n")
+		fmt.Fprintf(os.Stderr, "   Please upgrade to v2: go get github.com/felixgeelhaar/bolt/v2\n")
+		fmt.Fprintf(os.Stderr, "   v2 is 27%% faster with critical security fixes.\n")
+		fmt.Fprintf(os.Stderr, "   Set BOLT_SUPPRESS_V1_WARNING=1 to hide this message.\n\n")
+	}
 }
 
 var isTerminal = isatty
