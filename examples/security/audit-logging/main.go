@@ -4,7 +4,6 @@
 package main
 
 import (
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -43,7 +42,7 @@ type AuditEvent struct {
 
 // AuditLogger handles enterprise audit logging
 type AuditLogger struct {
-	logger         bolt.Logger
+	logger         *bolt.Logger
 	sensitiveFields []string
 }
 
@@ -107,7 +106,7 @@ func (al *AuditLogger) LogAuditEvent(event AuditEvent) {
 // Application represents the main application
 type Application struct {
 	auditLogger *AuditLogger
-	logger      bolt.Logger
+	logger      *bolt.Logger
 }
 
 // NewApplication creates a new application with audit logging

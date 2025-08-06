@@ -335,7 +335,7 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 		var result []string
 		importAdded := false
 		
-		for i, line := range lines {
+		for _, line := range lines {
 			result = append(result, line)
 			
 			// Look for import statements

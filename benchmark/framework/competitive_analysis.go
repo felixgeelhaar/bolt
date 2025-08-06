@@ -294,7 +294,7 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 			NsPerOp:        float64(result.NsPerOp()),
 			AllocsPerOp:    float64(result.AllocsPerOp()),
 			BytesPerOp:     float64(result.AllocedBytesPerOp()),
-			MBPerSec:       result.MemString(),
+			MBPerSec:       float64(result.AllocedBytesPerOp()) / 1024 / 1024,
 			Duration:       result.T,
 			Operations:     result.N,
 			Iterations:     i + 1,

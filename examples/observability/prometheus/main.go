@@ -177,7 +177,7 @@ func NewMetricsCollector() *MetricsCollector {
 
 // Application represents the main application
 type Application struct {
-	logger  bolt.Logger
+	logger  *bolt.Logger
 	metrics *MetricsCollector
 }
 

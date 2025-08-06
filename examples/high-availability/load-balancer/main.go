@@ -68,7 +68,7 @@ type LoadBalancer struct {
 // NewLoadBalancer creates a new load balancer instance
 func NewLoadBalancer(backendURLs []string) *LoadBalancer {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", "load-balancer").
 		Str("version", "v1.0.0").
@@ -250,7 +250,7 @@ func (lb *LoadBalancer) markBackendUnhealthy(backendID string) {
 			lb.logger.Warn().
 				Str("backend_id", backendID).
 				Str("backend_url", lb.backends[i].URL.String()).
-				Int32("fail_count", lb.backends[i].FailCount).
+				Int("fail_count", lb.backends[i].FailCount).
 				Msg("Backend marked as unhealthy")
 			
 			break
@@ -332,7 +332,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 			Str("backend_url", backend.URL.String()).
 			Dur("duration", duration).
 			Err(err).
-			Int32("fail_count", backend.FailCount).
+			Int("fail_count", backend.FailCount).
 			Msg("Backend health check failed")
 		
 		return
@@ -374,7 +374,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 		Float64("duration_ms", float64(duration.Nanoseconds())/1_000_000).
 		Str("health_status", backend.Health.String()).
 		Str("previous_health", previousHealth.String()).
-		Int32("fail_count", backend.FailCount).
+		Int("fail_count", backend.FailCount).
 		Msg("Backend health check completed")
 }
 
@@ -430,7 +430,7 @@ type Application struct {
 // NewApplication creates a new load balancer application
 func NewApplication(backendURLs []string) *Application {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", "load-balancer-app").
 		Str("version", "v1.0.0").
@@ -537,7 +537,7 @@ func getEnv(key, defaultValue string) string {
 // runBackend starts a simple backend server for testing
 func runBackend(port int) {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", "backend-server").
 		Str("backend_id", fmt.Sprintf("backend-%d", port)).

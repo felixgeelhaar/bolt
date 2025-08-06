@@ -57,7 +57,7 @@ func NewApplication() *Application {
 
 	// Configure structured logging with Kubernetes context
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(parseLogLevel(config.LogLevel)).
+		SetLevel(parseLogLevel(config.LogLevel)).
 		With().
 		Str("service", "bolt-demo-app").
 		Str("version", "v1.0.0").
@@ -447,15 +447,15 @@ func getEnv(key, defaultValue string) string {
 func parseLogLevel(level string) bolt.Level {
 	switch level {
 	case "debug":
-		return bolt.DebugLevel
+		return bolt.DEBUG
 	case "info":
-		return bolt.InfoLevel
+		return bolt.INFO
 	case "warn":
-		return bolt.WarnLevel
+		return bolt.WARN
 	case "error":
-		return bolt.ErrorLevel
+		return bolt.ERROR
 	default:
-		return bolt.InfoLevel
+		return bolt.INFO
 	}
 }
 

@@ -23,7 +23,7 @@ func New(w io.Writer) Logger {
 	handler := bolt.NewJSONHandler(w)
 	return Logger{
 		bolt:   bolt.New(handler),
-		level:  bolt.InfoLevel,
+		level:  bolt.INFO,
 		fields: make(map[string]interface{}),
 	}
 }
@@ -68,7 +68,7 @@ func (l Logger) Hook(h Hook) Logger {
 
 // Debug starts a debug level message
 func (l Logger) Debug() *Event {
-	if l.level > bolt.DebugLevel {
+	if l.level > bolt.DEBUG {
 		return &Event{disabled: true}
 	}
 	return &Event{
@@ -79,7 +79,7 @@ func (l Logger) Debug() *Event {
 
 // Info starts an info level message
 func (l Logger) Info() *Event {
-	if l.level > bolt.InfoLevel {
+	if l.level > bolt.INFO {
 		return &Event{disabled: true}
 	}
 	return &Event{
@@ -90,7 +90,7 @@ func (l Logger) Info() *Event {
 
 // Warn starts a warn level message
 func (l Logger) Warn() *Event {
-	if l.level > bolt.WarnLevel {
+	if l.level > bolt.WARN {
 		return &Event{disabled: true}
 	}
 	return &Event{
@@ -101,7 +101,7 @@ func (l Logger) Warn() *Event {
 
 // Error starts an error level message
 func (l Logger) Error() *Event {
-	if l.level > bolt.ErrorLevel {
+	if l.level > bolt.ERROR {
 		return &Event{disabled: true}
 	}
 	return &Event{
@@ -383,13 +383,13 @@ func Println(v ...interface{})               { globalLogger.Println(v...) }
 func convertLevel(level Level) bolt.Level {
 	switch level {
 	case DebugLevel:
-		return bolt.DebugLevel
+		return bolt.DEBUG
 	case InfoLevel:
-		return bolt.InfoLevel
+		return bolt.INFO
 	case WarnLevel:
-		return bolt.WarnLevel
+		return bolt.WARN
 	case ErrorLevel:
-		return bolt.ErrorLevel
+		return bolt.ERROR
 	case FatalLevel:
 		return bolt.FatalLevel
 	case PanicLevel:
@@ -397,7 +397,7 @@ func convertLevel(level Level) bolt.Level {
 	case Disabled:
 		return bolt.Level(99) // Higher than any valid level
 	default:
-		return bolt.InfoLevel
+		return bolt.INFO
 	}
 }
 

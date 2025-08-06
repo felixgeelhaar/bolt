@@ -48,7 +48,7 @@ const (
 
 // PIIMasker handles PII data masking and redaction
 type PIIMasker struct {
-	logger     bolt.Logger
+	logger     *bolt.Logger
 	patterns   map[PIIClassification]*regexp.Regexp
 	maskingMap map[PIIClassification]PIIMaskingLevel
 }
@@ -307,7 +307,7 @@ func (pm *PIIMasker) getMaskingLevelName(level PIIMaskingLevel) string {
 
 // Application represents the main application
 type Application struct {
-	logger    bolt.Logger
+	logger    *bolt.Logger
 	piiMasker *PIIMasker
 }
 

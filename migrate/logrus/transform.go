@@ -500,7 +500,7 @@ func (t *LogrusTransformer) GenerateMigrationReport(results []*TransformationRes
 // ValidateTransformation validates that the transformation was successful.
 func (t *LogrusTransformer) ValidateTransformation(inputPath, outputPath string) (*ValidationResult, error) {
 	// Read both files
-	original, err := os.ReadFile(inputPath)
+	_, err := os.ReadFile(inputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read original file: %w", err)
 	}
