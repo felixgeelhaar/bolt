@@ -1,0 +1,888 @@
+# Default values for Bolt Monitoring Stack
+# This is a production-ready configuration with enterprise-grade monitoring
+
+# Global configuration
+global:
+  # Image registry settings
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+  
+  # Security settings
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+  
+  # Network settings
+  domain: "bolt-monitoring.local"
+  protocol: "https"
+  
+  # Resource limits (can be overridden per service)
+  resources:
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+
+# Bolt Application Configuration
+boltApp:
+  enabled: true
+  
+  image:
+    repository: bolt-logging/app
+    tag: "v2.0.0"
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 3
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+    metricsPort: 9090
+    healthPort: 8081
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    hosts:
+      - host: app.bolt-monitoring.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: bolt-app-tls
+        hosts:
+          - app.bolt-monitoring.local
+  
+  # Application configuration
+  config:
+    logLevel: "info"
+    logFormat: "json"
+    metricsEnabled: true
+    tracingEnabled: true
+    performanceTargetNs: 100000  # 100μs SLA
+    
+  # Environment variables
+  env:
+    - name: LOG_LEVEL
+      value: "info"
+    - name: METRICS_ENABLED
+      value: "true"
+    - name: TRACING_ENABLED
+      value: "true"
+    - name: JAEGER_ENDPOINT
+      value: "http://jaeger-collector:14268/api/traces"
+  
+  # Resource configuration optimized for Bolt's performance
+  resources:
+    limits:
+      memory: "1Gi"
+      cpu: "2000m"
+    requests:
+      memory: "256Mi"
+      cpu: "500m"
+  
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: health
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Auto-scaling configuration
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+    # Custom metrics for Bolt-specific scaling
+    customMetrics:
+      - type: Pods
+        pods:
+          metric:
+            name: bolt_logging_rate
+          target:
+            type: AverageValue
+            averageValue: "50000"  # Scale when >50k logs/sec per pod
+      - type: Pods
+        pods:
+          metric:
+            name: bolt_logging_latency_p95
+          target:
+            type: AverageValue
+            averageValue: "90000n"  # Scale when p95 latency >90μs
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  # Security context
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+  
+  # Node selector and affinity
+  nodeSelector: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values: ["bolt-app"]
+          topologyKey: kubernetes.io/hostname
+  
+  tolerations: []
+
+# Prometheus Configuration
+prometheus:
+  enabled: true
+  
+  server:
+    image:
+      repository: prom/prometheus
+      tag: v2.47.0
+    
+    replicaCount: 2
+    
+    retention: "30d"
+    retentionSize: "50GB"
+    
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    # Prometheus configuration
+    config:
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+        external_labels:
+          cluster: "production"
+          environment: "prod"
+      
+      # Scrape configurations optimized for Bolt
+      scrape_configs:
+        - job_name: 'bolt-app'
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+              action: keep
+              regex: true
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+              action: replace
+              target_label: __address__
+              regex: ([^:]+)(?::[0-9]+)?;(\d+)
+              replacement: $1:$2
+          scrape_interval: 1s  # High-frequency scraping for performance monitoring
+          scrape_timeout: 500ms
+        
+        - job_name: 'bolt-performance'
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+              action: keep
+              regex: bolt-app
+          scrape_interval: 1s  # Critical performance metrics
+          metrics_path: '/metrics/performance'
+          metric_relabel_configs:
+            - source_labels: [__name__]
+              regex: 'bolt_(logging_duration|allocation_count|event_pool_size|handler_latency).*'
+              action: keep
+    
+    # Storage configuration
+    persistence:
+      enabled: true
+      storageClass: "ssd"
+      size: 100Gi
+      accessMode: ReadWriteOnce
+    
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 9090
+      
+    # Ingress for Prometheus UI
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        nginx.ingress.kubernetes.io/auth-type: basic
+        nginx.ingress.kubernetes.io/auth-secret: prometheus-basic-auth
+      hosts:
+        - host: prometheus.bolt-monitoring.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: prometheus-tls
+          hosts:
+            - prometheus.bolt-monitoring.local
+
+# Grafana Configuration
+grafana:
+  enabled: true
+  
+  image:
+    repository: grafana/grafana
+    tag: "10.1.0"
+  
+  replicas: 1
+  
+  admin:
+    existingSecret: "grafana-admin-secret"
+    userKey: admin-user
+    passwordKey: admin-password
+  
+  # Grafana configuration
+  grafana.ini:
+    server:
+      domain: grafana.bolt-monitoring.local
+      root_url: "https://grafana.bolt-monitoring.local"
+      serve_from_sub_path: false
+    security:
+      admin_user: admin
+      admin_password: ${GF_SECURITY_ADMIN_PASSWORD}
+    auth:
+      disable_login_form: false
+    dashboards:
+      default_home_dashboard_path: /var/lib/grafana/dashboards/bolt-performance-overview.json
+    alerting:
+      enabled: true
+    unified_alerting:
+      enabled: true
+  
+  # Environment variables
+  env:
+    GF_SECURITY_ADMIN_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: grafana-admin-secret
+          key: admin-password
+    GF_INSTALL_PLUGINS: "grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel"
+  
+  # Resources
+  resources:
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+  
+  # Persistence for dashboards and data
+  persistence:
+    enabled: true
+    storageClass: "ssd"
+    size: 10Gi
+    accessMode: ReadWriteOnce
+  
+  # Datasources configuration
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server:9090
+          isDefault: true
+          access: proxy
+          
+        - name: Jaeger
+          type: jaeger
+          url: http://jaeger-query:16686
+          access: proxy
+          
+        - name: Elasticsearch
+          type: elasticsearch
+          url: http://elasticsearch:9200
+          database: "bolt-logs-*"
+          access: proxy
+          jsonData:
+            timeField: "@timestamp"
+            interval: "1s"
+  
+  # Dashboards
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'bolt-dashboards'
+          orgId: 1
+          folder: 'Bolt Logging'
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 10
+          options:
+            path: /var/lib/grafana/dashboards/bolt
+  
+  dashboards:
+    bolt-dashboards:
+      bolt-performance-overview:
+        gnetId: null
+        datasource: Prometheus
+        file: dashboards/bolt-performance-overview.json
+      bolt-operational-health:
+        gnetId: null
+        datasource: Prometheus
+        file: dashboards/bolt-operational-health.json
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 3000
+  
+  # Ingress
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: grafana.bolt-monitoring.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.bolt-monitoring.local
+
+# Jaeger Configuration
+jaeger:
+  enabled: true
+  
+  # All-in-one deployment for development, operator for production
+  strategy: allInOne
+  
+  allInOne:
+    image: jaegertracing/all-in-one:1.50
+    
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+    
+    # Environment configuration optimized for Bolt
+    env:
+      - name: COLLECTOR_OTLP_ENABLED
+        value: "true"
+      - name: MEMORY_MAX_TRACES
+        value: "50000"
+      - name: SPAN_STORAGE_TYPE
+        value: "memory"
+      - name: JAEGER_SAMPLER_TYPE
+        value: "adaptive"
+      - name: JAEGER_SAMPLER_PARAM
+        value: "0.1"
+      - name: JAEGER_SAMPLER_MAX_TRACES_PER_SECOND
+        value: "1000"
+    
+    service:
+      type: ClusterIP
+      ports:
+        - name: jaeger-ui
+          port: 16686
+          targetPort: 16686
+        - name: jaeger-collector-http
+          port: 14268
+          targetPort: 14268
+        - name: jaeger-collector-grpc
+          port: 14250
+          targetPort: 14250
+    
+    ingress:
+      enabled: true
+      className: "nginx"
+      hosts:
+        - host: jaeger.bolt-monitoring.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: jaeger-tls
+          hosts:
+            - jaeger.bolt-monitoring.local
+
+# AlertManager Configuration
+alertmanager:
+  enabled: true
+  
+  image:
+    repository: prom/alertmanager
+    tag: v0.26.0
+  
+  replicaCount: 3
+  
+  resources:
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+  
+  # AlertManager configuration
+  config:
+    global:
+      smtp_smarthost: 'smtp.example.com:587'
+      smtp_from: 'alerts@bolt-logging.example.com'
+      slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+    
+    route:
+      group_by: ['alertname', 'severity', 'component']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default-receiver'
+      
+      routes:
+        - match:
+            component: bolt-logging
+            severity: critical
+          receiver: 'bolt-critical-alerts'
+          group_wait: 5s
+          repeat_interval: 5m
+    
+    receivers:
+      - name: 'default-receiver'
+        email_configs:
+          - to: 'devops-team@example.com'
+            subject: '[Bolt] Alert: {{ .GroupLabels.alertname }}'
+      
+      - name: 'bolt-critical-alerts'
+        slack_configs:
+          - channel: '#alerts-critical'
+            title: '🔴 CRITICAL: Bolt Logging Alert'
+            text: |
+              {{ range .Alerts }}
+              *Alert:* {{ .Annotations.summary }}
+              *Description:* {{ .Annotations.description }}
+              *Severity:* {{ .Labels.severity }}
+              {{ end }}
+        pagerduty_configs:
+          - service_key: 'your-pagerduty-service-key'
+            description: '{{ .GroupLabels.alertname }} - {{ .CommonAnnotations.summary }}'
+  
+  # Persistence for AlertManager data
+  persistence:
+    enabled: true
+    storageClass: "ssd"
+    size: 5Gi
+    accessMode: ReadWriteOnce
+  
+  service:
+    type: ClusterIP
+    port: 9093
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/auth-type: basic
+      nginx.ingress.kubernetes.io/auth-secret: alertmanager-basic-auth
+    hosts:
+      - host: alertmanager.bolt-monitoring.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: alertmanager-tls
+        hosts:
+          - alertmanager.bolt-monitoring.local
+
+# Node Exporter Configuration
+nodeExporter:
+  enabled: true
+  
+  image:
+    repository: prom/node-exporter
+    tag: v1.6.1
+  
+  # DaemonSet configuration
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  
+  resources:
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+  
+  # Host networking and volumes
+  hostNetwork: true
+  hostPID: true
+  
+  service:
+    type: ClusterIP
+    port: 9100
+    targetPort: 9100
+  
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+
+# Fluentd Configuration
+fluentd:
+  enabled: true
+  
+  image:
+    repository: fluent/fluentd
+    tag: v1.16-debian-1
+  
+  replicaCount: 2
+  
+  resources:
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+  
+  # Fluentd configuration
+  config:
+    fluent.conf: |
+      <source>
+        @type tail
+        path /var/log/containers/*bolt-app*.log
+        pos_file /tmp/fluentd-bolt-app.pos
+        tag bolt.app
+        format json
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S.%LZ
+        keep_time_key true
+      </source>
+      
+      <filter bolt.app>
+        @type kubernetes_metadata
+        kubernetes_url "#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT_HTTPS']}"
+        verify_ssl false
+        ca_file /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file /var/run/secrets/kubernetes.io/serviceaccount/token
+      </filter>
+      
+      <match bolt.app>
+        @type elasticsearch
+        host elasticsearch
+        port 9200
+        index_name bolt-logs
+        type_name _doc
+        flush_interval 1s
+        buffer_chunk_limit 10m
+        buffer_queue_limit 512
+      </match>
+  
+  service:
+    type: ClusterIP
+    ports:
+      - name: forward
+        port: 24224
+        targetPort: 24224
+        protocol: TCP
+      - name: http
+        port: 9880
+        targetPort: 9880
+        protocol: TCP
+
+# Elasticsearch Configuration
+elasticsearch:
+  enabled: true
+  
+  clusterName: "bolt-logging"
+  nodeGroup: "master"
+  
+  replicas: 3
+  minimumMasterNodes: 2
+  
+  esConfig:
+    elasticsearch.yml: |
+      cluster.name: bolt-logging
+      network.host: 0.0.0.0
+      discovery.seed_hosts: "elasticsearch-master-headless"
+      cluster.initial_master_nodes: "elasticsearch-master-0,elasticsearch-master-1,elasticsearch-master-2"
+      xpack.security.enabled: false
+      xpack.monitoring.collection.enabled: true
+  
+  resources:
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+  
+  volumeClaimTemplate:
+    storageClassName: "ssd"
+    resources:
+      requests:
+        storage: 50Gi
+  
+  service:
+    type: ClusterIP
+    ports:
+      - name: http
+        port: 9200
+        protocol: TCP
+      - name: transport
+        port: 9300
+        protocol: TCP
+
+# Kibana Configuration
+kibana:
+  enabled: true
+  
+  replicas: 1
+  
+  kibanaConfig:
+    kibana.yml: |
+      server.name: kibana
+      server.host: 0.0.0.0
+      elasticsearch.hosts: ["http://elasticsearch:9200"]
+      server.basePath: ""
+      logging.level: info
+  
+  resources:
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+  
+  service:
+    type: ClusterIP
+    port: 5601
+    targetPort: 5601
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: kibana.bolt-monitoring.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: kibana-tls
+        hosts:
+          - kibana.bolt-monitoring.local
+
+# Security Configuration
+security:
+  # Network policies
+  networkPolicies:
+    enabled: true
+    
+    # Default deny all ingress/egress
+    defaultDenyAll: true
+    
+    # Allow specific traffic patterns
+    rules:
+      - name: allow-prometheus-scraping
+        podSelector:
+          matchLabels:
+            app: prometheus
+        ingress:
+          - from:
+            - podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: prometheus
+            ports:
+            - protocol: TCP
+              port: 9090
+      
+      - name: allow-bolt-app-traffic
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: bolt-app
+        ingress:
+          - from: []
+            ports:
+            - protocol: TCP
+              port: 8080
+            - protocol: TCP
+              port: 9090
+            - protocol: TCP
+              port: 8081
+        egress:
+          - to:
+            - podSelector:
+                matchLabels:
+                  app: jaeger
+            ports:
+            - protocol: TCP
+              port: 14268
+          - to: []
+            ports:
+            - protocol: UDP
+              port: 53
+            - protocol: TCP
+              port: 443
+            - protocol: TCP
+              port: 80
+  
+  # Pod security policies
+  podSecurityPolicy:
+    enabled: true
+    name: bolt-monitoring-psp
+    spec:
+      privileged: false
+      allowPrivilegeEscalation: false
+      requiredDropCapabilities:
+        - ALL
+      volumes:
+        - 'configMap'
+        - 'emptyDir'
+        - 'projected'
+        - 'secret'
+        - 'downwardAPI'
+        - 'persistentVolumeClaim'
+      runAsUser:
+        rule: 'MustRunAsNonRoot'
+      seLinux:
+        rule: 'RunAsAny'
+      fsGroup:
+        rule: 'RunAsAny'
+
+# Service mesh integration (Istio)
+serviceMesh:
+  enabled: false
+  
+  # Istio configuration
+  istio:
+    gateway:
+      enabled: true
+      hosts:
+        - "*.bolt-monitoring.local"
+      tls:
+        mode: SIMPLE
+        credentialName: bolt-monitoring-tls
+    
+    virtualService:
+      enabled: true
+      gateways:
+        - bolt-monitoring-gateway
+      
+    destinationRule:
+      enabled: true
+      trafficPolicy:
+        tls:
+          mode: ISTIO_MUTUAL
+
+# Storage configuration
+storage:
+  # Storage classes for different performance tiers
+  storageClasses:
+    ssd:
+      name: "ssd"
+      provisioner: "kubernetes.io/aws-ebs"
+      parameters:
+        type: "gp3"
+        fsType: "ext4"
+        encrypted: "true"
+      reclaimPolicy: "Delete"
+      allowVolumeExpansion: true
+    
+    standard:
+      name: "standard"
+      provisioner: "kubernetes.io/aws-ebs"
+      parameters:
+        type: "gp2"
+        fsType: "ext4"
+      reclaimPolicy: "Delete"
+      allowVolumeExpansion: true
+
+# Backup and disaster recovery
+backup:
+  enabled: true
+  
+  # Backup schedule (using Velero or similar)
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  
+  # Retention policy
+  retention: "30d"
+  
+  # Storage location
+  storageLocation: "s3://bolt-monitoring-backups"
+  
+  # What to backup
+  includedResources:
+    - persistentvolumes
+    - persistentvolumeclaims
+    - configmaps
+    - secrets
+
+# Testing configuration
+testing:
+  enabled: false
+  
+  # Test jobs
+  jobs:
+    - name: smoke-test
+      image: curlimages/curl:8.4.0
+      command: ["/bin/sh"]
+      args: 
+        - -c
+        - |
+          curl -f http://bolt-app/health || exit 1
+          curl -f http://prometheus:9090/-/healthy || exit 1
+          curl -f http://grafana:3000/api/health || exit 1
+          echo "All services healthy"
+    
+    - name: performance-test
+      image: bolt-logging/performance-tester:latest
+      command: ["/bin/sh"]
+      args:
+        - -c
+        - |
+          echo "Running Bolt performance tests..."
+          bolt-perf-test --target http://bolt-app:8080 --duration 60s --rate 10000
+    
+    - name: load-test
+      image: loadimpact/k6:latest
+      command: ["k6"]
+      args: ["run", "/scripts/load-test.js"]

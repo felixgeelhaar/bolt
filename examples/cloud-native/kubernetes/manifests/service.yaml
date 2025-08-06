@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bolt-demo-app-service
+  namespace: bolt-demo
+  labels:
+    app: bolt-demo-app
+    component: application
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8081"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: metrics
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: grpc
+  selector:
+    app: bolt-demo-app
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bolt-demo-app-headless
+  namespace: bolt-demo
+  labels:
+    app: bolt-demo-app
+    component: application
+spec:
+  clusterIP: None
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: grpc
+  selector:
+    app: bolt-demo-app

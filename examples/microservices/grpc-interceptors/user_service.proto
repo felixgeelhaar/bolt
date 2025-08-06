@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package userservice;
+
+option go_package = "github.com/felixgeelhaar/bolt/examples/microservices/grpc-interceptors/proto";
+
+// UserService provides user management functionality
+service UserService {
+  // GetUser retrieves a user by ID
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  
+  // CreateUser creates a new user
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  
+  // ListUsers returns a paginated list of users
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  
+  // StreamUsers returns a stream of user updates
+  rpc StreamUsers(StreamUsersRequest) returns (stream UserEvent);
+}
+
+// Request/Response messages
+message GetUserRequest {
+  int64 user_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message StreamUsersRequest {
+  repeated int64 user_ids = 1;
+}
+
+message UserEvent {
+  enum EventType {
+    CREATED = 0;
+    UPDATED = 1;
+    DELETED = 2;
+  }
+  
+  EventType type = 1;
+  User user = 2;
+  int64 timestamp = 3;
+}
+
+// Data models
+message User {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  int64 created_at = 4;
+  int64 updated_at = 5;
+}

@@ -1,0 +1,546 @@
+# Docker Compose Configuration for Bolt Logging Library Monitoring Stack
+# Complete local development environment with full observability
+
+version: '3.8'
+
+# Shared networks
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+# Shared volumes
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  jaeger_data:
+    driver: local
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+
+services:
+  # Core Bolt Application
+  bolt-app:
+    build:
+      context: ../../examples/cloud-native/docker-compose/app
+      dockerfile: Dockerfile
+    container_name: bolt-app
+    hostname: bolt-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Application HTTP
+      - "9090:9090"  # Metrics endpoint
+      - "8081:8081"  # Health check
+    environment:
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - METRICS_ENABLED=true
+      - TRACING_ENABLED=true
+      - JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+      - PROMETHEUS_PUSHGATEWAY=http://pushgateway:9091
+    volumes:
+      - ./configs/bolt-app.yaml:/app/config.yaml:ro
+      - ./logs:/app/logs
+    networks:
+      - app
+      - monitoring
+    depends_on:
+      - jaeger
+      - prometheus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9090"
+      - "prometheus.io/path=/metrics"
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    ports:
+      - "9000:9090"  # Web UI
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--log.level=info'
+    volumes:
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../prometheus/rules:/etc/prometheus/rules:ro
+      - ../prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    depends_on:
+      - alertmanager
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # AlertManager for alert handling
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    hostname: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"  # Web UI
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--log.level=info'
+    volumes:
+      - ../alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ../alertmanager/templates:/etc/alertmanager/templates:ro
+      - alertmanager_data:/alertmanager
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Web UI
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=bolt-admin-2024
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/bolt-performance-overview.json
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_LOG_FILTERS=rendering:debug
+    volumes:
+      - ../grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./configs/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana Image Renderer
+  renderer:
+    image: grafana/grafana-image-renderer:3.8.1
+    container_name: grafana-renderer
+    hostname: renderer
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ENABLE_METRICS: 'true'
+      HTTP_HOST: "0.0.0.0"
+    networks:
+      - monitoring
+
+  # Jaeger for distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: jaeger
+    hostname: jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"  # Web UI
+      - "14268:14268"  # HTTP collector
+      - "14250:14250"  # gRPC collector
+      - "6831:6831/udp"  # UDP agent (compact)
+      - "6832:6832/udp"  # UDP agent (binary)
+      - "5778:5778"    # HTTP config
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - MEMORY_MAX_TRACES=50000
+      - SPAN_STORAGE_TYPE=memory
+      - JAEGER_SAMPLER_TYPE=adaptive
+      - JAEGER_SAMPLER_PARAM=0.1
+      - JAEGER_SAMPLER_MAX_TRACES_PER_SECOND=1000
+    volumes:
+      - jaeger_data:/tmp
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:14269/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Elasticsearch for log storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: elasticsearch
+    hostname: elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=bolt-monitoring
+      - node.name=elasticsearch-node-1
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./configs/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Kibana for log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.0
+    container_name: kibana
+    hostname: kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=kibana
+      - SERVER_HOST=0.0.0.0
+    volumes:
+      - ./configs/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    networks:
+      - monitoring
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Fluentd for log aggregation
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: fluentd
+    hostname: fluentd
+    restart: unless-stopped
+    ports:
+      - "24224:24224"  # Forward input
+      - "9880:9880"    # HTTP input
+    environment:
+      - FLUENTD_CONF=fluentd.conf
+      - FLUENT_ELASTICSEARCH_HOST=elasticsearch
+      - FLUENT_ELASTICSEARCH_PORT=9200
+      - FLUENT_ELASTICSEARCH_INDEX_NAME=bolt-logs
+    volumes:
+      - ../fluentd/fluent.conf:/fluentd/etc/fluentd.conf:ro
+      - ./logs:/app/logs:ro
+    networks:
+      - monitoring
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9880/api/plugins.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: node-exporter
+    hostname: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host/root'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.cpu.info'
+      - '--collector.meminfo'
+      - '--collector.diskstats'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # cAdvisor for container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: cadvisor
+    hostname: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Pushgateway for batch job metrics
+  pushgateway:
+    image: prom/pushgateway:v1.6.2
+    container_name: pushgateway
+    hostname: pushgateway
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9091/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    hostname: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - app
+      - monitoring
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL for application data
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=bolt_demo
+      - POSTGRES_USER=bolt
+      - POSTGRES_PASSWORD=bolt_password_2024
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bolt -d bolt_demo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    hostname: zookeeper
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Kafka for event streaming
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    hostname: kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - monitoring
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Load balancer/reverse proxy
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./configs/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
+    networks:
+      - app
+      - monitoring
+    depends_on:
+      - bolt-app
+      - grafana
+      - prometheus
+      - jaeger
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Watchtower for automated container updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    hostname: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600  # Check every hour
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_NOTIFICATIONS=slack
+      - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=${SLACK_WEBHOOK_URL}
+    networks:
+      - monitoring
+
+  # Docker socket proxy for security
+  dockersocket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: dockersocket-proxy
+    hostname: dockersocket-proxy
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - NETWORKS=1
+      - VOLUMES=1
+      - INFO=1
+    networks:
+      - monitoring
+    ports:
+      - "2375:2375"
+
+# Health check script for entire stack
+  healthcheck:
+    image: curlimages/curl:8.4.0
+    container_name: bolt-healthcheck
+    hostname: healthcheck
+    restart: "no"
+    depends_on:
+      - bolt-app
+      - prometheus
+      - grafana
+      - jaeger
+      - elasticsearch
+      - kibana
+    networks:
+      - monitoring
+    command: >
+      sh -c "
+      echo 'Starting health checks...';
+      curl -f http://bolt-app:8081/health || exit 1;
+      curl -f http://prometheus:9090/-/healthy || exit 1;
+      curl -f http://grafana:3000/api/health || exit 1;
+      curl -f http://jaeger:14269/ || exit 1;
+      curl -f http://elasticsearch:9200/_cluster/health || exit 1;
+      curl -f http://kibana:5601/api/status || exit 1;
+      echo 'All services are healthy!';
+      "
+    profiles:
+      - health

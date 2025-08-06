@@ -1,0 +1,175 @@
+# Bolt Recording Rules for Performance Metrics
+# Pre-computed metrics for faster dashboard queries and historical analysis
+
+groups:
+  - name: bolt.recording.performance
+    interval: 10s
+    rules:
+      # Latency Recording Rules
+      - record: bolt:logging_latency:p50
+        expr: histogram_quantile(0.50, rate(bolt_logging_duration_seconds_bucket[1m]))
+
+      - record: bolt:logging_latency:p95
+        expr: histogram_quantile(0.95, rate(bolt_logging_duration_seconds_bucket[1m]))
+
+      - record: bolt:logging_latency:p99
+        expr: histogram_quantile(0.99, rate(bolt_logging_duration_seconds_bucket[1m]))
+
+      - record: bolt:logging_latency:p999
+        expr: histogram_quantile(0.999, rate(bolt_logging_duration_seconds_bucket[1m]))
+
+      # Throughput Recording Rules
+      - record: bolt:logging_rate:1m
+        expr: rate(bolt_log_events_total[1m])
+
+      - record: bolt:logging_rate:5m
+        expr: rate(bolt_log_events_total[5m])
+
+      - record: bolt:logging_rate:15m
+        expr: rate(bolt_log_events_total[15m])
+
+      # Error Rate Recording Rules
+      - record: bolt:error_rate:1m
+        expr: rate(bolt_logging_errors_total[1m]) / rate(bolt_log_events_total[1m])
+
+      - record: bolt:error_rate:5m
+        expr: rate(bolt_logging_errors_total[5m]) / rate(bolt_log_events_total[5m])
+
+      # Allocation Tracking (Critical for Zero-Allocation Goal)
+      - record: bolt:allocation_rate:1m
+        expr: rate(bolt_allocation_count_total[1m])
+
+      - record: bolt:allocation_rate:5m
+        expr: rate(bolt_allocation_count_total[5m])
+
+      # Handler Performance Recording Rules
+      - record: bolt:handler_latency:p95
+        expr: histogram_quantile(0.95, rate(bolt_handler_duration_seconds_bucket[1m]))
+
+      - record: bolt:handler_latency:p99
+        expr: histogram_quantile(0.99, rate(bolt_handler_duration_seconds_bucket[1m]))
+
+  - name: bolt.recording.capacity
+    interval: 30s
+    rules:
+      # Event Pool Health
+      - record: bolt:event_pool:utilization
+        expr: (bolt_event_pool_total_events - bolt_event_pool_available_events) / bolt_event_pool_total_events
+
+      - record: bolt:event_pool:pressure
+        expr: bolt_event_pool_gets_total - bolt_event_pool_puts_total
+
+      # Memory Efficiency
+      - record: bolt:memory:efficiency_ratio
+        expr: bolt_log_events_total / process_resident_memory_bytes
+
+      # CPU Efficiency (Events per CPU second)
+      - record: bolt:cpu:events_per_second
+        expr: rate(bolt_log_events_total[5m]) / rate(process_cpu_seconds_total[5m])
+
+  - name: bolt.recording.business
+    interval: 60s
+    rules:
+      # Log Level Distribution
+      - record: bolt:log_level:error_ratio
+        expr: rate(bolt_log_events_total{level="error"}[5m]) / rate(bolt_log_events_total[5m])
+
+      - record: bolt:log_level:warn_ratio
+        expr: rate(bolt_log_events_total{level="warn"}[5m]) / rate(bolt_log_events_total[5m])
+
+      - record: bolt:log_level:info_ratio
+        expr: rate(bolt_log_events_total{level="info"}[5m]) / rate(bolt_log_events_total[5m])
+
+      - record: bolt:log_level:debug_ratio
+        expr: rate(bolt_log_events_total{level="debug"}[5m]) / rate(bolt_log_events_total[5m])
+
+      # Field Usage Statistics
+      - record: bolt:fields:average_per_event
+        expr: rate(bolt_log_fields_total[5m]) / rate(bolt_log_events_total[5m])
+
+      - record: bolt:fields:string_field_ratio
+        expr: rate(bolt_log_fields_total{type="string"}[5m]) / rate(bolt_log_fields_total[5m])
+
+      - record: bolt:fields:numeric_field_ratio
+        expr: rate(bolt_log_fields_total{type=~"int|float"}[5m]) / rate(bolt_log_fields_total[5m])
+
+      # Handler Type Distribution
+      - record: bolt:handlers:json_usage
+        expr: rate(bolt_handler_invocations_total{type="json"}[5m]) / rate(bolt_handler_invocations_total[5m])
+
+      - record: bolt:handlers:console_usage
+        expr: rate(bolt_handler_invocations_total{type="console"}[5m]) / rate(bolt_handler_invocations_total[5m])
+
+  - name: bolt.recording.sla
+    interval: 60s
+    rules:
+      # SLA Compliance Metrics
+      - record: bolt:sla:latency_compliance
+        expr: |
+          (
+            sum(rate(bolt_logging_duration_seconds_bucket{le="0.0001"}[5m])) /
+            sum(rate(bolt_logging_duration_seconds_bucket{le="+Inf"}[5m]))
+          )
+
+      - record: bolt:sla:availability
+        expr: up{job="bolt-app"}
+
+      - record: bolt:sla:error_budget
+        expr: 1 - bolt:error_rate:5m
+
+      # Performance Trend Analysis
+      - record: bolt:trend:latency_5m_vs_1h
+        expr: bolt:logging_latency:p95 / (bolt:logging_latency:p95 offset 1h)
+
+      - record: bolt:trend:throughput_5m_vs_1h
+        expr: bolt:logging_rate:5m / (bolt:logging_rate:5m offset 1h)
+
+  - name: bolt.recording.efficiency
+    interval: 30s
+    rules:
+      # Zero-Allocation Efficiency
+      - record: bolt:efficiency:zero_allocation_compliance
+        expr: 1 - (bolt:allocation_rate:5m / bolt:logging_rate:5m)
+
+      # Serialization Efficiency
+      - record: bolt:efficiency:serialization_rate
+        expr: rate(bolt_serialization_bytes_total[5m]) / rate(bolt_log_events_total[5m])
+
+      # Buffer Reuse Efficiency
+      - record: bolt:efficiency:buffer_reuse_rate
+        expr: rate(bolt_buffer_reuses_total[5m]) / rate(bolt_buffer_allocations_total[5m])
+
+      # Overall Performance Score (Composite Metric)
+      - record: bolt:efficiency:performance_score
+        expr: |
+          (
+            bolt:sla:latency_compliance * 0.4 +
+            bolt:efficiency:zero_allocation_compliance * 0.3 +
+            (1 - bolt:error_rate:5m) * 0.2 +
+            bolt:efficiency:buffer_reuse_rate * 0.1
+          )
+
+  - name: bolt.recording.anomaly_detection
+    interval: 60s
+    rules:
+      # Statistical Anomaly Detection
+      - record: bolt:anomaly:latency_zscore
+        expr: |
+          (
+            bolt:logging_latency:p95 - 
+            avg_over_time(bolt:logging_latency:p95[1h])
+          ) / stddev_over_time(bolt:logging_latency:p95[1h])
+
+      - record: bolt:anomaly:throughput_zscore
+        expr: |
+          (
+            bolt:logging_rate:5m - 
+            avg_over_time(bolt:logging_rate:5m[1h])
+          ) / stddev_over_time(bolt:logging_rate:5m[1h])
+
+      # Capacity Trend Detection
+      - record: bolt:trend:memory_growth_rate
+        expr: deriv(process_resident_memory_bytes{job="bolt-app"}[10m])
+
+      - record: bolt:trend:event_pool_pressure_rate
+        expr: deriv(bolt:event_pool:pressure[10m])

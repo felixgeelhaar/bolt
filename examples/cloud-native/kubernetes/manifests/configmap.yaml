@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bolt-demo-config
+  namespace: bolt-demo
+  labels:
+    app: bolt-demo-app
+    component: configuration
+data:
+  app.yaml: |
+    server:
+      host: "0.0.0.0"
+      port: 8080
+      read_timeout: "10s"
+      write_timeout: "10s"
+      idle_timeout: "120s"
+      
+    logging:
+      level: "info"
+      format: "json"
+      structured: true
+      correlation_id_header: "X-Correlation-ID"
+      
+    metrics:
+      enabled: true
+      port: 8081
+      path: "/metrics"
+      
+    tracing:
+      enabled: true
+      service_name: "bolt-demo-app"
+      jaeger_endpoint: "http://jaeger-collector.observability:14268/api/traces"
+      
+    database:
+      host: "postgres.database"
+      port: 5432
+      name: "bolt_demo"
+      ssl_mode: "require"
+      max_connections: 25
+      max_idle_connections: 10
+      connection_lifetime: "1h"
+      
+    cache:
+      redis_url: "redis://redis.cache:6379"
+      default_ttl: "1h"
+      
+    features:
+      enable_debug_endpoints: false
+      enable_profiling: false
+      rate_limiting: true
+      cors_enabled: true
+      
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: bolt-demo
+  labels:
+    app: bolt-demo-app
+    component: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+        storage.metrics on
+
+    [INPUT]
+        Name              tail
+        Path              /var/log/*.log
+        Parser            json
+        Tag               app.*
+        Refresh_Interval  5
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+
+    [FILTER]
+        Name                kubernetes
+        Match               app.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     app.var.log.containers.
+        Merge_Log           On
+        Merge_Log_Key       log_processed
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude Off
+        Annotations         Off
+        Labels              On
+
+    [FILTER]
+        Name    modify
+        Match   app.*
+        Add     cluster_name ${CLUSTER_NAME}
+        Add     environment ${ENVIRONMENT}
+
+    [OUTPUT]
+        Name  forward
+        Match app.*
+        Host  fluentd-aggregator.logging
+        Port  24224
+        Time_as_Integer On
+        Send_options keepalive=true
+        Send_options keepalive_time_interval=30s
+        Send_options keepalive_max_reuse=100
+
+    [OUTPUT]
+        Name   stdout
+        Match  app.*
+        Format json_lines
+
+  parsers.conf: |
+    [PARSER]
+        Name   json
+        Format json
+        Time_Key timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+        Time_Keep   On
+
+    [PARSER]
+        Name        docker
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+        Time_Keep   On

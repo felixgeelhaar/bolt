@@ -1,0 +1,133 @@
+# Helm Chart for Bolt Logging Library Monitoring Stack
+# Production-ready deployment with comprehensive observability
+
+apiVersion: v2
+name: bolt-monitoring
+description: |
+  A comprehensive monitoring stack for Bolt logging library featuring:
+  - Zero-allocation performance monitoring
+  - Sub-100μs latency tracking
+  - Distributed tracing with Jaeger
+  - Prometheus metrics collection
+  - Grafana dashboards
+  - AlertManager notifications
+  - Production-grade reliability
+
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+
+# Chart metadata
+home: https://github.com/bolt-org/bolt
+sources:
+  - https://github.com/bolt-org/bolt
+  - https://github.com/bolt-org/bolt-monitoring
+maintainers:
+  - name: Bolt Team
+    email: team@bolt-logging.org
+    url: https://bolt-logging.org
+keywords:
+  - monitoring
+  - observability
+  - logging
+  - metrics
+  - tracing
+  - alerting
+  - performance
+  - zero-allocation
+
+# Chart annotations
+annotations:
+  category: Monitoring
+  licenses: MIT
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/containsSecurityUpdates: "true"
+  artifacthub.io/changes: |
+    - Added comprehensive monitoring stack
+    - Implemented zero-allocation performance tracking
+    - Enhanced distributed tracing integration
+    - Added production-grade alerting rules
+    - Improved dashboard visualizations
+  artifacthub.io/images: |
+    - name: bolt-app
+      image: bolt-logging/app:v2.0.0
+    - name: prometheus
+      image: prom/prometheus:v2.47.0
+    - name: grafana
+      image: grafana/grafana:10.1.0
+    - name: jaeger-all-in-one
+      image: jaegertracing/all-in-one:1.50
+    - name: alertmanager
+      image: prom/alertmanager:v0.26.0
+    - name: node-exporter
+      image: prom/node-exporter:v1.6.1
+    - name: fluentd
+      image: fluent/fluentd:v1.16-debian-1
+
+# Dependencies
+dependencies:
+  - name: prometheus
+    version: "25.x.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+    tags:
+      - monitoring
+      - metrics
+  
+  - name: grafana
+    version: "6.x.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+    tags:
+      - monitoring
+      - visualization
+  
+  - name: jaeger
+    version: "0.x.x"
+    repository: https://jaegertracing.github.io/helm-charts
+    condition: jaeger.enabled
+    tags:
+      - monitoring
+      - tracing
+  
+  - name: alertmanager
+    version: "1.x.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: alertmanager.enabled
+    tags:
+      - monitoring
+      - alerting
+  
+  - name: elasticsearch
+    version: "8.x.x"
+    repository: https://helm.elastic.co
+    condition: elasticsearch.enabled
+    tags:
+      - logging
+      - storage
+  
+  - name: kibana
+    version: "8.x.x"
+    repository: https://helm.elastic.co
+    condition: kibana.enabled
+    tags:
+      - logging
+      - visualization
+  
+  - name: fluentd
+    version: "0.x.x"
+    repository: https://fluent.github.io/helm-charts
+    condition: fluentd.enabled
+    tags:
+      - logging
+      - aggregation
+
+# Minimum Kubernetes version
+kubeVersion: ">=1.24.0"
+
+# Deprecation notice (if applicable)
+deprecated: false
+
+# Icon for the chart
+icon: https://raw.githubusercontent.com/bolt-org/bolt/main/assets/bolt_logo.png

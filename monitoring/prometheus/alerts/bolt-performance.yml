@@ -1,0 +1,213 @@
+# Bolt Performance Alerting Rules
+# Critical alerts for Bolt logging library performance monitoring
+
+groups:
+  - name: bolt.performance
+    interval: 10s
+    rules:
+      # Logging Latency Alerts
+      - alert: BoltLoggingLatencyHigh
+        expr: histogram_quantile(0.95, rate(bolt_logging_duration_seconds_bucket[5m])) > 0.0001
+        for: 2m
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt logging latency exceeded 100μs"
+          description: "95th percentile logging latency is {{ $value }}s, exceeding the 100μs SLA"
+          runbook_url: "https://bolt.example.com/runbooks/high-latency"
+
+      - alert: BoltLoggingLatencyWarning
+        expr: histogram_quantile(0.95, rate(bolt_logging_duration_seconds_bucket[5m])) > 0.00005
+        for: 5m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt logging latency approaching limit"
+          description: "95th percentile logging latency is {{ $value }}s, approaching the 100μs SLA"
+
+      # Zero-Allocation Violation Alerts
+      - alert: BoltUnexpectedAllocations
+        expr: rate(bolt_allocation_count_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt logging detected unexpected memory allocations"
+          description: "Allocation rate: {{ $value }} allocs/sec - Zero-allocation guarantee violated"
+          runbook_url: "https://bolt.example.com/runbooks/memory-allocations"
+
+      # Event Pool Health Alerts
+      - alert: BoltEventPoolExhaustion
+        expr: bolt_event_pool_available_events < 10
+        for: 30s
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt event pool running low"
+          description: "Available events in pool: {{ $value }}, may cause performance degradation"
+
+      - alert: BoltEventPoolCritical
+        expr: bolt_event_pool_available_events < 5
+        for: 10s
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt event pool critically low"
+          description: "Available events in pool: {{ $value }}, immediate action required"
+          runbook_url: "https://bolt.example.com/runbooks/event-pool-exhaustion"
+
+      # Handler Performance Alerts
+      - alert: BoltHandlerLatencyHigh
+        expr: histogram_quantile(0.99, rate(bolt_handler_duration_seconds_bucket[5m])) > 0.001
+        for: 2m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: performance
+        annotations:
+          summary: "Bolt handler latency high"
+          description: "99th percentile handler latency: {{ $value }}s, may impact application performance"
+
+      # Throughput Alerts
+      - alert: BoltLoggingRateHigh
+        expr: rate(bolt_log_events_total[1m]) > 100000
+        for: 2m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: throughput
+        annotations:
+          summary: "Bolt logging rate unusually high"
+          description: "Logging rate: {{ $value }} events/sec, monitor for potential log spam"
+
+      - alert: BoltLoggingRateCritical
+        expr: rate(bolt_log_events_total[1m]) > 500000
+        for: 30s
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: throughput
+        annotations:
+          summary: "Bolt logging rate critically high"
+          description: "Logging rate: {{ $value }} events/sec, may impact system performance"
+          runbook_url: "https://bolt.example.com/runbooks/high-logging-rate"
+
+  - name: bolt.reliability
+    interval: 30s
+    rules:
+      # Error Rate Alerts
+      - alert: BoltLoggingErrorRate
+        expr: rate(bolt_logging_errors_total[5m]) / rate(bolt_log_events_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: reliability
+        annotations:
+          summary: "Bolt logging error rate elevated"
+          description: "Error rate: {{ $value | humanizePercentage }}, investigate logging issues"
+
+      - alert: BoltLoggingErrorRateCritical
+        expr: rate(bolt_logging_errors_total[5m]) / rate(bolt_log_events_total[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: reliability
+        annotations:
+          summary: "Bolt logging error rate critical"
+          description: "Error rate: {{ $value | humanizePercentage }}, immediate investigation required"
+          runbook_url: "https://bolt.example.com/runbooks/logging-errors"
+
+      # Handler Availability
+      - alert: BoltHandlerDown
+        expr: up{job="bolt-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: availability
+        annotations:
+          summary: "Bolt application handler unavailable"
+          description: "Bolt metrics endpoint is unreachable"
+          runbook_url: "https://bolt.example.com/runbooks/handler-unavailable"
+
+  - name: bolt.capacity
+    interval: 60s
+    rules:
+      # Memory Usage Monitoring
+      - alert: BoltMemoryUsageHigh
+        expr: process_resident_memory_bytes{job="bolt-app"} > 500 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: capacity
+        annotations:
+          summary: "Bolt application memory usage high"
+          description: "Memory usage: {{ $value | humanizeBytes }}, monitor for memory leaks"
+
+      # CPU Usage Monitoring
+      - alert: BoltCPUUsageHigh
+        expr: rate(process_cpu_seconds_total{job="bolt-app"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: capacity
+        annotations:
+          summary: "Bolt application CPU usage high"
+          description: "CPU usage: {{ $value | humanizePercentage }}, investigate performance issues"
+
+      # Disk Space for Log Storage
+      - alert: BoltDiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/var/log"} / node_filesystem_size_bytes{mountpoint="/var/log"}) < 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: bolt-logging
+          category: capacity
+        annotations:
+          summary: "Low disk space for log storage"
+          description: "Available space: {{ $value | humanizePercentage }}, log rotation may be needed"
+          runbook_url: "https://bolt.example.com/runbooks/disk-space"
+
+  - name: bolt.business
+    interval: 60s
+    rules:
+      # Business Metric Alerts
+      - alert: BoltLogLevelDistributionAnomaly
+        expr: |
+          (
+            rate(bolt_log_events_total{level="error"}[10m]) / 
+            rate(bolt_log_events_total[10m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: business
+        annotations:
+          summary: "High error log ratio detected"
+          description: "Error logs comprise {{ $value | humanizePercentage }} of total logs"
+
+      - alert: BoltSilentPeriod
+        expr: rate(bolt_log_events_total[5m]) == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: bolt-logging
+          category: business
+        annotations:
+          summary: "No log events detected"
+          description: "Application may not be logging properly or experiencing issues"
