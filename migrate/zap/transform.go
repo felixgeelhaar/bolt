@@ -250,7 +250,7 @@ func (zct *ZapCodeTransformer) transformSelectorExpr(selector *ast.SelectorExpr,
 	changed := false
 
 	// Transform method calls
-	if ident, ok := selector.X.(*ast.Ident); ok {
+	if _, ok := selector.X.(*ast.Ident); ok {
 		switch selector.Sel.Name {
 		case "Sugar":
 			// Zap's Sugar() method doesn't have a direct equivalent in Bolt
@@ -528,7 +528,7 @@ func (zmg *ZapMigrationGuide) analyzeLine(line, filePath string, lineNum int) {
 			suggestion: "zapcore usage requires manual migration - consider Bolt's handler system",
 			automatic:  false,
 			category:   "Core Configuration",
-		}
+		},
 	}
 
 	for _, pattern := range patterns {

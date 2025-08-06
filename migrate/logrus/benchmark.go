@@ -2,6 +2,7 @@
 package logrus
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -288,7 +289,6 @@ func formatFloat(f float64) string {
 	return fmt.Sprintf("%.1f", f)
 }
 
-import "fmt"
 
 // MemoryUsageTest demonstrates memory usage patterns.
 func MemoryUsageTest() {

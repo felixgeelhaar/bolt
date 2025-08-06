@@ -2,6 +2,7 @@
 package stdlog
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
@@ -430,4 +431,3 @@ func ExampleRealWorldMigration() {
 	// - Structured data can be easily ingested by log aggregation systems
 }
 
-import "bytes"

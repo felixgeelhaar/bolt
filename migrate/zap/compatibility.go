@@ -3,6 +3,7 @@ package zap
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -533,11 +534,6 @@ func (cfg Config) Build(opts ...Option) (*Logger, error) {
 }
 
 // Helper functions
-
-import (
-	"fmt"
-	"strings"
-)
 
 func sprint(args ...interface{}) string {
 	return fmt.Sprint(args...)

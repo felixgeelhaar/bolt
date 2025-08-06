@@ -56,7 +56,6 @@ type PIIMasker struct {
 // NewPIIMasker creates a new PII masking instance
 func NewPIIMasker() *PIIMasker {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
 		With().
 		Str("component", "pii_masker").
 		Logger()
@@ -331,7 +330,6 @@ type User struct {
 // NewApplication creates a new application with PII masking
 func NewApplication() *Application {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
 		With().
 		Str("service", "pii-masking-demo").
 		Str("version", "v1.0.0").

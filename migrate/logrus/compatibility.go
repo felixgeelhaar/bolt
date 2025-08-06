@@ -3,6 +3,7 @@ package logrus
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"runtime"
@@ -713,7 +714,6 @@ func Fatalln(args ...interface{})   { StandardLogger.Fatalln(args...) }
 func Panicln(args ...interface{})   { StandardLogger.Panicln(args...) }
 
 // Helper functions for string formatting
-import "fmt"
 
 func Sprint(args ...interface{}) string {
 	return fmt.Sprint(args...)

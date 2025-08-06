@@ -51,7 +51,6 @@ type AuditLogger struct {
 func NewAuditLogger() *AuditLogger {
 	// Configure structured logging for audit trail
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
 		With().
 		Str("service", "audit-logger").
 		Str("version", "v1.0.0").
@@ -116,7 +115,6 @@ func NewApplication() *Application {
 	auditLogger := NewAuditLogger()
 
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
 		With().
 		Str("service", "audit-demo").
 		Str("version", "v1.0.0").

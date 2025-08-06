@@ -2,7 +2,6 @@ package common
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/ast"

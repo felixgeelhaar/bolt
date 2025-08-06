@@ -2,6 +2,7 @@
 package stdlog
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"testing"
@@ -250,7 +251,6 @@ func PrintPerformanceReport(metrics []PerformanceMetrics) {
 	println("🚀 Migration from standard log to Bolt provides substantial performance benefits!")
 }
 
-import "fmt"
 
 func formatFloat(f float64) string {
 	return fmt.Sprintf("%.1f", f)

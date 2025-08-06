@@ -184,7 +184,6 @@ type Application struct {
 // NewApplication creates a new application instance
 func NewApplication() *Application {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
 		With().
 		Str("service", "prometheus-demo").
 		Str("version", "v1.0.0").
