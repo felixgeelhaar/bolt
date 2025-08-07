@@ -455,7 +455,12 @@ var eventPool = &sync.Pool{
 
 // With creates a new Event with the current logger's context.
 func (l *Logger) With() *Event {
-	return &Event{buf: append([]byte{}, l.context...), level: Level(atomic.LoadInt64(&l.level)), l: l}
+	levelValue := atomic.LoadInt64(&l.level)
+	// Ensure level is within valid range (defensive programming)
+	if levelValue < 0 || levelValue > 127 {
+		levelValue = int64(INFO) // Default to INFO if somehow corrupted
+	}
+	return &Event{buf: append([]byte{}, l.context...), level: Level(levelValue), l: l}
 }
 
 // Logger returns a new Logger with the event's fields as context.
@@ -485,7 +490,12 @@ func (l *Logger) Ctx(ctx context.Context) *Logger {
 
 func (l *Logger) log(level Level) *Event {
 	// Use atomic load to safely read the current level
-	currentLevel := Level(atomic.LoadInt64(&l.level))
+	levelValue := atomic.LoadInt64(&l.level)
+	// Ensure level is within valid range (defensive programming)
+	if levelValue < 0 || levelValue > 127 {
+		levelValue = int64(INFO) // Default to INFO if somehow corrupted
+	}
+	currentLevel := Level(levelValue)
 	if level < currentLevel {
 		return nil
 	}
