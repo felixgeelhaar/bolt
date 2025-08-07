@@ -5,21 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/felixgeelhaar/bolt"
 )
 
-// Level constants matching zerolog levels
-const (
-	TraceLevel Level = iota - 1
-	DebugLevel
-	InfoLevel
-	WarnLevel
-	ErrorLevel
-	FatalLevel
-	PanicLevel
-	Disabled
-)
 
 // GlobalLevel holds the global logging level
 var GlobalLevel Level = InfoLevel

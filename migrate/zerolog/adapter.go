@@ -367,7 +367,8 @@ func (l Level) String() string {
 }
 
 const (
-	DebugLevel Level = iota
+	TraceLevel Level = iota - 1
+	DebugLevel
 	InfoLevel
 	WarnLevel
 	ErrorLevel
