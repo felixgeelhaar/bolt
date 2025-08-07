@@ -590,7 +590,7 @@ func (t *StdlogTransformer) GenerateMigrationGuide(results []*TransformationResu
 	fmt.Fprintln(w, `logger.Info().Str("user", "john").Int("age", 30).Msg("User created")`)
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "// Avoid")
-	fmt.Fprintln(w, `logger.Info().Msg(fmt.Sprintf("User %s created with age %d", "john", 30))`
+	fmt.Fprintln(w, `logger.Info().Msg(fmt.Sprintf("User %s created with age %d", "john", 30))`)
 	fmt.Fprintln(w, "```")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "### Use Appropriate Log Levels")
