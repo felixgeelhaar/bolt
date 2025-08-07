@@ -1,6 +1,9 @@
 // Package main demonstrates OpenTelemetry integration with Bolt logging.
 // This example shows distributed tracing, metrics collection, and structured logging
 // with full observability stack integration.
+//
+// NOTE: This example includes both Jaeger (deprecated) and OTLP exporters
+// for comparison. New implementations should use OTLP exporters.
 package main
 
 import (
@@ -208,7 +211,7 @@ func initMetrics() (*metricsdk.MeterProvider, error) {
 
 func (app *Application) rootHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	
+
 	// Start tracing span
 	ctx, span := app.tracer.Start(ctx, "root_handler",
 		trace.WithAttributes(
@@ -294,7 +297,7 @@ func (app *Application) rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Correlation-ID", correlationID)
 	w.Header().Set("X-Trace-ID", traceID)
-	
+
 	fmt.Fprintf(w, `{
 		"message": "%s",
 		"correlation_id": "%s",
@@ -312,7 +315,7 @@ func (app *Application) rootHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) usersHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	
+
 	// Start tracing span
 	ctx, span := app.tracer.Start(ctx, "users_handler",
 		trace.WithAttributes(
@@ -342,7 +345,7 @@ func (app *Application) usersHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		span.RecordError(err)
 		span.SetAttributes(attribute.String("error", "true"))
-		
+
 		app.errorCounter.Add(ctx, 1,
 			metric.WithAttributes(
 				attribute.String("operation", "list_users"),
@@ -396,7 +399,7 @@ func (app *Application) usersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Correlation-ID", correlationID)
 	w.Header().Set("X-Trace-ID", traceID)
-	
+
 	fmt.Fprintf(w, `{
 		"users": %s,
 		"total": %d,
@@ -414,7 +417,7 @@ func (app *Application) usersHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) errorHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	
+
 	// Start tracing span
 	ctx, span := app.tracer.Start(ctx, "error_handler",
 		trace.WithAttributes(
@@ -488,7 +491,7 @@ func (app *Application) fetchUsersFromDatabase(ctx context.Context, correlationI
 		err := fmt.Errorf("database connection timeout")
 		span.RecordError(err)
 		span.SetAttributes(attribute.String("error", "true"))
-		
+
 		app.logger.Error().
 			Str("correlation_id", correlationID).
 			Str("trace_id", span.SpanContext().TraceID().String()).
@@ -496,7 +499,7 @@ func (app *Application) fetchUsersFromDatabase(ctx context.Context, correlationI
 			Err(err).
 			Dur("query_duration", time.Since(start)).
 			Msg("Database query failed")
-		
+
 		return nil, err
 	}
 
@@ -540,12 +543,12 @@ func getOrCreateCorrelationID(ctx context.Context, r *http.Request) string {
 	if correlationID := r.Header.Get("X-Correlation-ID"); correlationID != "" {
 		return correlationID
 	}
-	
+
 	// Try to get from span baggage
 	if baggage := trace.SpanFromContext(ctx).SpanContext(); baggage.IsValid() {
 		// Could extract from baggage if set
 	}
-	
+
 	// Generate new correlation ID
 	return uuid.New().String()
 }
@@ -560,19 +563,19 @@ func getEnv(key, defaultValue string) string {
 // Health check handler
 func (app *Application) healthHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	
+
 	ctx, span := app.tracer.Start(ctx, "health_check")
 	defer span.End()
 
 	correlationID := getOrCreateCorrelationID(ctx, r)
-	
+
 	app.logger.Info().
 		Str("correlation_id", correlationID).
 		Str("trace_id", span.SpanContext().TraceID().String()).
 		Msg("Health check performed")
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"status":"healthy","timestamp":"%s","correlation_id":"%s"}`, 
+	fmt.Fprintf(w, `{"status":"healthy","timestamp":"%s","correlation_id":"%s"}`,
 		time.Now().UTC().Format(time.RFC3339), correlationID)
 }
 
@@ -596,7 +599,7 @@ func main() {
 
 	// Setup HTTP routes
 	mux := http.NewServeMux()
-	
+
 	// Wrap all handlers with tracing middleware
 	mux.Handle("/", app.tracingMiddleware(http.HandlerFunc(app.rootHandler)))
 	mux.Handle("/users", app.tracingMiddleware(http.HandlerFunc(app.usersHandler)))
@@ -605,7 +608,7 @@ func main() {
 	mux.Handle("/metrics", app.metricsHandler())
 
 	port := getEnv("PORT", "8080")
-	
+
 	app.logger.Info().
 		Str("port", port).
 		Str("service", "otel-demo").

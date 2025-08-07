@@ -433,15 +433,15 @@ func ReplaceGlobals(logger *Logger) func() {
 
 // Config represents the configuration for a logger.
 type Config struct {
-	Level            string   `json:"level" yaml:"level"`
-	Development      bool     `json:"development" yaml:"development"`
-	DisableCaller    bool     `json:"disableCaller" yaml:"disableCaller"`
-	DisableStacktrace bool    `json:"disableStacktrace" yaml:"disableStacktrace"`
-	Sampling         *Sampling `json:"sampling" yaml:"sampling"`
-	Encoding         string   `json:"encoding" yaml:"encoding"`
-	EncoderConfig    EncoderConfig `json:"encoderConfig" yaml:"encoderConfig"`
-	OutputPaths      []string `json:"outputPaths" yaml:"outputPaths"`
-	ErrorOutputPaths []string `json:"errorOutputPaths" yaml:"errorOutputPaths"`
+	Level             string        `json:"level" yaml:"level"`
+	Development       bool          `json:"development" yaml:"development"`
+	DisableCaller     bool          `json:"disableCaller" yaml:"disableCaller"`
+	DisableStacktrace bool          `json:"disableStacktrace" yaml:"disableStacktrace"`
+	Sampling          *Sampling     `json:"sampling" yaml:"sampling"`
+	Encoding          string        `json:"encoding" yaml:"encoding"`
+	EncoderConfig     EncoderConfig `json:"encoderConfig" yaml:"encoderConfig"`
+	OutputPaths       []string      `json:"outputPaths" yaml:"outputPaths"`
+	ErrorOutputPaths  []string      `json:"errorOutputPaths" yaml:"errorOutputPaths"`
 }
 
 // Sampling configures log sampling.
@@ -452,13 +452,13 @@ type Sampling struct {
 
 // EncoderConfig configures the log encoder.
 type EncoderConfig struct {
-	MessageKey     string `json:"messageKey" yaml:"messageKey"`
-	LevelKey       string `json:"levelKey" yaml:"levelKey"`
-	TimeKey        string `json:"timeKey" yaml:"timeKey"`
-	NameKey        string `json:"nameKey" yaml:"nameKey"`
-	CallerKey      string `json:"callerKey" yaml:"callerKey"`
-	StacktraceKey  string `json:"stacktraceKey" yaml:"stacktraceKey"`
-	LineEnding     string `json:"lineEnding" yaml:"lineEnding"`
+	MessageKey    string `json:"messageKey" yaml:"messageKey"`
+	LevelKey      string `json:"levelKey" yaml:"levelKey"`
+	TimeKey       string `json:"timeKey" yaml:"timeKey"`
+	NameKey       string `json:"nameKey" yaml:"nameKey"`
+	CallerKey     string `json:"callerKey" yaml:"callerKey"`
+	StacktraceKey string `json:"stacktraceKey" yaml:"stacktraceKey"`
+	LineEnding    string `json:"lineEnding" yaml:"lineEnding"`
 }
 
 // NewProductionConfig builds a sensible production logging configuration.

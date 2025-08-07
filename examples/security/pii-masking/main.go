@@ -31,19 +31,19 @@ const (
 type PIIClassification string
 
 const (
-	PIIEmail        PIIClassification = "email"
-	PIIPhone        PIIClassification = "phone"
-	PIISSn          PIIClassification = "ssn"
-	PIICreditCard   PIIClassification = "credit_card"
-	PIIName         PIIClassification = "name"
-	PIIAddress      PIIClassification = "address"
-	PIIBankAccount  PIIClassification = "bank_account"
-	PIIIPAddress    PIIClassification = "ip_address"
-	PIIDateOfBirth  PIIClassification = "date_of_birth"
-	PIIDriversLic   PIIClassification = "drivers_license"
-	PIIPassport     PIIClassification = "passport"
-	PIIMedicalID    PIIClassification = "medical_id"
-	PIIGeneric      PIIClassification = "generic"
+	PIIEmail       PIIClassification = "email"
+	PIIPhone       PIIClassification = "phone"
+	PIISSn         PIIClassification = "ssn"
+	PIICreditCard  PIIClassification = "credit_card"
+	PIIName        PIIClassification = "name"
+	PIIAddress     PIIClassification = "address"
+	PIIBankAccount PIIClassification = "bank_account"
+	PIIIPAddress   PIIClassification = "ip_address"
+	PIIDateOfBirth PIIClassification = "date_of_birth"
+	PIIDriversLic  PIIClassification = "drivers_license"
+	PIIPassport    PIIClassification = "passport"
+	PIIMedicalID   PIIClassification = "medical_id"
+	PIIGeneric     PIIClassification = "generic"
 )
 
 // PIIMasker handles PII data masking and redaction
@@ -104,11 +104,11 @@ func (pm *PIIMasker) MaskString(input string) string {
 		if pattern.MatchString(masked) {
 			level := pm.maskingMap[classification]
 			matches := pattern.FindAllString(masked, -1)
-			
+
 			for _, match := range matches {
 				maskedValue := pm.applyMasking(match, classification, level)
 				masked = strings.ReplaceAll(masked, match, maskedValue)
-				
+
 				pm.logger.Debug().
 					Str("classification", string(classification)).
 					Str("masking_level", pm.getMaskingLevelName(level)).
@@ -135,37 +135,37 @@ func (pm *PIIMasker) maskStructValue(v reflect.Value) interface{} {
 	switch v.Kind() {
 	case reflect.String:
 		return pm.MaskString(v.String())
-	
+
 	case reflect.Struct:
 		result := make(map[string]interface{})
 		t := v.Type()
-		
+
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
 			fieldType := t.Field(i)
-			
+
 			if !field.CanInterface() {
 				continue
 			}
-			
+
 			fieldName := fieldType.Name
-			
+
 			// Check if field should be completely redacted
 			if pm.shouldRedactField(fieldName) {
 				result[fieldName] = "[REDACTED]"
 				continue
 			}
-			
+
 			result[fieldName] = pm.maskStructValue(field)
 		}
 		return result
-	
+
 	case reflect.Map:
 		result := make(map[string]interface{})
 		for _, key := range v.MapKeys() {
 			keyStr := key.String()
 			value := v.MapIndex(key)
-			
+
 			if pm.shouldRedactField(keyStr) {
 				result[keyStr] = "[REDACTED]"
 			} else {
@@ -173,14 +173,14 @@ func (pm *PIIMasker) maskStructValue(v reflect.Value) interface{} {
 			}
 		}
 		return result
-	
+
 	case reflect.Slice, reflect.Array:
 		var result []interface{}
 		for i := 0; i < v.Len(); i++ {
 			result = append(result, pm.maskStructValue(v.Index(i)))
 		}
 		return result
-	
+
 	default:
 		return v.Interface()
 	}
@@ -191,16 +191,16 @@ func (pm *PIIMasker) applyMasking(value string, classification PIIClassification
 	switch level {
 	case MaskingNone:
 		return value
-	
+
 	case MaskingPartial:
 		return pm.partialMask(value, classification)
-	
+
 	case MaskingComplete:
 		return "[MASKED]"
-	
+
 	case MaskingHash:
 		return fmt.Sprintf("[HASH:%x]", []byte(value)[:4])
-	
+
 	default:
 		return "[UNKNOWN_MASKING]"
 	}
@@ -220,14 +220,14 @@ func (pm *PIIMasker) partialMask(value string, classification PIIClassification)
 			}
 		}
 		return "***@" + parts[1]
-	
+
 	case PIIPhone:
 		cleaned := regexp.MustCompile(`\D`).ReplaceAllString(value, "")
 		if len(cleaned) >= 10 {
 			return cleaned[:3] + "-***-" + cleaned[len(cleaned)-4:]
 		}
 		return "***-***-" + cleaned[len(cleaned)-4:]
-	
+
 	case PIIName:
 		parts := strings.Fields(value)
 		if len(parts) > 0 {
@@ -242,7 +242,7 @@ func (pm *PIIMasker) partialMask(value string, classification PIIClassification)
 			return strings.Join(masked, " ")
 		}
 		return "***"
-	
+
 	case PIIAddress:
 		// Mask everything except first word and last word
 		parts := strings.Fields(value)
@@ -255,14 +255,14 @@ func (pm *PIIMasker) partialMask(value string, classification PIIClassification)
 			return strings.Join(masked, " ")
 		}
 		return "*** " + parts[len(parts)-1]
-	
+
 	case PIIIPAddress:
 		parts := strings.Split(value, ".")
 		if len(parts) == 4 {
 			return parts[0] + ".***.***.***"
 		}
 		return "***.***.***"
-	
+
 	default:
 		// Generic partial masking
 		if len(value) <= 4 {
@@ -313,18 +313,18 @@ type Application struct {
 
 // User represents a user with potential PII data
 type User struct {
-	ID           string `json:"id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	Email        string `json:"email"`
-	Phone        string `json:"phone"`
-	SSN          string `json:"ssn"`
-	Address      string `json:"address"`
-	CreditCard   string `json:"credit_card"`
-	BankAccount  string `json:"bank_account"`
-	DateOfBirth  string `json:"date_of_birth"`
-	MedicalID    string `json:"medical_id"`
-	DriversLic   string `json:"drivers_license"`
+	ID          string `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	SSN         string `json:"ssn"`
+	Address     string `json:"address"`
+	CreditCard  string `json:"credit_card"`
+	BankAccount string `json:"bank_account"`
+	DateOfBirth string `json:"date_of_birth"`
+	MedicalID   string `json:"medical_id"`
+	DriversLic  string `json:"drivers_license"`
 }
 
 // NewApplication creates a new application with PII masking
@@ -373,7 +373,7 @@ func (app *Application) piiLoggingMiddleware(next http.Handler) http.Handler {
 
 		// Wrap response writer
 		wrapper := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-		
+
 		next.ServeHTTP(wrapper, r)
 
 		duration := time.Since(start)
@@ -414,7 +414,7 @@ func (app *Application) createUserHandler(w http.ResponseWriter, r *http.Request
 
 	// Log user creation with PII masking
 	maskedUser := app.piiMasker.MaskStruct(user)
-	
+
 	app.logger.Info().
 		Str("correlation_id", correlationID).
 		Str("operation", "create_user").
@@ -434,11 +434,11 @@ func (app *Application) createUserHandler(w http.ResponseWriter, r *http.Request
 
 	// Return response (also mask sensitive data in response)
 	maskedResponse := app.piiMasker.MaskStruct(user)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":        "created",
-		"user":          maskedResponse,
+		"status":         "created",
+		"user":           maskedResponse,
 		"correlation_id": correlationID,
 	})
 }
@@ -450,18 +450,18 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Simulate user retrieval
 	user := User{
-		ID:           userID,
-		FirstName:    "John",
-		LastName:     "Doe",
-		Email:        "john.doe@example.com",
-		Phone:        "555-123-4567",
-		SSN:          "123-45-6789",
-		Address:      "123 Main St, Anytown, CA 90210",
-		CreditCard:   "4532-1234-5678-9012",
-		BankAccount:  "987654321",
-		DateOfBirth:  "1980-01-01",
-		MedicalID:    "MED1234567",
-		DriversLic:   "D1234567",
+		ID:          userID,
+		FirstName:   "John",
+		LastName:    "Doe",
+		Email:       "john.doe@example.com",
+		Phone:       "555-123-4567",
+		SSN:         "123-45-6789",
+		Address:     "123 Main St, Anytown, CA 90210",
+		CreditCard:  "4532-1234-5678-9012",
+		BankAccount: "987654321",
+		DateOfBirth: "1980-01-01",
+		MedicalID:   "MED1234567",
+		DriversLic:  "D1234567",
 	}
 
 	app.logger.Info().
@@ -473,7 +473,7 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return masked user data
 	maskedUser := app.piiMasker.MaskStruct(user)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"user":           maskedUser,
@@ -545,7 +545,7 @@ func (app *Application) errorHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Simulate an error with potentially sensitive information
 	sensitiveError := fmt.Errorf("database error: failed to update user john.doe@example.com (SSN: 123-45-6789) at 192.168.1.100")
-	
+
 	// Mask PII in error messages
 	maskedError := app.piiMasker.MaskString(sensitiveError.Error())
 
@@ -565,7 +565,7 @@ func (app *Application) configHandler(w http.ResponseWriter, r *http.Request) {
 	config := map[string]interface{}{
 		"masking_levels": map[string]string{
 			"email":        "partial",
-			"phone":        "partial", 
+			"phone":        "partial",
 			"ssn":          "complete",
 			"credit_card":  "complete",
 			"bank_account": "complete",
@@ -573,7 +573,7 @@ func (app *Application) configHandler(w http.ResponseWriter, r *http.Request) {
 			"address":      "partial",
 		},
 		"compliance_frameworks": []string{"GDPR", "CCPA", "HIPAA"},
-		"redacted_fields": []string{"password", "secret", "token", "key"},
+		"redacted_fields":       []string{"password", "secret", "token", "key"},
 	}
 
 	app.logger.Info().

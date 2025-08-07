@@ -435,12 +435,12 @@ type ZapMigrationGuide struct {
 
 // ZapDetectedPattern represents a Zap code pattern that needs migration.
 type ZapDetectedPattern struct {
-	Pattern     string `json:"pattern"`
-	Suggestion  string `json:"suggestion"`
-	Automatic   bool   `json:"automatic"`
-	FilePath    string `json:"file_path"`
-	LineNumber  int    `json:"line_number"`
-	Category    string `json:"category"`
+	Pattern    string `json:"pattern"`
+	Suggestion string `json:"suggestion"`
+	Automatic  bool   `json:"automatic"`
+	FilePath   string `json:"file_path"`
+	LineNumber int    `json:"line_number"`
+	Category   string `json:"category"`
 }
 
 // NewZapMigrationGuide creates a new Zap migration guide generator.
@@ -592,7 +592,7 @@ func (zmg *ZapMigrationGuide) GenerateGuide() string {
 	// Manual transformations by category
 	if len(manualPatterns) > 0 {
 		guide.WriteString("## Manual Transformations Required\n\n")
-		
+
 		for category, patterns := range categoryMap {
 			manualInCategory := []ZapDetectedPattern{}
 			for _, p := range patterns {
@@ -600,7 +600,7 @@ func (zmg *ZapMigrationGuide) GenerateGuide() string {
 					manualInCategory = append(manualInCategory, p)
 				}
 			}
-			
+
 			if len(manualInCategory) > 0 {
 				guide.WriteString(fmt.Sprintf("### %s\n\n", category))
 				for _, pattern := range manualInCategory {

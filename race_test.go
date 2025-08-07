@@ -14,8 +14,9 @@
 // 7. **Pool Memory Pressure Tests** - Event pool behavior during GC pressure
 //
 // Usage:
-//   go test -race -run="Test.*Race" -v    # Run with race detector
-//   go test -bench="Benchmark.*" -benchmem # Performance benchmarks
+//
+//	go test -race -run="Test.*Race" -v    # Run with race detector
+//	go test -bench="Benchmark.*" -benchmem # Performance benchmarks
 //
 // Race Detection Results:
 // - Library operations are thread-safe (no races in core logging code)
@@ -24,7 +25,7 @@
 // - Handler operations are thread-safe when outputs are thread-safe
 //
 // The tests use ThreadSafeBuffer to isolate race detection to library code only,
-// and TestUnsafeBufferRaceDetection demonstrates that races occur in shared 
+// and TestUnsafeBufferRaceDetection demonstrates that races occur in shared
 // output buffers, not in the logging library itself.
 package bolt
 
@@ -75,7 +76,7 @@ func (tsb *ThreadSafeBuffer) Reset() {
 // without race conditions or data corruption.
 func TestConcurrentLogging(t *testing.T) {
 	const (
-		numGoroutines = 200
+		numGoroutines  = 200
 		logsPerRoutine = 100
 	)
 
@@ -108,7 +109,7 @@ func TestConcurrentLogging(t *testing.T) {
 	// Verify that we got the expected number of log entries
 	expectedLogs := numGoroutines * logsPerRoutine
 	actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
-	
+
 	if actualLogs != expectedLogs {
 		t.Errorf("Expected %d log entries, got %d", expectedLogs, actualLogs)
 	}
@@ -134,7 +135,7 @@ func TestConcurrentLogging(t *testing.T) {
 // to ensure proper pool behavior under high concurrency.
 func TestEventPoolContention(t *testing.T) {
 	const (
-		numGoroutines = 500
+		numGoroutines        = 500
 		operationsPerRoutine = 200
 	)
 
@@ -191,7 +192,7 @@ func TestEventPoolContention(t *testing.T) {
 		t.Errorf("Expected %d pool operations, got %d actual logs", expectedOperations, actualLogs)
 	}
 
-	t.Logf("Pool gets: %d, Pool puts: %d, Total operations: %d", 
+	t.Logf("Pool gets: %d, Pool puts: %d, Total operations: %d",
 		atomic.LoadInt64(&poolGets), atomic.LoadInt64(&poolPuts), expectedOperations)
 }
 
@@ -199,9 +200,9 @@ func TestEventPoolContention(t *testing.T) {
 // to ensure atomic operations work correctly.
 func TestLoggerMutationRace(t *testing.T) {
 	const (
-		numLoggers = 100
+		numLoggers      = 100
 		numLevelChanges = 50
-		logsPerLogger = 100
+		logsPerLogger   = 100
 	)
 
 	buf := &ThreadSafeBuffer{}
@@ -257,11 +258,10 @@ func TestLoggerMutationRace(t *testing.T) {
 // with different buffer destinations.
 func TestHandlerStress(t *testing.T) {
 	const (
-		numHandlers = 50
+		numHandlers    = 50
 		logsPerHandler = 200
 	)
 
-	var handlers []*JSONHandler
 	var buffers []*bytes.Buffer
 	var loggers []*Logger
 
@@ -270,8 +270,7 @@ func TestHandlerStress(t *testing.T) {
 		buf := &bytes.Buffer{}
 		handler := NewJSONHandler(buf)
 		logger := New(handler)
-		
-		handlers = append(handlers, handler)
+
 		buffers = append(buffers, buf)
 		loggers = append(loggers, logger)
 	}
@@ -317,7 +316,7 @@ func TestHandlerStress(t *testing.T) {
 // with OpenTelemetry integration.
 func TestContextLoggerRace(t *testing.T) {
 	const (
-		numGoroutines = 100
+		numGoroutines  = 100
 		logsPerRoutine = 50
 	)
 
@@ -354,7 +353,7 @@ func TestContextLoggerRace(t *testing.T) {
 			defer wg.Done()
 			ctx := traceContexts[routineID%len(traceContexts)]
 			ctxLogger := logger.Ctx(ctx)
-			
+
 			for j := 0; j < logsPerRoutine; j++ {
 				ctxLogger.Info().
 					Int("routine_id", routineID).
@@ -370,7 +369,7 @@ func TestContextLoggerRace(t *testing.T) {
 	// Verify logs contain trace information
 	expectedLogs := numGoroutines * logsPerRoutine
 	actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
-	
+
 	if actualLogs != expectedLogs {
 		t.Errorf("Expected %d context logs, got %d", expectedLogs, actualLogs)
 	}
@@ -391,7 +390,7 @@ func TestContextLoggerRace(t *testing.T) {
 // by testing with different field types and sizes.
 func TestMemorySafety(t *testing.T) {
 	const (
-		numGoroutines = 300
+		numGoroutines        = 300
 		operationsPerRoutine = 100
 	)
 
@@ -406,12 +405,12 @@ func TestMemorySafety(t *testing.T) {
 		wg.Add(1)
 		go func(routineID int) {
 			defer wg.Done()
-			
+
 			// Create data of various sizes
 			smallStr := "small"
 			mediumStr := string(make([]byte, 100))
 			largeStr := string(make([]byte, 1000))
-			
+
 			for j := 0; j < operationsPerRoutine; j++ {
 				switch j % 10 {
 				case 0:
@@ -477,7 +476,7 @@ func TestMemorySafety(t *testing.T) {
 						Counter("operations", &operations).
 						Msg("utility methods test")
 				}
-				
+
 				atomic.AddInt64(&operations, 1)
 			}
 		}(i)
@@ -487,7 +486,7 @@ func TestMemorySafety(t *testing.T) {
 
 	expectedOps := int64(numGoroutines * operationsPerRoutine)
 	actualOps := atomic.LoadInt64(&operations)
-	
+
 	if actualOps != expectedOps {
 		t.Errorf("Expected %d operations, recorded %d", expectedOps, actualOps)
 	}
@@ -518,7 +517,7 @@ func TestMemorySafety(t *testing.T) {
 // memory is under pressure and garbage collection is active.
 func TestPoolBehaviorUnderMemoryPressure(t *testing.T) {
 	const (
-		numGoroutines = 100
+		numGoroutines  = 100
 		logsPerRoutine = 500
 		pressureCycles = 10
 	)
@@ -540,12 +539,12 @@ func TestPoolBehaviorUnderMemoryPressure(t *testing.T) {
 			memoryMutex.Lock()
 			allocatedMemory = append(allocatedMemory, chunk)
 			memoryMutex.Unlock()
-			
+
 			time.Sleep(50 * time.Millisecond)
-			
+
 			// Force garbage collection
 			runtime.GC()
-			
+
 			// Release some memory
 			memoryMutex.Lock()
 			if len(allocatedMemory) > 5 {
@@ -567,7 +566,7 @@ func TestPoolBehaviorUnderMemoryPressure(t *testing.T) {
 					Str("memory_test", "under_pressure").
 					Bool("gc_active", true).
 					Msg("logging under memory pressure")
-				
+
 				// Occasionally yield to allow GC
 				if j%100 == 0 {
 					runtime.Gosched()
@@ -587,7 +586,7 @@ func TestPoolBehaviorUnderMemoryPressure(t *testing.T) {
 	// Verify logging worked correctly despite memory pressure
 	expectedLogs := numGoroutines * logsPerRoutine
 	actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
-	
+
 	if actualLogs != expectedLogs {
 		t.Errorf("Expected %d logs under memory pressure, got %d", expectedLogs, actualLogs)
 	}
@@ -620,11 +619,11 @@ func BenchmarkConcurrentLogging(b *testing.B) {
 	b.Run("Concurrent-10", func(b *testing.B) {
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		var wg sync.WaitGroup
 		const numGoroutines = 10
 		logsPerGoroutine := b.N / numGoroutines
-		
+
 		for i := 0; i < numGoroutines; i++ {
 			wg.Add(1)
 			go func(routineID int) {
@@ -645,11 +644,11 @@ func BenchmarkConcurrentLogging(b *testing.B) {
 	b.Run("Concurrent-100", func(b *testing.B) {
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		var wg sync.WaitGroup
 		const numGoroutines = 100
 		logsPerGoroutine := b.N / numGoroutines
-		
+
 		for i := 0; i < numGoroutines; i++ {
 			wg.Add(1)
 			go func(routineID int) {
@@ -701,13 +700,13 @@ func TestRaceDetection(t *testing.T) {
 	if !testing.Short() {
 		// This test is designed to be run with: go test -race -run=TestRaceDetection
 		t.Log("Running race detection test - make sure to run with -race flag")
-		
+
 		// Run a subset of race-prone operations
 		t.Run("ConcurrentLogging", func(t *testing.T) {
 			buf := &ThreadSafeBuffer{}
 			logger := New(NewJSONHandler(buf))
 			var wg sync.WaitGroup
-			
+
 			for i := 0; i < 50; i++ {
 				wg.Add(1)
 				go func(id int) {
@@ -719,12 +718,12 @@ func TestRaceDetection(t *testing.T) {
 			}
 			wg.Wait()
 		})
-		
+
 		t.Run("LevelChanges", func(t *testing.T) {
 			buf := &ThreadSafeBuffer{}
 			logger := New(NewJSONHandler(buf))
 			var wg sync.WaitGroup
-			
+
 			// Change levels concurrently
 			wg.Add(1)
 			go func() {
@@ -734,7 +733,7 @@ func TestRaceDetection(t *testing.T) {
 					time.Sleep(time.Microsecond)
 				}
 			}()
-			
+
 			// Log concurrently
 			for i := 0; i < 10; i++ {
 				wg.Add(1)
@@ -754,7 +753,7 @@ func TestRaceDetection(t *testing.T) {
 // by showing that when using a thread-safe output, no races occur in the library code.
 func TestLibraryThreadSafety(t *testing.T) {
 	const (
-		numGoroutines = 100
+		numGoroutines  = 100
 		logsPerRoutine = 100
 	)
 
@@ -795,7 +794,7 @@ func TestLibraryThreadSafety(t *testing.T) {
 
 	expectedOps := int64(numGoroutines * logsPerRoutine)
 	actualOps := atomic.LoadInt64(&operations)
-	
+
 	if actualOps != expectedOps {
 		t.Errorf("Expected %d operations, got %d", expectedOps, actualOps)
 	}
@@ -803,7 +802,7 @@ func TestLibraryThreadSafety(t *testing.T) {
 	// Verify no data corruption by checking log structure
 	logData := buf.Bytes()
 	logCount := bytes.Count(logData, []byte("\n"))
-	
+
 	if logCount != int(expectedOps) {
 		t.Errorf("Expected %d log entries, got %d", expectedOps, logCount)
 	}

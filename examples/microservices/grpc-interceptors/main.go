@@ -245,15 +245,15 @@ func (s *Server) StreamUsers(req *pb.StreamUsersRequest, stream pb.UserService_S
 func UnaryServerInterceptor(logger bolt.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		start := time.Now()
-		
+
 		// Extract or generate correlation ID
 		correlationID := extractOrGenerateCorrelationID(ctx)
 		ctx = context.WithValue(ctx, "correlation_id", correlationID)
-		
+
 		// Add correlation ID to outgoing metadata
 		md := metadata.Pairs("correlation-id", correlationID)
 		grpc.SetHeader(ctx, md)
-		
+
 		logger.Info().
 			Str("correlation_id", correlationID).
 			Str("method", info.FullMethod).
@@ -263,15 +263,15 @@ func UnaryServerInterceptor(logger bolt.Logger) grpc.UnaryServerInterceptor {
 
 		// Call the handler
 		resp, err := handler(ctx, req)
-		
+
 		duration := time.Since(start)
-		
+
 		// Log completion
 		logEvent := logger.Info()
 		if err != nil {
 			logEvent = logger.Error()
 		}
-		
+
 		logEvent.
 			Str("correlation_id", correlationID).
 			Str("method", info.FullMethod).
@@ -289,20 +289,20 @@ func UnaryServerInterceptor(logger bolt.Logger) grpc.UnaryServerInterceptor {
 func StreamServerInterceptor(logger bolt.Logger) grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		start := time.Now()
-		
+
 		ctx := stream.Context()
 		correlationID := extractOrGenerateCorrelationID(ctx)
-		
+
 		// Create wrapped stream with correlation ID
 		wrappedStream := &correlationStream{
 			ServerStream:  stream,
 			correlationID: correlationID,
 		}
-		
+
 		// Add correlation ID to outgoing metadata
 		md := metadata.Pairs("correlation-id", correlationID)
 		stream.SetHeader(md)
-		
+
 		logger.Info().
 			Str("correlation_id", correlationID).
 			Str("method", info.FullMethod).
@@ -313,15 +313,15 @@ func StreamServerInterceptor(logger bolt.Logger) grpc.StreamServerInterceptor {
 
 		// Call the handler
 		err := handler(srv, wrappedStream)
-		
+
 		duration := time.Since(start)
-		
+
 		// Log completion
 		logEvent := logger.Info()
 		if err != nil {
 			logEvent = logger.Error()
 		}
-		
+
 		logEvent.
 			Str("correlation_id", correlationID).
 			Str("method", info.FullMethod).
@@ -351,12 +351,12 @@ func (cs *correlationStream) Context() context.Context {
 func UnaryClientInterceptor(logger bolt.Logger) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		start := time.Now()
-		
+
 		correlationID := getOrGenerateCorrelationID(ctx)
-		
+
 		// Add correlation ID to outgoing metadata
 		ctx = metadata.AppendToOutgoingContext(ctx, "correlation-id", correlationID)
-		
+
 		logger.Info().
 			Str("correlation_id", correlationID).
 			Str("method", method).
@@ -367,15 +367,15 @@ func UnaryClientInterceptor(logger bolt.Logger) grpc.UnaryClientInterceptor {
 
 		// Make the call
 		err := invoker(ctx, method, req, reply, cc, opts...)
-		
+
 		duration := time.Since(start)
-		
+
 		// Log completion
 		logEvent := logger.Info()
 		if err != nil {
 			logEvent = logger.Error()
 		}
-		
+
 		logEvent.
 			Str("correlation_id", correlationID).
 			Str("method", method).

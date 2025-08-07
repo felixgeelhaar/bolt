@@ -37,7 +37,7 @@ func ExampleDropInReplacement() {
 
 	// Step 1: Change import from:
 	// import "log"
-	// 
+	//
 	// To:
 	// import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 
@@ -84,7 +84,7 @@ func ExampleErrorHandling() {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 	logger.Error().Err(err).Msg("Database connection failed")
 	logger.Fatal().Msg("Critical error - shutting down")
-	
+
 	// For panic behavior:
 	logger.Fatal().Msg("Unrecoverable error")
 	panic("Unrecoverable error")
@@ -124,13 +124,13 @@ func ExampleMigrationStrategies() {
 	// Strategy 1: Drop-in replacement (fastest migration)
 	// Replace import "log" with import log "github.com/felixgeelhaar/bolt/migrate/stdlog"
 	// Zero code changes, immediate benefits
-	
+
 	// Strategy 2: Compatibility layer with gradual enhancement
 	logger := GetUnderlyingLogger() // Get the Bolt logger for structured logging
-	
+
 	// Continue using standard log functions
 	log.Print("Standard log message")
-	
+
 	// Gradually add structured logging
 	logger.Info().
 		Str("service", "migration").
@@ -170,7 +170,7 @@ func ExampleStructuredLogging() {
 	success := true
 
 	// BEFORE: String formatting (less queryable, harder to analyze)
-	// log.Printf("User %s (ID: %d) request completed in %.2fms, success: %v", 
+	// log.Printf("User %s (ID: %d) request completed in %.2fms, success: %v",
 	//     userName, userID, requestDuration, success)
 
 	// AFTER: Structured logging (easily queryable and analyzable)
@@ -198,10 +198,10 @@ func ExampleConfigurationMigration() {
 
 	// AFTER: Bolt configuration (structured approach)
 	logger := bolt.New(bolt.NewConsoleHandler(os.Stderr))
-	
+
 	// Instead of prefixes, use structured fields
 	appLogger := logger.With().Str("app", "MyApp").Logger()
-	
+
 	// Caller information is available on demand
 	appLogger.Info().Caller().Msg("Application message with caller info")
 
@@ -257,7 +257,7 @@ func ExampleAdvancedFeatures() {
 	err := errors.New("example error")
 	logger.Error().
 		Err(err).
-		Stack(). // Add stack trace
+		Stack().  // Add stack trace
 		Caller(). // Add caller information
 		Msg("Error with debugging information")
 
@@ -297,7 +297,7 @@ func ExampleGradualMigration() {
 // ExampleTestingMigration demonstrates testing considerations during migration.
 func ExampleTestingMigration() {
 	// For testing, you might want to capture log output
-	
+
 	// BEFORE: Testing with standard log required complex setup
 	// var buf bytes.Buffer
 	// log.SetOutput(&buf)
@@ -307,9 +307,9 @@ func ExampleTestingMigration() {
 	// AFTER: Testing with Bolt is straightforward
 	var logOutput bytes.Buffer
 	testLogger := bolt.New(bolt.NewJSONHandler(&logOutput))
-	
+
 	testLogger.Info().Str("test", "value").Msg("test message")
-	
+
 	// logOutput.String() contains the JSON log output
 	// Easy to parse and verify specific fields
 	fmt.Printf("Test log output: %s", logOutput.String())
@@ -344,7 +344,7 @@ func ExampleMigrationBestPractices() {
 	// Best Practice 4: Use structured fields instead of string formatting
 	// Good:
 	logger.Info().Int("count", 42).Str("type", "users").Msg("Processing items")
-	
+
 	// Avoid:
 	logger.Info().Msg(fmt.Sprintf("Processing %d %s", 42, "users"))
 
@@ -359,24 +359,24 @@ func ExampleMigrationBestPractices() {
 // ExamplePerformanceTesting demonstrates how to measure migration benefits.
 func ExamplePerformanceTesting() {
 	// This function shows how to set up benchmarks to measure migration benefits
-	
+
 	fmt.Println("Performance Comparison: Standard Log vs Bolt")
 	fmt.Println("==========================================")
 	fmt.Println()
-	
+
 	fmt.Println("Standard Log:")
 	fmt.Println("- Multiple memory allocations per log call")
 	fmt.Println("- String formatting overhead")
 	fmt.Println("- No built-in structured data support")
 	fmt.Println()
-	
+
 	fmt.Println("Bolt:")
 	fmt.Println("- Zero allocations in hot path")
 	fmt.Println("- Direct serialization without intermediate allocations")
 	fmt.Println("- Native structured logging support")
 	fmt.Println("- Sub-100ns logging operations")
 	fmt.Println()
-	
+
 	fmt.Println("Typical improvements after migration:")
 	fmt.Println("- 80%+ faster logging operations")
 	fmt.Println("- 90%+ reduction in memory allocations")
@@ -387,35 +387,35 @@ func ExamplePerformanceTesting() {
 // ExampleRealWorldMigration demonstrates a complete real-world migration scenario.
 func ExampleRealWorldMigration() {
 	// Scenario: Web server logging migration
-	
+
 	// BEFORE: Standard log in a web server
 	// func handleRequest(w http.ResponseWriter, r *http.Request) {
 	//     start := time.Now()
 	//     log.Printf("Handling %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
-	//     
+	//
 	//     // ... handle request ...
-	//     
+	//
 	//     duration := time.Since(start)
 	//     log.Printf("Request completed in %v", duration)
 	// }
 
 	// AFTER: Structured logging with Bolt
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
-	
+
 	// Simulated request handling
 	method := "GET"
 	path := "/api/users"
 	remoteAddr := "192.168.1.100"
 	// start := time.Now()
-	
+
 	logger.Info().
 		Str("method", method).
 		Str("path", path).
 		Str("remote_addr", remoteAddr).
 		Msg("Handling request")
-	
+
 	// ... handle request ...
-	
+
 	// duration := time.Since(start)
 	logger.Info().
 		Str("method", method).
@@ -423,11 +423,10 @@ func ExampleRealWorldMigration() {
 		// Dur("duration", duration).
 		Int("status_code", 200).
 		Msg("Request completed")
-	
+
 	// Benefits in production:
 	// - Easy to filter logs by method, path, status code
 	// - Simple to create dashboards and alerts
 	// - Better performance under high request load
 	// - Structured data can be easily ingested by log aggregation systems
 }
-

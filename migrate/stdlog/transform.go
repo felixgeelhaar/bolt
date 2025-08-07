@@ -37,7 +37,7 @@ func NewStdlogTransformer() *StdlogTransformer {
 		rules:   make([]TransformationRule, 0),
 		fileSet: token.NewFileSet(),
 	}
-	
+
 	transformer.initDefaultRules()
 	return transformer
 }
@@ -49,87 +49,87 @@ func (t *StdlogTransformer) initDefaultRules() {
 		`"log"`,
 		`"log"\n\t"github.com/felixgeelhaar/bolt"`,
 		true)
-	
+
 	// Logger creation - for explicit log.New() calls
 	t.addRule("new_logger", "Replace log.New() with compatibility layer",
 		`log\.New\(([^)]+)\)`,
 		`bolt.New(bolt.NewJSONHandler($1))`,
 		true)
-	
+
 	// Simple logging method transformations
 	t.addRule("print_to_info", "Transform log.Print to bolt.Info",
 		`log\.Print\(([^)]*)\)`,
 		`bolt.Info().Msg(fmt.Sprint($1))`,
 		true)
-	
+
 	t.addRule("printf_to_infof", "Transform log.Printf to bolt.Info",
 		`log\.Printf\(([^)]*)\)`,
 		`bolt.Info().Printf($1)`,
 		true)
-	
+
 	t.addRule("println_to_info", "Transform log.Println to bolt.Info",
 		`log\.Println\(([^)]*)\)`,
 		`bolt.Info().Msg(fmt.Sprint($1))`,
 		true)
-	
+
 	// Error level transformations
 	t.addRule("panic_to_fatal", "Transform log.Panic to bolt.Fatal with panic",
 		`log\.Panic\(([^)]*)\)`,
 		`{ msg := fmt.Sprint($1); bolt.Fatal().Msg(msg); panic(msg) }`,
 		true)
-	
+
 	t.addRule("panicf_to_fatal", "Transform log.Panicf to bolt.Fatal with panic",
 		`log\.Panicf\(([^)]*)\)`,
 		`{ msg := fmt.Sprintf($1); bolt.Fatal().Msg(msg); panic(msg) }`,
 		true)
-	
+
 	t.addRule("panicln_to_fatal", "Transform log.Panicln to bolt.Fatal with panic",
 		`log\.Panicln\(([^)]*)\)`,
 		`{ msg := fmt.Sprint($1); bolt.Fatal().Msg(msg); panic(msg) }`,
 		true)
-	
+
 	t.addRule("fatal_to_bolt", "Transform log.Fatal to bolt.Fatal",
 		`log\.Fatal\(([^)]*)\)`,
 		`bolt.Fatal().Msg(fmt.Sprint($1))`,
 		true)
-	
+
 	t.addRule("fatalf_to_bolt", "Transform log.Fatalf to bolt.Fatal",
 		`log\.Fatalf\(([^)]*)\)`,
 		`bolt.Fatal().Printf($1)`,
 		true)
-	
+
 	t.addRule("fatalln_to_bolt", "Transform log.Fatalln to bolt.Fatal",
 		`log\.Fatalln\(([^)]*)\)`,
 		`bolt.Fatal().Msg(fmt.Sprint($1))`,
 		true)
-	
+
 	// Logger method transformations (for instances)
 	t.addRule("logger_print", "Transform logger.Print to structured logging",
 		`(\w+)\.Print\(([^)]*)\)`,
 		`$1.Info().Msg(fmt.Sprint($2))`,
 		true)
-	
+
 	t.addRule("logger_printf", "Transform logger.Printf to structured logging",
 		`(\w+)\.Printf\(([^)]*)\)`,
 		`$1.Info().Printf($2)`,
 		true)
-	
+
 	t.addRule("logger_println", "Transform logger.Println to structured logging",
 		`(\w+)\.Println\(([^)]*)\)`,
 		`$1.Info().Msg(fmt.Sprint($2))`,
 		true)
-	
+
 	// Configuration transformations
 	t.addRule("set_output", "Transform SetOutput calls",
 		`log\.SetOutput\(([^)]+)\)`,
 		`// Output configured in bolt.NewJSONHandler($1) or bolt.NewConsoleHandler($1)`,
 		true)
-	
+
 	t.addRule("set_flags", "Transform SetFlags calls",
 		`log\.SetFlags\(([^)]+)\)`,
 		`// Flags handled by Bolt's structured logging`,
 		true)
-	
+
 	t.addRule("set_prefix", "Transform SetPrefix calls",
 		`log\.SetPrefix\(([^)]+)\)`,
 		`// Use structured fields instead: logger.Info().Str("prefix", $1).Msg(...)`,
@@ -151,14 +151,14 @@ func (t *StdlogTransformer) addRule(name, description, pattern, replace string, 
 
 // TransformationResult represents the result of a transformation operation.
 type TransformationResult struct {
-	OriginalFile     string            `json:"original_file"`
-	TransformedFile  string            `json:"transformed_file"`
-	AppliedRules     []string          `json:"applied_rules"`
-	Errors           []string          `json:"errors"`
-	Warnings         []string          `json:"warnings"`
-	LineChanges      map[int]string    `json:"line_changes"`
-	Success          bool              `json:"success"`
-	RequiresManual   []string          `json:"requires_manual"`
+	OriginalFile    string         `json:"original_file"`
+	TransformedFile string         `json:"transformed_file"`
+	AppliedRules    []string       `json:"applied_rules"`
+	Errors          []string       `json:"errors"`
+	Warnings        []string       `json:"warnings"`
+	LineChanges     map[int]string `json:"line_changes"`
+	Success         bool           `json:"success"`
+	RequiresManual  []string       `json:"requires_manual"`
 }
 
 // TransformFile transforms a single file from standard log to Bolt.
@@ -182,12 +182,12 @@ func (t *StdlogTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	}
 
 	contentStr := string(content)
-	
+
 	// Check if file uses standard log package
-	usesLog := strings.Contains(contentStr, `"log"`) || 
-	           strings.Contains(contentStr, "log.Print") || 
-	           strings.Contains(contentStr, "log.Fatal")
-	
+	usesLog := strings.Contains(contentStr, `"log"`) ||
+		strings.Contains(contentStr, "log.Print") ||
+		strings.Contains(contentStr, "log.Fatal")
+
 	if !usesLog {
 		result.Warnings = append(result.Warnings, "File does not appear to use standard log package")
 		// Copy file without transformation
@@ -334,17 +334,17 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 		lines := strings.Split(content, "\n")
 		var result []string
 		importAdded := false
-		
+
 		for _, line := range lines {
 			result = append(result, line)
-			
+
 			// Look for import statements
 			if !importAdded && strings.Contains(line, `"log"`) {
 				result = append(result, `	"github.com/felixgeelhaar/bolt"`)
 				importAdded = true
 			}
 		}
-		
+
 		// If we couldn't find log import, add it at the top after package
 		if !importAdded {
 			for i, line := range result {
@@ -362,47 +362,47 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 				}
 			}
 		}
-		
+
 		return strings.Join(result, "\n")
 	}
-	
+
 	return content
 }
 
 // identifyManualMigrations identifies patterns that require manual migration.
 func (t *StdlogTransformer) identifyManualMigrations(content string) []string {
 	var manual []string
-	
+
 	// Custom logger instances with specific configurations
 	if strings.Contains(content, "log.New(") {
 		manual = append(manual, "Custom logger instances may need manual handler configuration")
 	}
-	
+
 	// Complex flag usage
 	if strings.Contains(content, "log.SetFlags(") || strings.Contains(content, "log.Flags()") {
 		manual = append(manual, "Log flags should be replaced with structured logging patterns")
 	}
-	
+
 	// Output redirection
 	if strings.Contains(content, "log.SetOutput(") {
 		manual = append(manual, "Output redirection should use bolt.NewJSONHandler() or bolt.NewConsoleHandler()")
 	}
-	
+
 	// Prefix usage
 	if strings.Contains(content, "log.SetPrefix(") || strings.Contains(content, "log.Prefix()") {
 		manual = append(manual, "Prefixes should be replaced with structured fields: .Str(\"component\", \"value\")")
 	}
-	
+
 	// Writer() usage
 	if strings.Contains(content, "log.Writer()") {
 		manual = append(manual, "Writer() calls need manual handling as Bolt encapsulates output")
 	}
-	
+
 	// Output() usage
 	if strings.Contains(content, "log.Output(") {
 		manual = append(manual, "Output() calls should be replaced with appropriate log level methods")
 	}
-	
+
 	return manual
 }
 
@@ -487,7 +487,7 @@ func (t *StdlogTransformer) GenerateMigrationGuide(results []*TransformationResu
 	totalFiles := len(results)
 	successful := 0
 	manualRequired := 0
-	
+
 	for _, result := range results {
 		if result.Success {
 			successful++
@@ -510,7 +510,7 @@ func (t *StdlogTransformer) GenerateMigrationGuide(results []*TransformationResu
 	fmt.Fprintln(w, "```go")
 	fmt.Fprintln(w, "// Before")
 	fmt.Fprintln(w, `log.Print("Hello, World!")`)
-	fmt.Fprintln(w, `log.Printf("User %d logged in", userID)`)
+	fmt.Fprintln(w, `log.Printf("User %%d logged in", userID)`)
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "// After")
 	fmt.Fprintln(w, `logger.Info().Msg("Hello, World!")`)
@@ -590,7 +590,7 @@ func (t *StdlogTransformer) GenerateMigrationGuide(results []*TransformationResu
 	fmt.Fprintln(w, `logger.Info().Str("user", "john").Int("age", 30).Msg("User created")`)
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "// Avoid")
-	fmt.Fprintln(w, `logger.Info().Msg(fmt.Sprintf("User %s created with age %d", "john", 30))`)
+	fmt.Fprintln(w, `logger.Info().Msg(fmt.Sprintf("User %%s created with age %%d", "john", 30))`)
 	fmt.Fprintln(w, "```")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "### Use Appropriate Log Levels")
@@ -647,22 +647,22 @@ func NewInteractiveMigration(input io.Reader, output io.Writer) *InteractiveMigr
 // RunInteractive runs an interactive migration session.
 func (im *InteractiveMigration) RunInteractive() error {
 	scanner := bufio.NewScanner(im.input)
-	
+
 	fmt.Fprintln(im.output, "=== Standard Log to Bolt Migration Tool ===")
 	fmt.Fprintln(im.output, "")
 	fmt.Fprintln(im.output, "This tool will help you migrate from Go's standard log package to Bolt.")
 	fmt.Fprintln(im.output, "")
-	
+
 	// Migration strategy selection
 	fmt.Fprintln(im.output, "Select migration strategy:")
 	fmt.Fprintln(im.output, "1. Drop-in replacement (fastest, maintains all existing behavior)")
 	fmt.Fprintln(im.output, "2. Structured migration (recommended, transforms to structured logging)")
 	fmt.Fprintln(im.output, "3. Analysis only (show what would be changed)")
 	fmt.Fprint(im.output, "Choice (1-3): ")
-	
+
 	scanner.Scan()
 	choice := strings.TrimSpace(scanner.Text())
-	
+
 	if choice == "1" {
 		return im.runDropInReplacement()
 	} else if choice == "2" {
@@ -670,7 +670,7 @@ func (im *InteractiveMigration) RunInteractive() error {
 	} else if choice == "3" {
 		return im.runAnalysisOnly()
 	}
-	
+
 	fmt.Fprintln(im.output, "Invalid choice. Exiting.")
 	return nil
 }
@@ -695,34 +695,34 @@ func (im *InteractiveMigration) runDropInReplacement() error {
 	fmt.Fprintln(im.output, "- Maintains all existing behavior")
 	fmt.Fprintln(im.output, "- Can gradually adopt structured logging later")
 	fmt.Fprintln(im.output, "")
-	
+
 	return nil
 }
 
 // runStructuredMigration runs the structured migration process.
 func (im *InteractiveMigration) runStructuredMigration() error {
 	scanner := bufio.NewScanner(im.input)
-	
+
 	fmt.Fprintln(im.output, "\n=== Structured Migration ===")
 	fmt.Fprintln(im.output, "")
-	
+
 	// Get source directory
 	fmt.Fprint(im.output, "Enter source directory path: ")
 	scanner.Scan()
 	sourceDir := strings.TrimSpace(scanner.Text())
-	
+
 	// Get output directory
 	fmt.Fprint(im.output, "Enter output directory path: ")
 	scanner.Scan()
 	outputDir := strings.TrimSpace(scanner.Text())
-	
+
 	// Run transformation
 	fmt.Fprintln(im.output, "\nAnalyzing and transforming files...")
 	results, err := im.transformer.TransformDirectory(sourceDir, outputDir)
 	if err != nil {
 		return fmt.Errorf("migration failed: %w", err)
 	}
-	
+
 	// Show results
 	successful := 0
 	needsManual := 0
@@ -734,17 +734,17 @@ func (im *InteractiveMigration) runStructuredMigration() error {
 			needsManual++
 		}
 	}
-	
+
 	fmt.Fprintf(im.output, "\nMigration completed:\n")
 	fmt.Fprintf(im.output, "- Files processed: %d\n", len(results))
 	fmt.Fprintf(im.output, "- Successfully transformed: %d\n", successful)
 	fmt.Fprintf(im.output, "- Need manual review: %d\n", needsManual)
-	
+
 	// Generate guide
 	fmt.Fprint(im.output, "\nGenerate migration guide? (Y/n): ")
 	scanner.Scan()
 	generateGuide := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	
+
 	if generateGuide != "n" && generateGuide != "no" {
 		guidePath := filepath.Join(outputDir, "migration_guide.md")
 		if err := im.transformer.GenerateMigrationGuide(results, guidePath); err != nil {
@@ -753,54 +753,54 @@ func (im *InteractiveMigration) runStructuredMigration() error {
 			fmt.Fprintf(im.output, "Migration guide generated: %s\n", guidePath)
 		}
 	}
-	
+
 	return nil
 }
 
 // runAnalysisOnly analyzes files without transformation.
 func (im *InteractiveMigration) runAnalysisOnly() error {
 	scanner := bufio.NewScanner(im.input)
-	
+
 	fmt.Fprintln(im.output, "\n=== Migration Analysis ===")
 	fmt.Fprintln(im.output, "")
-	
+
 	fmt.Fprint(im.output, "Enter directory to analyze: ")
 	scanner.Scan()
 	sourceDir := strings.TrimSpace(scanner.Text())
-	
+
 	// Analyze directory
 	fmt.Fprintln(im.output, "\nAnalyzing files...")
-	
+
 	var logFiles []string
 	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || !strings.HasSuffix(path, ".go") {
 			return err
 		}
-		
+
 		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
-		
-		if strings.Contains(string(content), `"log"`) || 
-		   strings.Contains(string(content), "log.Print") {
+
+		if strings.Contains(string(content), `"log"`) ||
+			strings.Contains(string(content), "log.Print") {
 			logFiles = append(logFiles, path)
 		}
-		
+
 		return nil
 	})
-	
+
 	if err != nil {
 		return fmt.Errorf("analysis failed: %w", err)
 	}
-	
+
 	fmt.Fprintf(im.output, "\nAnalysis Results:\n")
 	fmt.Fprintf(im.output, "- Files using standard log: %d\n", len(logFiles))
 	fmt.Fprintln(im.output, "\nFiles that would be modified:")
 	for _, file := range logFiles {
 		fmt.Fprintf(im.output, "  %s\n", file)
 	}
-	
+
 	fmt.Fprintln(im.output, "\nRecommendation:")
 	if len(logFiles) == 0 {
 		fmt.Fprintln(im.output, "No standard log usage detected. No migration needed.")
@@ -809,6 +809,6 @@ func (im *InteractiveMigration) runAnalysisOnly() error {
 	} else {
 		fmt.Fprintln(im.output, "Larger codebase - consider drop-in replacement first, then gradual restructuring.")
 	}
-	
+
 	return nil
 }

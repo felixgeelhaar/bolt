@@ -29,15 +29,15 @@ func NewBenchmarkComparison(output io.Writer) *BenchmarkComparison {
 type ComparisonResult struct {
 	BoltResult    testing.BenchmarkResult `json:"bolt_result"`
 	ZerologResult testing.BenchmarkResult `json:"zerolog_result"`
-	Improvement   PerformanceImprovement   `json:"improvement"`
+	Improvement   PerformanceImprovement  `json:"improvement"`
 }
 
 // PerformanceImprovement quantifies the performance difference.
 type PerformanceImprovement struct {
-	SpeedupPercent    float64 `json:"speedup_percent"`
-	AllocReduction    int64   `json:"alloc_reduction"`
-	BytesReduction    int64   `json:"bytes_reduction"`
-	BoltFasterBy      string  `json:"bolt_faster_by"`
+	SpeedupPercent float64 `json:"speedup_percent"`
+	AllocReduction int64   `json:"alloc_reduction"`
+	BytesReduction int64   `json:"bytes_reduction"`
+	BoltFasterBy   string  `json:"bolt_faster_by"`
 }
 
 // RunBasicComparison runs a basic logging comparison.
@@ -45,10 +45,10 @@ func (bc *BenchmarkComparison) RunBasicComparison() *ComparisonResult {
 	// Benchmark Bolt
 	boltResult := testing.Benchmark(func(b *testing.B) {
 		logger := bolt.New(bolt.NewJSONHandler(bc.output))
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Info().
 				Str("service", "auth").
@@ -63,10 +63,10 @@ func (bc *BenchmarkComparison) RunBasicComparison() *ComparisonResult {
 	// Benchmark Zerolog
 	zerologResult := testing.Benchmark(func(b *testing.B) {
 		logger := zerolog.New(bc.output).Level(zerolog.InfoLevel)
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Info().
 				Str("service", "auth").
@@ -90,10 +90,10 @@ func (bc *BenchmarkComparison) RunStructuredLoggingComparison() *ComparisonResul
 	// Benchmark Bolt structured logging
 	boltResult := testing.Benchmark(func(b *testing.B) {
 		logger := bolt.New(bolt.NewJSONHandler(bc.output))
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Info().
 				Str("trace_id", "abc123").
@@ -113,10 +113,10 @@ func (bc *BenchmarkComparison) RunStructuredLoggingComparison() *ComparisonResul
 	// Benchmark Zerolog structured logging
 	zerologResult := testing.Benchmark(func(b *testing.B) {
 		logger := zerolog.New(bc.output).Level(zerolog.InfoLevel)
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Info().
 				Str("trace_id", "abc123").
@@ -147,10 +147,10 @@ func (bc *BenchmarkComparison) RunContextualLoggingComparison() *ComparisonResul
 	// Benchmark Bolt contextual logging
 	boltResult := testing.Benchmark(func(b *testing.B) {
 		logger := bolt.New(bolt.NewJSONHandler(bc.output))
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Ctx(ctx).Info().
 				Str("operation", "database_query").
@@ -163,10 +163,10 @@ func (bc *BenchmarkComparison) RunContextualLoggingComparison() *ComparisonResul
 	// Benchmark Zerolog contextual logging
 	zerologResult := testing.Benchmark(func(b *testing.B) {
 		logger := zerolog.New(bc.output).Level(zerolog.InfoLevel)
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Info().
 				Ctx(ctx).
@@ -191,10 +191,10 @@ func (bc *BenchmarkComparison) RunErrorLoggingComparison() *ComparisonResult {
 	// Benchmark Bolt error logging
 	boltResult := testing.Benchmark(func(b *testing.B) {
 		logger := bolt.New(bolt.NewJSONHandler(bc.output))
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Error().
 				Err(testError).
@@ -209,10 +209,10 @@ func (bc *BenchmarkComparison) RunErrorLoggingComparison() *ComparisonResult {
 	// Benchmark Zerolog error logging
 	zerologResult := testing.Benchmark(func(b *testing.B) {
 		logger := zerolog.New(bc.output).Level(zerolog.InfoLevel)
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		for i := 0; i < b.N; i++ {
 			logger.Error().
 				Err(testError).
@@ -238,11 +238,11 @@ func (bc *BenchmarkComparison) RunConcurrentLoggingComparison() *ComparisonResul
 	// Benchmark Bolt concurrent logging
 	boltResult := testing.Benchmark(func(b *testing.B) {
 		logger := bolt.New(bolt.NewJSONHandler(bc.output))
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		b.SetParallelism(numGoroutines)
-		
+
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
 				logger.Info().
@@ -257,11 +257,11 @@ func (bc *BenchmarkComparison) RunConcurrentLoggingComparison() *ComparisonResul
 	// Benchmark Zerolog concurrent logging
 	zerologResult := testing.Benchmark(func(b *testing.B) {
 		logger := zerolog.New(bc.output).Level(zerolog.InfoLevel)
-		
+
 		b.ResetTimer()
 		b.ReportAllocs()
 		b.SetParallelism(numGoroutines)
-		
+
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
 				logger.Info().
@@ -317,18 +317,18 @@ func NewComprehensiveBenchmark() *ComprehensiveBenchmark {
 
 // Results holds all benchmark results.
 type Results struct {
-	Basic        *ComparisonResult `json:"basic"`
-	Structured   *ComparisonResult `json:"structured"`
-	Contextual   *ComparisonResult `json:"contextual"`
-	Error        *ComparisonResult `json:"error"`
-	Concurrent   *ComparisonResult `json:"concurrent"`
-	Summary      string            `json:"summary"`
+	Basic      *ComparisonResult `json:"basic"`
+	Structured *ComparisonResult `json:"structured"`
+	Contextual *ComparisonResult `json:"contextual"`
+	Error      *ComparisonResult `json:"error"`
+	Concurrent *ComparisonResult `json:"concurrent"`
+	Summary    string            `json:"summary"`
 }
 
 // RunAll runs all benchmark comparisons and returns comprehensive results.
 func (cb *ComprehensiveBenchmark) RunAll() *Results {
 	fmt.Println("Running comprehensive Zerolog vs Bolt benchmarks...")
-	
+
 	results := &Results{
 		Basic:      cb.bc.RunBasicComparison(),
 		Structured: cb.bc.RunStructuredLoggingComparison(),
@@ -336,7 +336,7 @@ func (cb *ComprehensiveBenchmark) RunAll() *Results {
 		Error:      cb.bc.RunErrorLoggingComparison(),
 		Concurrent: cb.bc.RunConcurrentLoggingComparison(),
 	}
-	
+
 	results.Summary = cb.generateSummary(results)
 	return results
 }
@@ -380,8 +380,8 @@ Key Benefits of Migration:
 
 // PrintResults prints detailed benchmark results.
 func (results *Results) PrintResults() {
-	fmt.Println("\n=== Zerolog vs Bolt Benchmark Results ===\n")
-	
+	fmt.Println("=== Zerolog vs Bolt Benchmark Results ===")
+
 	benchmarks := []struct {
 		name   string
 		result *ComparisonResult
@@ -392,7 +392,7 @@ func (results *Results) PrintResults() {
 		{"Error Logging", results.Error},
 		{"Concurrent Logging", results.Concurrent},
 	}
-	
+
 	for _, bench := range benchmarks {
 		fmt.Printf("%s:\n", bench.name)
 		fmt.Printf("  Bolt:    %d ns/op, %d allocs/op, %d bytes/op\n",
@@ -408,6 +408,6 @@ func (results *Results) PrintResults() {
 			bench.result.Improvement.AllocReduction,
 			bench.result.Improvement.BytesReduction)
 	}
-	
+
 	fmt.Println(results.Summary)
 }

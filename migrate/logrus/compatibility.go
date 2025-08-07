@@ -16,12 +16,12 @@ import (
 
 // Logger provides a Logrus-compatible API backed by Bolt for easier migration.
 type Logger struct {
-	bolt   *bolt.Logger
-	mu     sync.RWMutex
-	level  Level
+	bolt      *bolt.Logger
+	mu        sync.RWMutex
+	level     Level
 	formatter Formatter
-	hooks  LevelHooks
-	exitFunc func(int)
+	hooks     LevelHooks
+	exitFunc  func(int)
 }
 
 // New creates a new Logrus-compatible logger backed by Bolt.
@@ -156,15 +156,15 @@ type Fields map[string]interface{}
 
 // Entry represents a log entry.
 type Entry struct {
-	Logger *Logger
-	Data   Fields
-	Time   time.Time
-	Level  Level
-	Caller *runtime.Frame
+	Logger  *Logger
+	Data    Fields
+	Time    time.Time
+	Level   Level
+	Caller  *runtime.Frame
 	Message string
-	Buffer []byte
+	Buffer  []byte
 	Context context.Context
-	err    error
+	err     error
 }
 
 // String returns the string representation from the reader and ultimately the
@@ -207,9 +207,9 @@ func (entry *Entry) WithContext(ctx context.Context) *Entry {
 		dataCopy[k] = v
 	}
 	return &Entry{
-		Logger: entry.Logger,
-		Data:   dataCopy,
-		Time:   entry.Time,
+		Logger:  entry.Logger,
+		Data:    dataCopy,
+		Time:    entry.Time,
 		Context: ctx,
 	}
 }
@@ -227,28 +227,28 @@ func (entry *Entry) WithTime(t time.Time) *Entry {
 func (entry *Entry) log(level Level, args ...interface{}) {
 	if entry.Logger.IsLevelEnabled(level) {
 		boltEvent := entry.Logger.logWithBolt(convertLevel(level))
-		
+
 		// Add all fields from entry.Data
 		for key, value := range entry.Data {
 			boltEvent.Any(key, value)
 		}
-		
+
 		// Add context if present
 		if entry.Context != nil {
 			// Bolt handles OpenTelemetry context automatically
 		}
-		
+
 		// Add error if present
 		if entry.err != nil {
 			boltEvent.Err(entry.err)
 		}
-		
+
 		// Build message from args
 		message := ""
 		if len(args) > 0 {
 			message = Sprint(args...)
 		}
-		
+
 		boltEvent.Msg(message)
 	}
 }
@@ -453,7 +453,7 @@ func (logger *Logger) SetFormatter(formatter Formatter) {
 	logger.mu.Lock()
 	defer logger.mu.Unlock()
 	logger.formatter = formatter
-	
+
 	// Update Bolt handler based on formatter type
 	switch formatter.(type) {
 	case *JSONFormatter:
@@ -467,7 +467,7 @@ func (logger *Logger) SetFormatter(formatter Formatter) {
 func (logger *Logger) SetOutput(output io.Writer) {
 	logger.mu.Lock()
 	defer logger.mu.Unlock()
-	
+
 	// Recreate bolt logger with new output
 	switch logger.formatter.(type) {
 	case *JSONFormatter:
@@ -565,37 +565,55 @@ func (logger *Logger) Logln(level Level, args ...interface{}) {
 }
 
 // Logging methods for each level
-func (logger *Logger) Trace(args ...interface{}) { logger.newEntry().Trace(args...) }
-func (logger *Logger) Debug(args ...interface{}) { logger.newEntry().Debug(args...) }
-func (logger *Logger) Info(args ...interface{})  { logger.newEntry().Info(args...) }
-func (logger *Logger) Print(args ...interface{}) { logger.newEntry().Print(args...) }
-func (logger *Logger) Warn(args ...interface{})  { logger.newEntry().Warn(args...) }
+func (logger *Logger) Trace(args ...interface{})   { logger.newEntry().Trace(args...) }
+func (logger *Logger) Debug(args ...interface{})   { logger.newEntry().Debug(args...) }
+func (logger *Logger) Info(args ...interface{})    { logger.newEntry().Info(args...) }
+func (logger *Logger) Print(args ...interface{})   { logger.newEntry().Print(args...) }
+func (logger *Logger) Warn(args ...interface{})    { logger.newEntry().Warn(args...) }
 func (logger *Logger) Warning(args ...interface{}) { logger.newEntry().Warning(args...) }
-func (logger *Logger) Error(args ...interface{}) { logger.newEntry().Error(args...) }
-func (logger *Logger) Fatal(args ...interface{}) { logger.newEntry().Fatal(args...) }
-func (logger *Logger) Panic(args ...interface{}) { logger.newEntry().Panic(args...) }
+func (logger *Logger) Error(args ...interface{})   { logger.newEntry().Error(args...) }
+func (logger *Logger) Fatal(args ...interface{})   { logger.newEntry().Fatal(args...) }
+func (logger *Logger) Panic(args ...interface{})   { logger.newEntry().Panic(args...) }
 
 // Formatted logging methods
-func (logger *Logger) Tracef(format string, args ...interface{}) { logger.newEntry().Tracef(format, args...) }
-func (logger *Logger) Debugf(format string, args ...interface{}) { logger.newEntry().Debugf(format, args...) }
-func (logger *Logger) Infof(format string, args ...interface{})  { logger.newEntry().Infof(format, args...) }
-func (logger *Logger) Printf(format string, args ...interface{}) { logger.newEntry().Printf(format, args...) }
-func (logger *Logger) Warnf(format string, args ...interface{})  { logger.newEntry().Warnf(format, args...) }
-func (logger *Logger) Warningf(format string, args ...interface{}) { logger.newEntry().Warningf(format, args...) }
-func (logger *Logger) Errorf(format string, args ...interface{}) { logger.newEntry().Errorf(format, args...) }
-func (logger *Logger) Fatalf(format string, args ...interface{}) { logger.newEntry().Fatalf(format, args...) }
-func (logger *Logger) Panicf(format string, args ...interface{}) { logger.newEntry().Panicf(format, args...) }
+func (logger *Logger) Tracef(format string, args ...interface{}) {
+	logger.newEntry().Tracef(format, args...)
+}
+func (logger *Logger) Debugf(format string, args ...interface{}) {
+	logger.newEntry().Debugf(format, args...)
+}
+func (logger *Logger) Infof(format string, args ...interface{}) {
+	logger.newEntry().Infof(format, args...)
+}
+func (logger *Logger) Printf(format string, args ...interface{}) {
+	logger.newEntry().Printf(format, args...)
+}
+func (logger *Logger) Warnf(format string, args ...interface{}) {
+	logger.newEntry().Warnf(format, args...)
+}
+func (logger *Logger) Warningf(format string, args ...interface{}) {
+	logger.newEntry().Warningf(format, args...)
+}
+func (logger *Logger) Errorf(format string, args ...interface{}) {
+	logger.newEntry().Errorf(format, args...)
+}
+func (logger *Logger) Fatalf(format string, args ...interface{}) {
+	logger.newEntry().Fatalf(format, args...)
+}
+func (logger *Logger) Panicf(format string, args ...interface{}) {
+	logger.newEntry().Panicf(format, args...)
+}
 
 // Line logging methods
-func (logger *Logger) Traceln(args ...interface{}) { logger.newEntry().Traceln(args...) }
-func (logger *Logger) Debugln(args ...interface{}) { logger.newEntry().Debugln(args...) }
-func (logger *Logger) Infoln(args ...interface{})  { logger.newEntry().Infoln(args...) }
-func (logger *Logger) Println(args ...interface{}) { logger.newEntry().Println(args...) }
-func (logger *Logger) Warnln(args ...interface{})  { logger.newEntry().Warnln(args...) }
+func (logger *Logger) Traceln(args ...interface{})   { logger.newEntry().Traceln(args...) }
+func (logger *Logger) Debugln(args ...interface{})   { logger.newEntry().Debugln(args...) }
+func (logger *Logger) Infoln(args ...interface{})    { logger.newEntry().Infoln(args...) }
+func (logger *Logger) Println(args ...interface{})   { logger.newEntry().Println(args...) }
+func (logger *Logger) Warnln(args ...interface{})    { logger.newEntry().Warnln(args...) }
 func (logger *Logger) Warningln(args ...interface{}) { logger.newEntry().Warningln(args...) }
-func (logger *Logger) Errorln(args ...interface{}) { logger.newEntry().Errorln(args...) }
-func (logger *Logger) Fatalln(args ...interface{}) { logger.newEntry().Fatalln(args...) }
-func (logger *Logger) Panicln(args ...interface{}) { logger.newEntry().Panicln(args...) }
+func (logger *Logger) Errorln(args ...interface{})   { logger.newEntry().Errorln(args...) }
+func (logger *Logger) Fatalln(args ...interface{})   { logger.newEntry().Fatalln(args...) }
+func (logger *Logger) Panicln(args ...interface{})   { logger.newEntry().Panicln(args...) }
 
 // Hook interface allows adding hooks to loggers.
 type Hook interface {

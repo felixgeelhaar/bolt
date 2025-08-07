@@ -41,10 +41,10 @@ func ExampleLoggerConfiguration() {
 
 	// AFTER: Bolt
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.DEBUG)
-	
+
 	// For console output:
 	// logger := bolt.New(bolt.NewConsoleHandler(os.Stdout)).SetLevel(bolt.DEBUG)
-	
+
 	// Use the logger
 	logger.Debug().Str("component", "database").Msg("Connecting to database")
 }
@@ -206,7 +206,7 @@ type CustomHandler struct {
 func (h *CustomHandler) Write(e *bolt.Event) error {
 	// Custom logic that would have been in a Logrus hook
 	// For example, adding extra fields, filtering, sending to external services, etc.
-	
+
 	// Call the underlying handler
 	return h.handler.Write(e)
 }
@@ -273,7 +273,7 @@ func ExampleCompatibilityLayer() {
 	// Import: "github.com/felixgeelhaar/bolt/migrate/logrus"
 
 	logger := New() // This creates a Logrus-compatible logger backed by Bolt
-	
+
 	// Use existing Logrus patterns
 	logger.WithField("service", "auth").Info("Service started")
 	logger.WithFields(Fields{
@@ -312,6 +312,6 @@ func ExampleFullMigrationWorkflow() {
 		Str("migration_type", "logrus_to_bolt").
 		Str("status", "completed").
 		Float64("performance_gain", 26.03). // 2603% faster
-		Int("allocations_reduced", 100).     // 100% reduction in allocations
+		Int("allocations_reduced", 100).    // 100% reduction in allocations
 		Msg("Migration completed successfully")
 }

@@ -16,7 +16,7 @@ import (
 func ExampleBasicSetup() {
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Str("service", "auth").
 		Int("port", 8080).
@@ -24,7 +24,7 @@ func ExampleBasicSetup() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Str("service", "auth").
 		Int("port", 8080).
@@ -36,7 +36,7 @@ func ExampleConsoleOutput() {
 	// === BEFORE (Zerolog) ===
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
 	zerologLogger := zerolog.New(consoleWriter).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Str("user", "john_doe").
 		Int("attempts", 3).
@@ -44,7 +44,7 @@ func ExampleConsoleOutput() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewConsoleHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Str("user", "john_doe").
 		Int("attempts", 3).
@@ -55,7 +55,7 @@ func ExampleConsoleOutput() {
 func ExampleStructuredLogging() {
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Str("trace_id", "abc123").
 		Str("span_id", "def456").
@@ -68,7 +68,7 @@ func ExampleStructuredLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Str("trace_id", "abc123").
 		Str("span_id", "def456").
@@ -83,10 +83,10 @@ func ExampleStructuredLogging() {
 // Example 4: Error Handling
 func ExampleErrorHandling() {
 	err := errors.New("database connection failed")
-	
+
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.ErrorLevel)
-	
+
 	zerologLogger.Error().
 		Err(err).
 		Str("database", "users_db").
@@ -95,7 +95,7 @@ func ExampleErrorHandling() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.ERROR)
-	
+
 	boltLogger.Error().
 		Err(err).
 		Str("database", "users_db").
@@ -106,10 +106,10 @@ func ExampleErrorHandling() {
 // Example 5: Contextual Logging
 func ExampleContextualLogging() {
 	ctx := context.Background()
-	
+
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Ctx(ctx).
 		Str("operation", "user_creation").
@@ -119,7 +119,7 @@ func ExampleContextualLogging() {
 	// === AFTER (Bolt) ===
 	// Bolt automatically handles OpenTelemetry context extraction
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Ctx(ctx).Info().
 		Str("operation", "user_creation").
 		Int("user_id", 12345).
@@ -134,7 +134,7 @@ func ExampleLoggerWithContext() {
 		Str("service", "payment-processor").
 		Str("version", "v2.1.0").
 		Logger()
-	
+
 	serviceLogger.Info().
 		Str("transaction_id", "tx_123").
 		Float64("amount", 99.99).
@@ -146,7 +146,7 @@ func ExampleLoggerWithContext() {
 		Str("service", "payment-processor").
 		Str("version", "v2.1.0").
 		Logger()
-	
+
 	serviceBoltLogger.Info().
 		Str("transaction_id", "tx_123").
 		Float64("amount", 99.99).
@@ -157,7 +157,7 @@ func ExampleLoggerWithContext() {
 func ExampleLogLevels() {
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.TraceLevel)
-	
+
 	zerologLogger.Trace().Msg("Entering function")
 	zerologLogger.Debug().Str("variable", "value").Msg("Debug information")
 	zerologLogger.Info().Msg("Information message")
@@ -167,7 +167,7 @@ func ExampleLogLevels() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.TRACE)
-	
+
 	boltLogger.Trace().Msg("Entering function")
 	boltLogger.Debug().Str("variable", "value").Msg("Debug information")
 	boltLogger.Info().Msg("Information message")
@@ -180,10 +180,10 @@ func ExampleLogLevels() {
 func ExampleTimeAndDuration() {
 	startTime := time.Now()
 	duration := time.Since(startTime)
-	
+
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Time("start_time", startTime).
 		Dur("duration", duration).
@@ -191,7 +191,7 @@ func ExampleTimeAndDuration() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Time("start_time", startTime).
 		Dur("duration", duration).
@@ -201,10 +201,10 @@ func ExampleTimeAndDuration() {
 // Example 9: Binary Data Logging
 func ExampleBinaryData() {
 	data := []byte("binary data here")
-	
+
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Bytes("data", data).
 		Hex("data_hex", data).
@@ -212,7 +212,7 @@ func ExampleBinaryData() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Bytes("data", data).
 		Hex("data_hex", data).
@@ -227,17 +227,17 @@ func ExampleComplexData() {
 		"email": "john@example.com",
 		"roles": []string{"user", "admin"},
 	}
-	
+
 	// === BEFORE (Zerolog) ===
 	zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	zerologLogger.Info().
 		Interface("user", userData).
 		Msg("User data received")
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	boltLogger.Info().
 		Any("user", userData). // Bolt uses Any() instead of Interface()
 		Msg("User data received")
@@ -250,17 +250,17 @@ func MigrateZerologToBolt() {
 	// Step 1: Replace the import
 	// OLD: import "github.com/rs/zerolog"
 	// NEW: import "github.com/felixgeelhaar/bolt"
-	
+
 	// Step 2: Update logger creation
 	// OLD: logger := zerolog.New(os.Stdout)
 	// NEW: logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
-	
+
 	// Step 3: Update level setting
 	// OLD: logger = logger.Level(zerolog.InfoLevel)
 	// NEW: logger = logger.SetLevel(bolt.INFO)
 	logger = logger.SetLevel(bolt.INFO)
-	
+
 	// Step 4: Use the same logging API (mostly compatible)
 	logger.Info().
 		Str("service", "migration-example").
@@ -272,10 +272,10 @@ func MigrateZerologToBolt() {
 func DemonstratePerformanceImprovement() {
 	// This function would typically be in a separate benchmark file
 	// but serves as an example of the performance benefits
-	
+
 	println("Zerolog to Bolt Migration Performance Benefits:")
 	println("- 64% faster logging operations")
-	println("- Zero memory allocations in hot paths") 
+	println("- Zero memory allocations in hot paths")
 	println("- Sub-100ns latency per log operation")
 	println("- Better performance under concurrent load")
 	println("- Reduced memory footprint")
@@ -287,9 +287,14 @@ func DemonstratePerformanceImprovement() {
 // Pattern 1: Global Logger Migration
 var (
 	// OLD: zerologGlobalLogger = zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	// NEW: 
+	// NEW:
 	boltGlobalLogger = bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
 )
+
+// ExampleGlobalLoggerUsage shows how to use the global logger
+func ExampleGlobalLoggerUsage() {
+	boltGlobalLogger.Info().Msg("Global logger example")
+}
 
 // Pattern 2: Logger Interface Migration
 type LoggerInterface interface {
@@ -338,7 +343,7 @@ func ExampleInterfaceBasedMigration() {
 	var logger LoggerInterface = &BoltLogger{
 		logger: bolt.New(bolt.NewJSONHandler(os.Stdout)),
 	}
-	
+
 	logger.Info().
 		Str("pattern", "interface-based").
 		Int("migration_step", 1).
@@ -359,9 +364,9 @@ func ExampleHTTPMiddleware() {
 	//             Str("path", r.URL.Path).
 	//             Str("remote_addr", r.RemoteAddr).
 	//             Msg("Request started")
-	//         
+	//
 	//         next.ServeHTTP(w, r)
-	//         
+	//
 	//         zerologLogger.Info().
 	//             Str("method", r.Method).
 	//             Str("path", r.URL.Path).
@@ -372,7 +377,7 @@ func ExampleHTTPMiddleware() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	// Example of how the middleware would look with Bolt
 	start := time.Now()
 	boltLogger.Info().
@@ -380,9 +385,9 @@ func ExampleHTTPMiddleware() {
 		Str("path", "/api/users").
 		Str("remote_addr", "192.168.1.100").
 		Msg("Request started")
-	
+
 	// ... process request ...
-	
+
 	boltLogger.Info().
 		Str("method", "GET").
 		Str("path", "/api/users").
@@ -399,9 +404,9 @@ func ExampleDatabaseLogging() {
 	//     zerologLogger.Info().
 	//         Str("dsn", dsn).
 	//         Msg("Attempting database connection")
-	//     
+	//
 	//     // ... connection logic ...
-	//     
+	//
 	//     zerologLogger.Info().
 	//         Str("database", "postgresql").
 	//         Str("status", "connected").
@@ -411,14 +416,14 @@ func ExampleDatabaseLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	dsn := "postgres://user:pass@localhost/db"
 	boltLogger.Info().
 		Str("dsn", dsn).
 		Msg("Attempting database connection")
-	
+
 	// ... connection logic ...
-	
+
 	boltLogger.Info().
 		Str("database", "postgresql").
 		Str("status", "connected").
@@ -436,11 +441,11 @@ func ExampleWorkerLogging() {
 	//         Str("job_id", jobID).
 	//         Str("job_type", jobType).
 	//         Logger()
-	//     
+	//
 	//     jobLogger.Info().Msg("Job started")
-	//     
+	//
 	//     // ... processing ...
-	//     
+	//
 	//     jobLogger.Info().
 	//         Int("items_processed", 250).
 	//         Msg("Job completed successfully")
@@ -448,18 +453,18 @@ func ExampleWorkerLogging() {
 
 	// === AFTER (Bolt) ===
 	baseBoltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	jobID := "job_12345"
 	jobType := "email_batch"
 	jobLogger := baseBoltLogger.With().
 		Str("job_id", jobID).
 		Str("job_type", jobType).
 		Logger()
-	
+
 	jobLogger.Info().Msg("Job started")
-	
+
 	// ... processing ...
-	
+
 	jobLogger.Info().
 		Int("items_processed", 250).
 		Dur("processing_time", 45*time.Second).
@@ -482,19 +487,19 @@ func ExamplePanicRecovery() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.ERROR)
-	
+
 	// Simulating panic recovery
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
 				boltLogger.Error().
 					Any("panic", r).
-					Stack().   // Bolt has built-in stack trace support
-					Caller().  // Add caller information
+					Stack().  // Bolt has built-in stack trace support
+					Caller(). // Add caller information
 					Msg("Panic recovered")
 			}
 		}()
-		
+
 		// This would normally trigger a panic
 		// panic("example panic")
 	}()
@@ -520,11 +525,11 @@ func ExampleRateLimitLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.WARN)
-	
+
 	userID := 12345
 	endpoint := "/api/data"
 	rateLimitExceeded := true // Example condition
-	
+
 	if rateLimitExceeded {
 		boltLogger.Warn().
 			Int("user_id", userID).
@@ -544,15 +549,15 @@ func ExampleMicroserviceLogging() {
 	// zerologLogger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
 	// func CallExternalService(serviceName string, endpoint string) {
 	//     requestID := uuid.New().String()
-	//     
+	//
 	//     zerologLogger.Info().
 	//         Str("service", serviceName).
 	//         Str("endpoint", endpoint).
 	//         Str("request_id", requestID).
 	//         Msg("Calling external service")
-	//     
+	//
 	//     // ... make request ...
-	//     
+	//
 	//     zerologLogger.Info().
 	//         Str("service", serviceName).
 	//         Str("request_id", requestID).
@@ -563,20 +568,20 @@ func ExampleMicroserviceLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	serviceName := "user-service"
 	endpoint := "/users/12345"
 	requestID := "req_abc123"
-	
+
 	boltLogger.Info().
 		Str("service", serviceName).
 		Str("endpoint", endpoint).
 		Str("request_id", requestID).
 		Str("correlation_id", "corr_xyz789").
 		Msg("Calling external service")
-	
+
 	// ... make request ...
-	
+
 	boltLogger.Info().
 		Str("service", serviceName).
 		Str("request_id", requestID).
@@ -601,7 +606,7 @@ func ExampleConfigurationLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	// Enhanced configuration logging with more detail
 	boltLogger.Info().
 		Str("environment", "production").
@@ -631,7 +636,7 @@ func ExampleSecurityEventLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.WARN)
-	
+
 	// Enhanced security logging with more context
 	boltLogger.Warn().
 		Str("event_type", "security").
@@ -661,10 +666,10 @@ func ExamplePerformanceMetricsLogging() {
 
 	// === AFTER (Bolt) ===
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout)).SetLevel(bolt.INFO)
-	
+
 	// Enhanced performance metrics with system information
 	var counter int64 = 12345
-	
+
 	boltLogger.Info().
 		Str("metric_type", "performance").
 		Str("operation", "database_query").
@@ -694,17 +699,17 @@ func ExampleCompleteMigrationWorkflow() {
 	//         Logger()
 	//
 	//     logger.Info().Msg("Starting user service")
-	//     
+	//
 	//     // Database connection
 	//     logger.Info().Str("component", "database").Msg("Connecting to database")
 	//     // ... db connection code ...
 	//     logger.Info().Str("component", "database").Msg("Database connected")
-	//     
+	//
 	//     // HTTP server
 	//     logger.Info().Str("component", "http").Int("port", 8080).Msg("Starting HTTP server")
 	//     // ... server code ...
 	//     logger.Info().Str("component", "http").Int("port", 8080).Msg("HTTP server started")
-	//     
+	//
 	//     logger.Info().Msg("User service started successfully")
 	//     return nil
 	// }
@@ -712,7 +717,7 @@ func ExampleCompleteMigrationWorkflow() {
 	// === AFTER (Bolt) ===
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
 		SetLevel(bolt.INFO)
-	
+
 	// Create service-specific logger with context
 	serviceLogger := logger.With().
 		Str("service", "user-service").
@@ -721,7 +726,7 @@ func ExampleCompleteMigrationWorkflow() {
 		Logger()
 
 	serviceLogger.Info().Msg("Starting user service")
-	
+
 	// Database connection with enhanced logging
 	dbLogger := serviceLogger.With().Str("component", "database").Logger()
 	dbLogger.Info().
@@ -729,15 +734,15 @@ func ExampleCompleteMigrationWorkflow() {
 		Int("port", 5432).
 		Str("database", "users_db").
 		Msg("Connecting to database")
-	
+
 	// ... db connection code ...
-	
+
 	dbLogger.Info().
 		Dur("connection_time", 150*time.Millisecond).
 		Int("max_connections", 100).
 		Bool("ssl_enabled", true).
 		Msg("Database connected successfully")
-	
+
 	// HTTP server with enhanced logging
 	httpLogger := serviceLogger.With().Str("component", "http").Logger()
 	httpLogger.Info().
@@ -746,15 +751,15 @@ func ExampleCompleteMigrationWorkflow() {
 		Int("read_timeout", 30).
 		Int("write_timeout", 30).
 		Msg("Starting HTTP server")
-	
+
 	// ... server code ...
-	
+
 	httpLogger.Info().
 		Int("port", 8080).
 		Dur("startup_time", 50*time.Millisecond).
 		Str("status", "ready").
 		Msg("HTTP server started and ready to accept connections")
-	
+
 	serviceLogger.Info().
 		Dur("total_startup_time", 200*time.Millisecond).
 		Str("status", "ready").

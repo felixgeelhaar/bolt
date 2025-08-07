@@ -27,16 +27,16 @@ type MetricsCollector struct {
 	httpResponseSize    *prometheus.HistogramVec
 
 	// Application metrics
-	activeConnections    prometheus.Gauge
-	databaseConnections  *prometheus.GaugeVec
+	activeConnections   prometheus.Gauge
+	databaseConnections *prometheus.GaugeVec
 	cacheHits           *prometheus.CounterVec
 	businessMetrics     *prometheus.CounterVec
 	processingQueue     prometheus.Gauge
 
 	// Error metrics
-	errorTotal      *prometheus.CounterVec
-	panicTotal      prometheus.Counter
-	timeoutTotal    *prometheus.CounterVec
+	errorTotal   *prometheus.CounterVec
+	panicTotal   prometheus.Counter
+	timeoutTotal *prometheus.CounterVec
 
 	// Custom metrics
 	customGauge     *prometheus.GaugeVec
@@ -378,7 +378,7 @@ func (app *Application) cacheHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Simulate cache hit/miss (70% hit rate)
 	isHit := rand.Intn(10) < 7
-	
+
 	if isHit {
 		app.metrics.cacheHits.WithLabelValues("get", "hit").Inc()
 		app.logger.Info().
@@ -400,9 +400,9 @@ func (app *Application) cacheHandler(w http.ResponseWriter, r *http.Request) {
 		"result": "%s",
 		"correlation_id": "%s",
 		"timestamp": "%s"
-	}`, cacheKey, 
+	}`, cacheKey,
 		map[bool]string{true: "hit", false: "miss"}[isHit],
-		correlationID, 
+		correlationID,
 		time.Now().UTC().Format(time.RFC3339))
 
 	w.Header().Set("Content-Type", "application/json")
@@ -440,7 +440,7 @@ func (app *Application) slowHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Simulate slow operation
 	delay := time.Duration(rand.Intn(2000)+500) * time.Millisecond
-	
+
 	app.logger.Info().
 		Str("correlation_id", correlationID).
 		Dur("simulated_delay", delay).
@@ -504,7 +504,7 @@ func (app *Application) fetchUsersWithMetrics(ctx context.Context, correlationID
 	app.metrics.databaseConnections.WithLabelValues("idle", "users_db").Set(10)
 
 	// Simulate query processing
-	app.metrics.processingQueue.Set(3) // Items in queue
+	app.metrics.processingQueue.Set(3)       // Items in queue
 	defer app.metrics.processingQueue.Set(0) // Queue processed
 
 	// Simulate database operation time
@@ -515,7 +515,7 @@ func (app *Application) fetchUsersWithMetrics(ctx context.Context, correlationID
 	if rand.Intn(20) == 0 {
 		app.metrics.errorTotal.WithLabelValues("database", "query", "high").Inc()
 		app.metrics.timeoutTotal.WithLabelValues("database_query", "users_service").Inc()
-		
+
 		return nil, fmt.Errorf("database timeout after %v", queryTime)
 	}
 

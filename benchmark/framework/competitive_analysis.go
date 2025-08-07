@@ -52,35 +52,35 @@ func (lt LibraryType) String() string {
 
 // BenchmarkResult holds comprehensive performance metrics for a single benchmark run
 type BenchmarkResult struct {
-	Library          string        `json:"library"`
-	TestName         string        `json:"test_name"`
-	NsPerOp          float64       `json:"ns_per_op"`
-	AllocsPerOp      float64       `json:"allocs_per_op"`
-	BytesPerOp       float64       `json:"bytes_per_op"`
-	MBPerSec         float64       `json:"mb_per_sec"`
-	Duration         time.Duration `json:"duration"`
-	Operations       int           `json:"operations"`
-	Iterations       int           `json:"iterations"`
-	CPUs             int           `json:"cpus"`
-	GoroutineCount   int           `json:"goroutine_count"`
-	
+	Library        string        `json:"library"`
+	TestName       string        `json:"test_name"`
+	NsPerOp        float64       `json:"ns_per_op"`
+	AllocsPerOp    float64       `json:"allocs_per_op"`
+	BytesPerOp     float64       `json:"bytes_per_op"`
+	MBPerSec       float64       `json:"mb_per_sec"`
+	Duration       time.Duration `json:"duration"`
+	Operations     int           `json:"operations"`
+	Iterations     int           `json:"iterations"`
+	CPUs           int           `json:"cpus"`
+	GoroutineCount int           `json:"goroutine_count"`
+
 	// Statistical metrics
-	NsPerOpStdDev    float64       `json:"ns_per_op_stddev"`
-	NsPerOpMin       float64       `json:"ns_per_op_min"`
-	NsPerOpMax       float64       `json:"ns_per_op_max"`
+	NsPerOpStdDev      float64            `json:"ns_per_op_stddev"`
+	NsPerOpMin         float64            `json:"ns_per_op_min"`
+	NsPerOpMax         float64            `json:"ns_per_op_max"`
 	NsPerOpPercentiles map[string]float64 `json:"ns_per_op_percentiles"`
-	
+
 	// System metrics
-	GoVersion        string        `json:"go_version"`
-	GOOS             string        `json:"goos"`
-	GOARCH           string        `json:"goarch"`
-	Timestamp        time.Time     `json:"timestamp"`
-	
+	GoVersion string    `json:"go_version"`
+	GOOS      string    `json:"goos"`
+	GOARCH    string    `json:"goarch"`
+	Timestamp time.Time `json:"timestamp"`
+
 	// Memory analysis
-	HeapAllocs       uint64        `json:"heap_allocs"`
-	HeapSys          uint64        `json:"heap_sys"`
-	GCCount          uint32        `json:"gc_count"`
-	GCPauseTotal     time.Duration `json:"gc_pause_total"`
+	HeapAllocs   uint64        `json:"heap_allocs"`
+	HeapSys      uint64        `json:"heap_sys"`
+	GCCount      uint32        `json:"gc_count"`
+	GCPauseTotal time.Duration `json:"gc_pause_total"`
 }
 
 // TestScenario defines different testing scenarios for realistic benchmarking
@@ -149,13 +149,13 @@ type CompetitiveAnalyzer struct {
 	scenarios []TestScenario
 	results   sync.Map // map[string][]BenchmarkResult
 	baseline  LibraryType
-	
+
 	// Configuration
 	iterations      int
 	warmupDuration  time.Duration
 	enableProfiling bool
 	enableGCMetrics bool
-	
+
 	// Output
 	outputDir string
 	buffer    *bytes.Buffer
@@ -238,7 +238,7 @@ func (ca *CompetitiveAnalyzer) RunComprehensiveAnalysis(ctx context.Context) err
 	for _, library := range ca.libraries {
 		for _, scenario := range ca.scenarios {
 			currentTest++
-			fmt.Printf("[%d/%d] Testing %s with %s scenario...\n", 
+			fmt.Printf("[%d/%d] Testing %s with %s scenario...\n",
 				currentTest, totalTests, library, scenario.Name)
 
 			select {
@@ -255,9 +255,9 @@ func (ca *CompetitiveAnalyzer) RunComprehensiveAnalysis(ctx context.Context) err
 
 			key := fmt.Sprintf("%s-%s", library, scenario.Name)
 			ca.results.Store(key, results)
-			
-			fmt.Printf("✅ Completed: %s - %s (%.2fns/op, %d allocs/op)\n", 
-				library, scenario.Name, 
+
+			fmt.Printf("✅ Completed: %s - %s (%.2fns/op, %d allocs/op)\n",
+				library, scenario.Name,
 				results[len(results)-1].NsPerOp,
 				int(results[len(results)-1].AllocsPerOp))
 		}
@@ -270,7 +270,7 @@ func (ca *CompetitiveAnalyzer) RunComprehensiveAnalysis(ctx context.Context) err
 // runScenarioBenchmark runs a benchmark for a specific library and scenario
 func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenario TestScenario) ([]BenchmarkResult, error) {
 	var results []BenchmarkResult
-	
+
 	// Setup logger for the specific library
 	logger, err := ca.setupLogger(library)
 	if err != nil {
@@ -279,15 +279,15 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 
 	// Create benchmark function
 	benchmarkFunc := ca.createBenchmarkFunc(library, logger, scenario)
-	
+
 	// Run multiple iterations for statistical significance
 	for i := 0; i < ca.iterations; i++ {
 		result := testing.Benchmark(benchmarkFunc)
-		
+
 		// Capture additional metrics
 		var memStats runtime.MemStats
 		runtime.ReadMemStats(&memStats)
-		
+
 		benchResult := BenchmarkResult{
 			Library:        library.String(),
 			TestName:       scenario.Name,
@@ -311,7 +311,7 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 		}
 
 		results = append(results, benchResult)
-		
+
 		// Brief pause between iterations to allow GC
 		time.Sleep(100 * time.Millisecond)
 		runtime.GC()
@@ -319,7 +319,7 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 
 	// Calculate statistical metrics
 	ca.calculateStatistics(results)
-	
+
 	return results, nil
 }
 
@@ -331,10 +331,10 @@ func (ca *CompetitiveAnalyzer) setupLogger(library LibraryType) (interface{}, er
 	switch library {
 	case LibraryBolt:
 		return bolt.New(bolt.NewJSONHandler(ca.buffer)), nil
-	
+
 	case LibraryZerolog:
 		return zerolog.New(ca.buffer).Level(zerolog.InfoLevel), nil
-	
+
 	case LibraryZap:
 		encoderCfg := zapcore.EncoderConfig{
 			MessageKey:     "message",
@@ -350,19 +350,19 @@ func (ca *CompetitiveAnalyzer) setupLogger(library LibraryType) (interface{}, er
 			zapcore.InfoLevel,
 		)
 		return zap.New(core), nil
-	
+
 	case LibraryLogrus:
 		logger := logrus.New()
 		logger.SetFormatter(&logrus.JSONFormatter{})
 		logger.SetOutput(ca.buffer)
 		logger.SetLevel(logrus.InfoLevel)
 		return logger, nil
-	
+
 	case LibrarySlog:
 		return slog.New(slog.NewJSONHandler(ca.buffer, &slog.HandlerOptions{
 			Level: slog.LevelInfo,
 		})), nil
-	
+
 	default:
 		return nil, fmt.Errorf("unsupported library: %s", library)
 	}
@@ -373,7 +373,7 @@ func (ca *CompetitiveAnalyzer) createBenchmarkFunc(library LibraryType, logger i
 	return func(b *testing.B) {
 		b.ResetTimer()
 		b.ReportAllocs()
-		
+
 		// Warmup phase
 		warmupEnd := time.Now().Add(ca.warmupDuration)
 		for time.Now().Before(warmupEnd) {
@@ -499,7 +499,7 @@ func (ca *CompetitiveAnalyzer) generateMessage(size string) string {
 // generateFields creates a map of fields based on the specified count and iteration
 func (ca *CompetitiveAnalyzer) generateFields(count int, iteration int) map[string]interface{} {
 	fields := make(map[string]interface{})
-	
+
 	fieldTemplates := []struct {
 		key   string
 		value interface{}
@@ -588,15 +588,15 @@ func (ca *CompetitiveAnalyzer) percentile(sortedValues []float64, p float64) flo
 	if len(sortedValues) == 1 {
 		return sortedValues[0]
 	}
-	
+
 	index := p * float64(len(sortedValues)-1)
 	lower := int(index)
 	upper := lower + 1
-	
+
 	if upper >= len(sortedValues) {
 		return sortedValues[len(sortedValues)-1]
 	}
-	
+
 	weight := index - float64(lower)
 	return sortedValues[lower]*(1-weight) + sortedValues[upper]*weight
 }

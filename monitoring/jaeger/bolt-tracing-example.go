@@ -1,5 +1,12 @@
 // Bolt Distributed Tracing Integration Example
 // Demonstrates how to integrate Bolt logging with Jaeger tracing for comprehensive observability
+//
+// DEPRECATED NOTICE: The Jaeger exporter has been deprecated as of OpenTelemetry 1.19.
+// For new implementations, use the OTLP exporters instead:
+// - go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
+// - go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc
+//
+// This example is kept for reference and migration purposes.
 
 package main
 
@@ -98,10 +105,10 @@ func NewBoltTracer(serviceName string) (*BoltTracer, func(), error) {
 // LogWithTrace logs an event with distributed tracing context
 func (bt *BoltTracer) LogWithTrace(ctx context.Context, level bolt.Level, message string, fields ...func(*bolt.Event)) {
 	span := trace.SpanFromContext(ctx)
-	
+
 	// Start timing for performance measurement
 	start := time.Now()
-	
+
 	// Add trace context to log fields
 	traceFields := []func(*bolt.Event){
 		func(e *bolt.Event) {
@@ -111,11 +118,11 @@ func (bt *BoltTracer) LogWithTrace(ctx context.Context, level bolt.Level, messag
 			}
 		},
 	}
-	
+
 	// Combine with provided fields
 	allFields := append(traceFields, fields...)
 	_ = allFields // TODO: Use allFields in logging calls
-	
+
 	// Log the event
 	switch level {
 	case bolt.TRACE:
@@ -131,7 +138,7 @@ func (bt *BoltTracer) LogWithTrace(ctx context.Context, level bolt.Level, messag
 	case bolt.FATAL:
 		bt.logger.Fatal().Msg(message)
 	}
-	
+
 	// Record logging performance in span
 	duration := time.Since(start)
 	span.SetAttributes(
@@ -140,7 +147,7 @@ func (bt *BoltTracer) LogWithTrace(ctx context.Context, level bolt.Level, messag
 		attribute.Int64("bolt.log.duration_ns", duration.Nanoseconds()),
 		attribute.Bool("bolt.log.zero_allocation", true),
 	)
-	
+
 	// Add span event for the log entry
 	span.AddEvent("bolt.log", trace.WithAttributes(
 		attribute.String("level", level.String()),
@@ -158,7 +165,7 @@ func (bt *BoltTracer) TraceOperation(ctx context.Context, operationName string, 
 		),
 	)
 	defer span.End()
-	
+
 	// Log operation start
 	bt.LogWithTrace(ctx, bolt.INFO, "Operation started",
 		func(e *bolt.Event) {
@@ -166,17 +173,17 @@ func (bt *BoltTracer) TraceOperation(ctx context.Context, operationName string, 
 			e.Time("start_time", time.Now())
 		},
 	)
-	
+
 	start := time.Now()
 	err := fn(ctx)
 	duration := time.Since(start)
-	
+
 	// Record operation metrics
 	span.SetAttributes(
 		attribute.Int64("bolt.operation.duration_ms", duration.Milliseconds()),
 		attribute.Bool("bolt.operation.success", err == nil),
 	)
-	
+
 	if err != nil {
 		span.RecordError(err)
 		bt.LogWithTrace(ctx, bolt.ERROR, "Operation failed",
@@ -194,7 +201,7 @@ func (bt *BoltTracer) TraceOperation(ctx context.Context, operationName string, 
 			},
 		)
 	}
-	
+
 	return err
 }
 
@@ -208,7 +215,7 @@ func (bt *BoltTracer) HTTPMiddleware(next func(ctx context.Context)) func(ctx co
 			),
 		)
 		defer span.End()
-		
+
 		// Log request start
 		bt.LogWithTrace(ctx, bolt.INFO, "HTTP request started",
 			func(e *bolt.Event) {
@@ -217,11 +224,11 @@ func (bt *BoltTracer) HTTPMiddleware(next func(ctx context.Context)) func(ctx co
 				e.Time("request_time", time.Now())
 			},
 		)
-		
+
 		start := time.Now()
 		next(ctx)
 		duration := time.Since(start)
-		
+
 		// Log request completion with performance metrics
 		bt.LogWithTrace(ctx, bolt.INFO, "HTTP request completed",
 			func(e *bolt.Event) {
@@ -230,7 +237,7 @@ func (bt *BoltTracer) HTTPMiddleware(next func(ctx context.Context)) func(ctx co
 				e.Float64("duration_ms", float64(duration.Nanoseconds())/1e6)
 			},
 		)
-		
+
 		span.SetAttributes(
 			attribute.Int("http.status_code", 200),
 			attribute.Int64("http.duration_ms", duration.Milliseconds()),
@@ -248,10 +255,10 @@ func (bt *BoltTracer) BusinessLogicExample(ctx context.Context, userID string) e
 				e.Str("operation", "data_validation")
 			},
 		)
-		
+
 		// Simulate validation step
 		time.Sleep(10 * time.Millisecond)
-		
+
 		bt.LogWithTrace(ctx, bolt.DEBUG, "Data validation completed",
 			func(e *bolt.Event) {
 				e.Str("user_id", userID)
@@ -259,7 +266,7 @@ func (bt *BoltTracer) BusinessLogicExample(ctx context.Context, userID string) e
 				e.Int("records_processed", 150)
 			},
 		)
-		
+
 		// Simulate database operation
 		return bt.TraceOperation(ctx, "database_update", func(ctx context.Context) error {
 			bt.LogWithTrace(ctx, bolt.INFO, "Updating user record",
@@ -268,17 +275,17 @@ func (bt *BoltTracer) BusinessLogicExample(ctx context.Context, userID string) e
 					e.Str("table", "users")
 				},
 			)
-			
+
 			// Simulate database latency
 			time.Sleep(5 * time.Millisecond)
-			
+
 			bt.LogWithTrace(ctx, bolt.INFO, "Database update completed",
 				func(e *bolt.Event) {
 					e.Str("user_id", userID)
 					e.Int("affected_rows", 1)
 				},
 			)
-			
+
 			return nil
 		})
 	})
@@ -293,11 +300,11 @@ func (bt *BoltTracer) PerformanceMonitoringExample(ctx context.Context) {
 		),
 	)
 	defer span.End()
-	
+
 	// High-frequency logging test to verify zero allocations
 	const iterations = 10000
 	start := time.Now()
-	
+
 	for i := 0; i < iterations; i++ {
 		bt.LogWithTrace(ctx, bolt.INFO, "Performance test iteration",
 			func(e *bolt.Event) {
@@ -307,10 +314,10 @@ func (bt *BoltTracer) PerformanceMonitoringExample(ctx context.Context) {
 			},
 		)
 	}
-	
+
 	duration := time.Since(start)
 	avgLatency := duration / iterations
-	
+
 	// Log performance results
 	bt.LogWithTrace(ctx, bolt.INFO, "Performance test completed",
 		func(e *bolt.Event) {
@@ -321,7 +328,7 @@ func (bt *BoltTracer) PerformanceMonitoringExample(ctx context.Context) {
 			e.Bool("sub_100ns_target", avgLatency < 100*time.Nanosecond)
 		},
 	)
-	
+
 	span.SetAttributes(
 		attribute.Int("test.iterations", iterations),
 		attribute.Int64("test.total_duration_ns", duration.Nanoseconds()),
@@ -338,13 +345,13 @@ func main() {
 		log.Fatalf("Failed to initialize tracer: %v", err)
 	}
 	defer cleanup()
-	
+
 	ctx := context.Background()
-	
+
 	// Example 1: Basic traced logging
 	ctx, span := tracer.tracer.Start(ctx, "main_operation")
 	defer span.End()
-	
+
 	tracer.LogWithTrace(ctx, bolt.INFO, "Application starting",
 		func(e *bolt.Event) {
 			e.Str("service", "bolt-example")
@@ -352,7 +359,7 @@ func main() {
 			e.Time("start_time", time.Now())
 		},
 	)
-	
+
 	// Example 2: Business logic with tracing
 	if err := tracer.BusinessLogicExample(ctx, "user123"); err != nil {
 		tracer.LogWithTrace(ctx, bolt.ERROR, "Business logic failed",
@@ -361,7 +368,7 @@ func main() {
 			},
 		)
 	}
-	
+
 	// Example 3: HTTP middleware simulation
 	middleware := tracer.HTTPMiddleware(func(ctx context.Context) {
 		tracer.LogWithTrace(ctx, bolt.INFO, "Processing HTTP request",
@@ -372,16 +379,16 @@ func main() {
 		time.Sleep(20 * time.Millisecond) // Simulate processing
 	})
 	middleware(ctx)
-	
+
 	// Example 4: Performance monitoring
 	tracer.PerformanceMonitoringExample(ctx)
-	
+
 	tracer.LogWithTrace(ctx, bolt.INFO, "Application completed",
 		func(e *bolt.Event) {
 			e.Str("status", "success")
 			e.Time("end_time", time.Now())
 		},
 	)
-	
+
 	fmt.Println("Bolt tracing example completed. Check Jaeger UI at http://localhost:16686")
 }

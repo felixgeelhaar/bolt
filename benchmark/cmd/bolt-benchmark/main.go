@@ -163,34 +163,34 @@ For more information, visit: https://github.com/felixgeelhaar/bolt
 		})
 	case "enterprise":
 		err = runEnterpriseBenchmarks(ctx, &EnterpriseConfig{
-			OutputDir:    *outputDir,
-			Duration:     *duration,
-			Scenarios:    parseScenarios(*scenarios, "enterprise"),
-			MaxMemoryMB:  *maxMemory,
+			OutputDir:     *outputDir,
+			Duration:      *duration,
+			Scenarios:     parseScenarios(*scenarios, "enterprise"),
+			MaxMemoryMB:   *maxMemory,
 			MaxCPUPercent: *maxCPU,
-			Profiling:    *profiling,
-			GenerateHTML: *generateHTML,
-			GenerateCSV:  *generateCSV,
-			Verbose:      *verbose,
+			Profiling:     *profiling,
+			GenerateHTML:  *generateHTML,
+			GenerateCSV:   *generateCSV,
+			Verbose:       *verbose,
 		})
 	case "regression":
 		err = runRegressionBenchmarks(ctx, &RegressionConfig{
-			OutputDir:    *outputDir,
-			Duration:     *duration,
-			Iterations:   *iterations,
-			MaxMemoryMB:  *maxMemory,
+			OutputDir:     *outputDir,
+			Duration:      *duration,
+			Iterations:    *iterations,
+			MaxMemoryMB:   *maxMemory,
 			MaxCPUPercent: *maxCPU,
-			Verbose:      *verbose,
+			Verbose:       *verbose,
 		})
 	case "load":
 		err = runLoadBenchmarks(ctx, &LoadConfig{
-			OutputDir:    *outputDir,
-			Duration:     *duration,
-			Parallel:     *parallel,
-			MaxMemoryMB:  *maxMemory,
+			OutputDir:     *outputDir,
+			Duration:      *duration,
+			Parallel:      *parallel,
+			MaxMemoryMB:   *maxMemory,
 			MaxCPUPercent: *maxCPU,
-			Profiling:    *profiling,
-			Verbose:      *verbose,
+			Profiling:     *profiling,
+			Verbose:       *verbose,
 		})
 	default:
 		log.Fatalf("Unknown benchmark type: %s", *benchmarkType)
@@ -327,7 +327,7 @@ func runEnterpriseBenchmarks(ctx context.Context, config *EnterpriseConfig) erro
 	fmt.Printf("Output: %s\n\n", config.OutputDir)
 
 	suite := enterprise.NewEnterpriseBenchmarkSuite()
-	
+
 	// Configure scenarios if specified
 	if len(config.Scenarios) > 0 && config.Scenarios[0] != "all" {
 		var scenarios []enterprise.EnterpriseScenario
@@ -426,7 +426,7 @@ func listAvailableScenarios() {
 
 	fmt.Println("\nEnterprise Scenarios:")
 	for _, scenario := range enterprise.EnterpriseScenarios {
-		fmt.Printf("  %-20s - %s (Target: %d RPS, %d concurrent)\n", 
+		fmt.Printf("  %-20s - %s (Target: %d RPS, %d concurrent)\n",
 			scenario.Name, scenario.Description, scenario.TargetRPS, scenario.MaxConcurrency)
 	}
 }
@@ -449,7 +449,7 @@ func uploadResults(outputDir string) error {
 	// Implementation would upload results to GitHub Pages
 	// This could use GitHub Actions artifacts or direct deployment
 	fmt.Printf("📤 Uploading results from %s to GitHub Pages...\n", outputDir)
-	
+
 	// Placeholder implementation
 	return nil
 }

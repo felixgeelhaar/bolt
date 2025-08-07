@@ -14,12 +14,12 @@ import (
 
 // TransformResult represents the result of a code transformation.
 type TransformResult struct {
-	FilePath     string   `json:"file_path"`
-	Success      bool     `json:"success"`
-	Changes      int      `json:"changes"`
-	Errors       []string `json:"errors"`
-	OriginalCode string   `json:"original_code,omitempty"`
-	TransformedCode string `json:"transformed_code,omitempty"`
+	FilePath        string   `json:"file_path"`
+	Success         bool     `json:"success"`
+	Changes         int      `json:"changes"`
+	Errors          []string `json:"errors"`
+	OriginalCode    string   `json:"original_code,omitempty"`
+	TransformedCode string   `json:"transformed_code,omitempty"`
 }
 
 // CodeTransformer performs automated code transformations from Zerolog to Bolt.
@@ -187,7 +187,7 @@ func (ct *CodeTransformer) transformSelectorExpr(selector *ast.SelectorExpr, res
 		case "With":
 			// zerolog With() returns Context, but bolt With() returns Event
 			// This might need manual review
-			result.Errors = append(result.Errors, 
+			result.Errors = append(result.Errors,
 				"Warning: With() method behavior differs between zerolog and bolt - manual review needed")
 		}
 	}
@@ -363,11 +363,11 @@ type MigrationGuide struct {
 
 // DetectedPattern represents a code pattern that needs migration.
 type DetectedPattern struct {
-	Pattern     string `json:"pattern"`
-	Suggestion  string `json:"suggestion"`
-	Automatic   bool   `json:"automatic"`
-	FilePath    string `json:"file_path"`
-	LineNumber  int    `json:"line_number"`
+	Pattern    string `json:"pattern"`
+	Suggestion string `json:"suggestion"`
+	Automatic  bool   `json:"automatic"`
+	FilePath   string `json:"file_path"`
+	LineNumber int    `json:"line_number"`
 }
 
 // NewMigrationGuide creates a new migration guide generator.

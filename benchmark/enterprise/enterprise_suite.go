@@ -19,18 +19,18 @@ type EnterpriseBenchmarkSuite struct {
 	config    EnterpriseConfig
 	rng       *rand.Rand // Seeded random for reproducible benchmarks
 	results   sync.Map
-	
+
 	// Monitoring
-	errorCount    int64
-	successCount  int64
-	totalLatency  int64
-	maxLatency    int64
-	minLatency    int64
-	
+	errorCount   int64
+	successCount int64
+	totalLatency int64
+	maxLatency   int64
+	minLatency   int64
+
 	// Resource tracking
 	startMemStats runtime.MemStats
 	endMemStats   runtime.MemStats
-	
+
 	// Concurrency control
 	limiter chan struct{}
 	ctx     context.Context
@@ -48,17 +48,17 @@ type EnterpriseScenario struct {
 	MessagePattern MessagePattern
 	LoadProfile    LoadProfile
 	ErrorRate      float64 // Expected error injection rate for testing
-	
+
 	// Real-world constraints
-	MemoryLimit     int64 // Bytes
-	CPULimit        float64 // CPU percentage
-	NetworkLatency  time.Duration
-	DiskIOLatency   time.Duration
-	
+	MemoryLimit    int64   // Bytes
+	CPULimit       float64 // CPU percentage
+	NetworkLatency time.Duration
+	DiskIOLatency  time.Duration
+
 	// Enterprise features
-	Sampling        SamplingConfig
-	RateLimiting    RateLimitConfig
-	Observability   ObservabilityConfig
+	Sampling      SamplingConfig
+	RateLimiting  RateLimitConfig
+	Observability ObservabilityConfig
 }
 
 // MessagePattern defines different types of log messages
@@ -120,12 +120,12 @@ type EnterpriseConfig struct {
 	ReportInterval   time.Duration
 	EnableProfiling  bool
 	EnableTracing    bool
-	
+
 	// Quality gates
-	MaxErrorRate     float64
-	MaxLatencyP99    time.Duration
-	MinThroughput    int
-	MaxMemoryGrowth  int64
+	MaxErrorRate    float64
+	MaxLatencyP99   time.Duration
+	MinThroughput   int
+	MaxMemoryGrowth int64
 }
 
 type SamplingConfig struct {
@@ -150,56 +150,56 @@ type ObservabilityConfig struct {
 
 // Results and metrics structures
 type EnterpriseResult struct {
-	ScenarioName      string                    `json:"scenario_name"`
-	StartTime         time.Time                 `json:"start_time"`
-	EndTime           time.Time                 `json:"end_time"`
-	Duration          time.Duration             `json:"duration"`
-	TotalOperations   int64                     `json:"total_operations"`
-	SuccessfulOps     int64                     `json:"successful_ops"`
-	FailedOps         int64                     `json:"failed_ops"`
-	ErrorRate         float64                   `json:"error_rate"`
-	
+	ScenarioName    string        `json:"scenario_name"`
+	StartTime       time.Time     `json:"start_time"`
+	EndTime         time.Time     `json:"end_time"`
+	Duration        time.Duration `json:"duration"`
+	TotalOperations int64         `json:"total_operations"`
+	SuccessfulOps   int64         `json:"successful_ops"`
+	FailedOps       int64         `json:"failed_ops"`
+	ErrorRate       float64       `json:"error_rate"`
+
 	// Performance metrics
-	ThroughputRPS     float64                   `json:"throughput_rps"`
-	AvgLatency        time.Duration             `json:"avg_latency"`
-	P50Latency        time.Duration             `json:"p50_latency"`
-	P95Latency        time.Duration             `json:"p95_latency"`
-	P99Latency        time.Duration             `json:"p99_latency"`
-	P999Latency       time.Duration             `json:"p999_latency"`
-	MinLatency        time.Duration             `json:"min_latency"`
-	MaxLatency        time.Duration             `json:"max_latency"`
-	
+	ThroughputRPS float64       `json:"throughput_rps"`
+	AvgLatency    time.Duration `json:"avg_latency"`
+	P50Latency    time.Duration `json:"p50_latency"`
+	P95Latency    time.Duration `json:"p95_latency"`
+	P99Latency    time.Duration `json:"p99_latency"`
+	P999Latency   time.Duration `json:"p999_latency"`
+	MinLatency    time.Duration `json:"min_latency"`
+	MaxLatency    time.Duration `json:"max_latency"`
+
 	// Resource utilization
-	PeakMemoryMB      float64                   `json:"peak_memory_mb"`
-	AvgMemoryMB       float64                   `json:"avg_memory_mb"`
-	MemoryGrowthMB    float64                   `json:"memory_growth_mb"`
-	PeakCPUPercent    float64                   `json:"peak_cpu_percent"`
-	AvgCPUPercent     float64                   `json:"avg_cpu_percent"`
-	GCCount           uint32                    `json:"gc_count"`
-	GCPauseTotal      time.Duration             `json:"gc_pause_total"`
-	
+	PeakMemoryMB   float64       `json:"peak_memory_mb"`
+	AvgMemoryMB    float64       `json:"avg_memory_mb"`
+	MemoryGrowthMB float64       `json:"memory_growth_mb"`
+	PeakCPUPercent float64       `json:"peak_cpu_percent"`
+	AvgCPUPercent  float64       `json:"avg_cpu_percent"`
+	GCCount        uint32        `json:"gc_count"`
+	GCPauseTotal   time.Duration `json:"gc_pause_total"`
+
 	// Network and I/O
-	BytesLogged       int64                     `json:"bytes_logged"`
-	LogsPerSecond     float64                   `json:"logs_per_second"`
-	AvgMessageSize    float64                   `json:"avg_message_size"`
-	
+	BytesLogged    int64   `json:"bytes_logged"`
+	LogsPerSecond  float64 `json:"logs_per_second"`
+	AvgMessageSize float64 `json:"avg_message_size"`
+
 	// Quality metrics
-	QualityGatesPassed bool                     `json:"quality_gates_passed"`
-	QualityIssues     []string                  `json:"quality_issues"`
-	
+	QualityGatesPassed bool     `json:"quality_gates_passed"`
+	QualityIssues      []string `json:"quality_issues"`
+
 	// Detailed breakdowns
-	LatencyHistogram  map[string]int64          `json:"latency_histogram"`
-	ErrorBreakdown    map[string]int64          `json:"error_breakdown"`
-	TimeSeriesData    []TimeSeriesPoint         `json:"time_series_data"`
+	LatencyHistogram map[string]int64  `json:"latency_histogram"`
+	ErrorBreakdown   map[string]int64  `json:"error_breakdown"`
+	TimeSeriesData   []TimeSeriesPoint `json:"time_series_data"`
 }
 
 type TimeSeriesPoint struct {
-	Timestamp   time.Time     `json:"timestamp"`
-	RPS         float64       `json:"rps"`
-	Latency     time.Duration `json:"latency"`
-	MemoryMB    float64       `json:"memory_mb"`
-	CPUPercent  float64       `json:"cpu_percent"`
-	ErrorRate   float64       `json:"error_rate"`
+	Timestamp  time.Time     `json:"timestamp"`
+	RPS        float64       `json:"rps"`
+	Latency    time.Duration `json:"latency"`
+	MemoryMB   float64       `json:"memory_mb"`
+	CPUPercent float64       `json:"cpu_percent"`
+	ErrorRate  float64       `json:"error_rate"`
 }
 
 // Predefined enterprise scenarios
@@ -275,7 +275,7 @@ var EnterpriseScenarios = []EnterpriseScenario{
 		FieldCount:     20,
 		MessagePattern: SecurityAudit,
 		LoadProfile:    SpikeLoad,
-		ErrorRate:      0.0001, // Very low error rate for compliance
+		ErrorRate:      0.0001,            // Very low error rate for compliance
 		MemoryLimit:    256 * 1024 * 1024, // 256MB
 		CPULimit:       60.0,
 		Sampling:       SamplingConfig{Enabled: false}, // No sampling for security
@@ -301,11 +301,11 @@ var EnterpriseScenarios = []EnterpriseScenario{
 // NewEnterpriseBenchmarkSuite creates a new enterprise benchmarking suite
 func NewEnterpriseBenchmarkSuite() *EnterpriseBenchmarkSuite {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	// Use seeded random for reproducible benchmarks
 	src := rand.NewSource(42) // Fixed seed for reproducibility
 	rng := rand.New(src)
-	
+
 	return &EnterpriseBenchmarkSuite{
 		scenarios: EnterpriseScenarios,
 		rng:       rng,
@@ -324,9 +324,9 @@ func NewEnterpriseBenchmarkSuite() *EnterpriseBenchmarkSuite {
 			MinThroughput:    1000,
 			MaxMemoryGrowth:  100 * 1024 * 1024, // 100MB
 		},
-		limiter: make(chan struct{}, 1000),
-		ctx:     ctx,
-		cancel:  cancel,
+		limiter:    make(chan struct{}, 1000),
+		ctx:        ctx,
+		cancel:     cancel,
 		minLatency: 9223372036854775807, // Max int64
 	}
 }
@@ -348,21 +348,21 @@ func (ebs *EnterpriseBenchmarkSuite) RunEnterpriseBenchmarks() error {
 	// Run each scenario
 	for i, scenario := range ebs.scenarios {
 		fmt.Printf("[%d/%d] Running %s scenario...\n", i+1, len(ebs.scenarios), scenario.Name)
-		
+
 		result, err := ebs.runScenario(scenario)
 		if err != nil {
 			fmt.Printf("❌ Scenario failed: %v\n", err)
 			continue
 		}
-		
+
 		ebs.results.Store(scenario.Name, result)
-		
+
 		fmt.Printf("✅ %s completed: %.0f RPS, %.2fms P95, %.1f%% error rate\n",
 			scenario.Name,
 			result.ThroughputRPS,
 			float64(result.P95Latency.Nanoseconds())/1000000,
 			result.ErrorRate*100)
-		
+
 		// Brief cooldown between scenarios
 		time.Sleep(ebs.config.CooldownDuration)
 	}
@@ -375,18 +375,18 @@ func (ebs *EnterpriseBenchmarkSuite) RunEnterpriseBenchmarks() error {
 func (ebs *EnterpriseBenchmarkSuite) runScenario(scenario EnterpriseScenario) (*EnterpriseResult, error) {
 	// Setup logger
 	logger := bolt.New(bolt.NewJSONHandler(&discardWriter{}))
-	
+
 	// Initialize result tracking
 	result := &EnterpriseResult{
-		ScenarioName:  scenario.Name,
-		StartTime:     time.Now(),
-		MinLatency:    time.Hour, // Initialize to large value
+		ScenarioName:   scenario.Name,
+		StartTime:      time.Now(),
+		MinLatency:     time.Hour, // Initialize to large value
 		TimeSeriesData: make([]TimeSeriesPoint, 0),
 	}
 
 	// Capture initial memory stats
 	runtime.ReadMemStats(&ebs.startMemStats)
-	
+
 	// Reset counters
 	atomic.StoreInt64(&ebs.errorCount, 0)
 	atomic.StoreInt64(&ebs.successCount, 0)
@@ -396,14 +396,14 @@ func (ebs *EnterpriseBenchmarkSuite) runScenario(scenario EnterpriseScenario) (*
 
 	// Setup load generation
 	loadGenerator := ebs.createLoadGenerator(scenario, logger)
-	
+
 	// Start metrics collection
 	metricsCtx, metricsCancel := context.WithTimeout(ebs.ctx, scenario.Duration)
 	defer metricsCancel()
-	
+
 	metricsTicker := time.NewTicker(ebs.config.MetricsInterval)
 	defer metricsTicker.Stop()
-	
+
 	go ebs.collectMetrics(metricsCtx, metricsTicker.C, result)
 
 	// Warmup phase
@@ -431,7 +431,7 @@ func (ebs *EnterpriseBenchmarkSuite) runScenario(scenario EnterpriseScenario) (*
 	result.TotalOperations = atomic.LoadInt64(&ebs.successCount) + atomic.LoadInt64(&ebs.errorCount)
 	result.SuccessfulOps = atomic.LoadInt64(&ebs.successCount)
 	result.FailedOps = atomic.LoadInt64(&ebs.errorCount)
-	
+
 	if result.TotalOperations > 0 {
 		result.ErrorRate = float64(result.FailedOps) / float64(result.TotalOperations)
 		result.ThroughputRPS = float64(result.SuccessfulOps) / result.Duration.Seconds()
@@ -457,13 +457,13 @@ func (ebs *EnterpriseBenchmarkSuite) runScenario(scenario EnterpriseScenario) (*
 // createLoadGenerator creates a load generation function for the scenario
 func (ebs *EnterpriseBenchmarkSuite) createLoadGenerator(scenario EnterpriseScenario, logger *bolt.Logger) func() {
 	messageGen := ebs.createMessageGenerator(scenario.MessagePattern)
-	
+
 	return func() {
 		start := time.Now()
-		
+
 		// Generate and log message
 		message, fields := messageGen(scenario.FieldCount)
-		
+
 		event := logger.Info()
 		for k, v := range fields {
 			switch val := v.(type) {
@@ -482,11 +482,11 @@ func (ebs *EnterpriseBenchmarkSuite) createLoadGenerator(scenario EnterpriseScen
 			}
 		}
 		event.Msg(message)
-		
+
 		// Record latency
 		latency := time.Since(start)
 		ebs.recordLatency(latency)
-		
+
 		atomic.AddInt64(&ebs.successCount, 1)
 	}
 }
@@ -520,7 +520,7 @@ func (ebs *EnterpriseBenchmarkSuite) generateWebAPIMessage(fieldCount int) (stri
 	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
 	endpoints := []string{"/api/v1/users", "/api/v1/orders", "/api/v1/products", "/api/v1/payments"}
 	statusCodes := []int{200, 201, 400, 401, 403, 404, 500}
-	
+
 	// Use suite's seeded random for reproducibility
 	rng := ebs.rng
 	if rng == nil {
@@ -528,135 +528,135 @@ func (ebs *EnterpriseBenchmarkSuite) generateWebAPIMessage(fieldCount int) (stri
 		src := rand.NewSource(time.Now().UnixNano())
 		rng = rand.New(src)
 	}
-	
+
 	fields := map[string]interface{}{
-		"method":       methods[rng.Intn(len(methods))],
-		"endpoint":     endpoints[rng.Intn(len(endpoints))],
-		"status_code":  statusCodes[rng.Intn(len(statusCodes))],
+		"method":        methods[rng.Intn(len(methods))],
+		"endpoint":      endpoints[rng.Intn(len(endpoints))],
+		"status_code":   statusCodes[rng.Intn(len(statusCodes))],
 		"response_time": rng.Float64() * 1000,
-		"user_id":      rng.Int63n(100000),
-		"request_id":   fmt.Sprintf("req_%d_%d", time.Now().UnixNano(), rng.Int31()),
-		"ip_address":   fmt.Sprintf("192.168.%d.%d", rng.Intn(255), rng.Intn(255)),
-		"user_agent":   "Mozilla/5.0 (compatible; BenchmarkClient)",
+		"user_id":       rng.Int63n(100000),
+		"request_id":    fmt.Sprintf("req_%d_%d", time.Now().UnixNano(), rng.Int31()),
+		"ip_address":    fmt.Sprintf("192.168.%d.%d", rng.Intn(255), rng.Intn(255)),
+		"user_agent":    "Mozilla/5.0 (compatible; BenchmarkClient)",
 	}
-	
+
 	return "API request processed", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateDatabaseMessage(fieldCount int) (string, map[string]interface{}) {
 	operations := []string{"SELECT", "INSERT", "UPDATE", "DELETE"}
 	tables := []string{"users", "orders", "products", "payments", "audit_log"}
-	
+
 	fields := map[string]interface{}{
-		"operation":    operations[rand.Intn(len(operations))],
-		"table":        tables[rand.Intn(len(tables))],
-		"duration_ms":  rand.Float64() * 100,
+		"operation":     operations[rand.Intn(len(operations))],
+		"table":         tables[rand.Intn(len(tables))],
+		"duration_ms":   rand.Float64() * 100,
 		"rows_affected": rand.Intn(1000),
-		"query_id":     fmt.Sprintf("query_%d", rand.Int63()),
+		"query_id":      fmt.Sprintf("query_%d", rand.Int63()),
 		"connection_id": rand.Intn(100),
-		"database":     "production_db",
-		"schema":       "public",
+		"database":      "production_db",
+		"schema":        "public",
 	}
-	
+
 	return "Database operation completed", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateSecurityMessage(fieldCount int) (string, map[string]interface{}) {
 	eventTypes := []string{"LOGIN_SUCCESS", "LOGIN_FAILED", "PERMISSION_DENIED", "DATA_ACCESS", "ADMIN_ACTION"}
 	sources := []string{"web_app", "api", "admin_panel", "mobile_app"}
-	
+
 	fields := map[string]interface{}{
-		"event_type":   eventTypes[rand.Intn(len(eventTypes))],
-		"source":       sources[rand.Intn(len(sources))],
-		"user_id":      rand.Int63n(100000),
-		"session_id":   fmt.Sprintf("sess_%d", rand.Int63()),
-		"ip_address":   fmt.Sprintf("10.%d.%d.%d", rand.Intn(255), rand.Intn(255), rand.Intn(255)),
-		"timestamp":    time.Now(),
-		"severity":     "INFO",
-		"compliance":   "SOX,GDPR",
-		"location":     "US-West-2",
-		"device_id":    fmt.Sprintf("dev_%d", rand.Int63()),
+		"event_type": eventTypes[rand.Intn(len(eventTypes))],
+		"source":     sources[rand.Intn(len(sources))],
+		"user_id":    rand.Int63n(100000),
+		"session_id": fmt.Sprintf("sess_%d", rand.Int63()),
+		"ip_address": fmt.Sprintf("10.%d.%d.%d", rand.Intn(255), rand.Intn(255), rand.Intn(255)),
+		"timestamp":  time.Now(),
+		"severity":   "INFO",
+		"compliance": "SOX,GDPR",
+		"location":   "US-West-2",
+		"device_id":  fmt.Sprintf("dev_%d", rand.Int63()),
 	}
-	
+
 	return "Security event recorded", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateErrorMessage(fieldCount int) (string, map[string]interface{}) {
 	errorTypes := []string{"ValidationError", "DatabaseError", "NetworkError", "AuthenticationError"}
 	components := []string{"user-service", "payment-service", "notification-service", "auth-service"}
-	
+
 	fields := map[string]interface{}{
-		"error_type":   errorTypes[rand.Intn(len(errorTypes))],
-		"component":    components[rand.Intn(len(components))],
-		"error_code":   rand.Intn(9999),
-		"stack_trace":  "trace_data_here",
-		"request_id":   fmt.Sprintf("req_%d", rand.Int63()),
-		"user_id":      rand.Int63n(100000),
-		"timestamp":    time.Now(),
-		"severity":     "ERROR",
-		"environment":  "production",
+		"error_type":  errorTypes[rand.Intn(len(errorTypes))],
+		"component":   components[rand.Intn(len(components))],
+		"error_code":  rand.Intn(9999),
+		"stack_trace": "trace_data_here",
+		"request_id":  fmt.Sprintf("req_%d", rand.Int63()),
+		"user_id":     rand.Int63n(100000),
+		"timestamp":   time.Now(),
+		"severity":    "ERROR",
+		"environment": "production",
 	}
-	
+
 	return "Error occurred during processing", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateMetricsMessage(fieldCount int) (string, map[string]interface{}) {
 	metrics := []string{"cpu_usage", "memory_usage", "disk_usage", "network_io", "response_time"}
-	
+
 	fields := map[string]interface{}{
-		"metric_name":  metrics[rand.Intn(len(metrics))],
-		"value":        rand.Float64() * 100,
-		"unit":         "percent",
-		"host":         fmt.Sprintf("host-%d", rand.Intn(100)),
-		"instance_id":  fmt.Sprintf("i-%08x", rand.Int31()),
-		"timestamp":    time.Now(),
-		"region":       "us-west-2",
-		"environment":  "production",
+		"metric_name": metrics[rand.Intn(len(metrics))],
+		"value":       rand.Float64() * 100,
+		"unit":        "percent",
+		"host":        fmt.Sprintf("host-%d", rand.Intn(100)),
+		"instance_id": fmt.Sprintf("i-%08x", rand.Int31()),
+		"timestamp":   time.Now(),
+		"region":      "us-west-2",
+		"environment": "production",
 	}
-	
+
 	return "Metric collected", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateTraceMessage(fieldCount int) (string, map[string]interface{}) {
 	operations := []string{"http.request", "db.query", "cache.get", "message.send", "file.read"}
-	
+
 	fields := map[string]interface{}{
-		"trace_id":     fmt.Sprintf("trace_%d", rand.Int63()),
-		"span_id":      fmt.Sprintf("span_%d", rand.Int63()),
-		"parent_id":    fmt.Sprintf("parent_%d", rand.Int63()),
-		"operation":    operations[rand.Intn(len(operations))],
-		"duration_ms":  rand.Float64() * 1000,
-		"service":      "user-service",
-		"version":      "v1.2.3",
-		"environment":  "production",
-		"tags":         "user.premium=true,region=us-west",
+		"trace_id":    fmt.Sprintf("trace_%d", rand.Int63()),
+		"span_id":     fmt.Sprintf("span_%d", rand.Int63()),
+		"parent_id":   fmt.Sprintf("parent_%d", rand.Int63()),
+		"operation":   operations[rand.Intn(len(operations))],
+		"duration_ms": rand.Float64() * 1000,
+		"service":     "user-service",
+		"version":     "v1.2.3",
+		"environment": "production",
+		"tags":        "user.premium=true,region=us-west",
 	}
-	
+
 	return "Trace span completed", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateBusinessMessage(fieldCount int) (string, map[string]interface{}) {
 	events := []string{"user_registered", "order_placed", "payment_processed", "product_viewed"}
-	
+
 	fields := map[string]interface{}{
-		"event_name":   events[rand.Intn(len(events))],
-		"user_id":      rand.Int63n(100000),
-		"session_id":   fmt.Sprintf("sess_%d", rand.Int63()),
-		"timestamp":    time.Now(),
-		"revenue":      rand.Float64() * 1000,
-		"currency":     "USD",
-		"country":      "US",
-		"channel":      "web",
-		"campaign":     fmt.Sprintf("campaign_%d", rand.Intn(10)),
-		"product_id":   rand.Int63n(10000),
+		"event_name": events[rand.Intn(len(events))],
+		"user_id":    rand.Int63n(100000),
+		"session_id": fmt.Sprintf("sess_%d", rand.Int63()),
+		"timestamp":  time.Now(),
+		"revenue":    rand.Float64() * 1000,
+		"currency":   "USD",
+		"country":    "US",
+		"channel":    "web",
+		"campaign":   fmt.Sprintf("campaign_%d", rand.Intn(10)),
+		"product_id": rand.Int63n(10000),
 	}
-	
+
 	return "Business event processed", ebs.limitFields(fields, fieldCount)
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateSystemMessage(fieldCount int) (string, map[string]interface{}) {
 	components := []string{"api-gateway", "load-balancer", "database", "cache", "message-queue"}
-	
+
 	fields := map[string]interface{}{
 		"component":    components[rand.Intn(len(components))],
 		"status":       "healthy",
@@ -668,7 +668,7 @@ func (ebs *EnterpriseBenchmarkSuite) generateSystemMessage(fieldCount int) (stri
 		"environment":  "production",
 		"region":       "us-west-2",
 	}
-	
+
 	return "System status updated", ebs.limitFields(fields, fieldCount)
 }
 
@@ -678,7 +678,7 @@ func (ebs *EnterpriseBenchmarkSuite) limitFields(fields map[string]interface{}, 
 	if len(fields) <= maxFields {
 		return fields
 	}
-	
+
 	limited := make(map[string]interface{})
 	count := 0
 	for k, v := range fields {
@@ -694,7 +694,7 @@ func (ebs *EnterpriseBenchmarkSuite) limitFields(fields map[string]interface{}, 
 func (ebs *EnterpriseBenchmarkSuite) recordLatency(latency time.Duration) {
 	latencyNs := latency.Nanoseconds()
 	atomic.AddInt64(&ebs.totalLatency, latencyNs)
-	
+
 	// Update max latency
 	for {
 		current := atomic.LoadInt64(&ebs.maxLatency)
@@ -702,7 +702,7 @@ func (ebs *EnterpriseBenchmarkSuite) recordLatency(latency time.Duration) {
 			break
 		}
 	}
-	
+
 	// Update min latency
 	for {
 		current := atomic.LoadInt64(&ebs.minLatency)
@@ -716,11 +716,11 @@ func (ebs *EnterpriseBenchmarkSuite) runLoad(ctx context.Context, loadGen func()
 	if targetRPS <= 0 {
 		return
 	}
-	
+
 	interval := time.Second / time.Duration(targetRPS)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -757,21 +757,21 @@ func (ebs *EnterpriseBenchmarkSuite) collectMetrics(ctx context.Context, ticker 
 		case timestamp := <-ticker:
 			var memStats runtime.MemStats
 			runtime.ReadMemStats(&memStats)
-			
+
 			successCount := atomic.LoadInt64(&ebs.successCount)
 			errorCount := atomic.LoadInt64(&ebs.errorCount)
 			totalOps := successCount + errorCount
-			
+
 			point := TimeSeriesPoint{
 				Timestamp: timestamp,
 				MemoryMB:  float64(memStats.HeapInuse) / 1024 / 1024,
 				RPS:       float64(successCount) / time.Since(result.StartTime).Seconds(),
 			}
-			
+
 			if totalOps > 0 {
 				point.ErrorRate = float64(errorCount) / float64(totalOps)
 			}
-			
+
 			result.TimeSeriesData = append(result.TimeSeriesData, point)
 		}
 	}
@@ -779,36 +779,36 @@ func (ebs *EnterpriseBenchmarkSuite) collectMetrics(ctx context.Context, ticker 
 
 func (ebs *EnterpriseBenchmarkSuite) evaluateQualityGates(result *EnterpriseResult, scenario EnterpriseScenario) (bool, []string) {
 	var issues []string
-	
+
 	// Check error rate
 	if result.ErrorRate > ebs.config.MaxErrorRate {
 		issues = append(issues, fmt.Sprintf("Error rate %.4f exceeds threshold %.4f", result.ErrorRate, ebs.config.MaxErrorRate))
 	}
-	
+
 	// Check throughput
 	if result.ThroughputRPS < float64(ebs.config.MinThroughput) {
 		issues = append(issues, fmt.Sprintf("Throughput %.0f RPS below minimum %d", result.ThroughputRPS, ebs.config.MinThroughput))
 	}
-	
+
 	// Check memory growth
 	if result.MemoryGrowthMB > float64(ebs.config.MaxMemoryGrowth)/1024/1024 {
-		issues = append(issues, fmt.Sprintf("Memory growth %.1fMB exceeds threshold %.1fMB", 
+		issues = append(issues, fmt.Sprintf("Memory growth %.1fMB exceeds threshold %.1fMB",
 			result.MemoryGrowthMB, float64(ebs.config.MaxMemoryGrowth)/1024/1024))
 	}
-	
+
 	return len(issues) == 0, issues
 }
 
 func (ebs *EnterpriseBenchmarkSuite) generateEnterpriseReport() error {
 	fmt.Println("📊 Generating enterprise performance report...")
-	
+
 	// Collect all results
 	var allResults []*EnterpriseResult
 	ebs.results.Range(func(key, value interface{}) bool {
 		allResults = append(allResults, value.(*EnterpriseResult))
 		return true
 	})
-	
+
 	// Generate summary
 	fmt.Printf("\n🎯 Enterprise Benchmark Summary:\n")
 	for _, result := range allResults {
@@ -816,7 +816,7 @@ func (ebs *EnterpriseBenchmarkSuite) generateEnterpriseReport() error {
 		if !result.QualityGatesPassed {
 			status = "❌ FAILED"
 		}
-		
+
 		fmt.Printf("%s %s: %.0f RPS, %.2fms avg latency, %.3f%% errors %s\n",
 			status,
 			result.ScenarioName,
@@ -825,7 +825,7 @@ func (ebs *EnterpriseBenchmarkSuite) generateEnterpriseReport() error {
 			result.ErrorRate*100,
 			"")
 	}
-	
+
 	return nil
 }
 

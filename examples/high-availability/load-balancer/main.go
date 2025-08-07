@@ -45,15 +45,15 @@ func (hs HealthStatus) String() string {
 
 // Backend represents a backend server instance
 type Backend struct {
-	ID          string
-	URL         *url.URL
-	Proxy       *httputil.ReverseProxy
-	Health      HealthStatus
-	LastCheck   time.Time
-	FailCount   int32
+	ID           string
+	URL          *url.URL
+	Proxy        *httputil.ReverseProxy
+	Health       HealthStatus
+	LastCheck    time.Time
+	FailCount    int32
 	RequestCount int64
 	ResponseTime time.Duration
-	mutex       sync.RWMutex
+	mutex        sync.RWMutex
 }
 
 // LoadBalancer implements a round-robin load balancer with health checking
@@ -96,21 +96,21 @@ func NewLoadBalancer(backendURLs []string) *LoadBalancer {
 
 		backendID := fmt.Sprintf("backend-%d", i+1)
 		proxy := httputil.NewSingleHostReverseProxy(parsedURL)
-		
+
 		// Customize proxy director for logging
 		originalDirector := proxy.Director
 		proxy.Director = func(req *http.Request) {
 			originalDirector(req)
-			
+
 			correlationID := req.Header.Get("X-Correlation-ID")
 			if correlationID == "" {
 				correlationID = uuid.New().String()
 				req.Header.Set("X-Correlation-ID", correlationID)
 			}
-			
+
 			req.Header.Set("X-Backend-ID", backendID)
 			req.Header.Set("X-Load-Balancer", "bolt-lb-v1.0.0")
-			
+
 			logger.Debug().
 				Str("correlation_id", correlationID).
 				Str("backend_id", backendID).
@@ -123,17 +123,17 @@ func NewLoadBalancer(backendURLs []string) *LoadBalancer {
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 			correlationID := r.Header.Get("X-Correlation-ID")
 			backendID := r.Header.Get("X-Backend-ID")
-			
+
 			logger.Error().
 				Str("correlation_id", correlationID).
 				Str("backend_id", backendID).
 				Str("backend_url", parsedURL.String()).
 				Err(err).
 				Msg("Backend request failed")
-			
+
 			// Mark backend as unhealthy
 			lb.markBackendUnhealthy(backendID)
-			
+
 			http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
 		}
 
@@ -172,7 +172,7 @@ func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Str("method", r.Method).
 			Str("path", r.URL.Path).
 			Msg("No healthy backends available")
-		
+
 		http.Error(w, "Service Unavailable - No Healthy Backends", http.StatusServiceUnavailable)
 		return
 	}
@@ -199,7 +199,7 @@ func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	backend.Proxy.ServeHTTP(w, r)
 
 	duration := time.Since(start)
-	
+
 	// Update backend response time
 	backend.mutex.Lock()
 	backend.ResponseTime = duration
@@ -220,20 +220,20 @@ func (lb *LoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // getNextHealthyBackend returns the next healthy backend using round-robin
 func (lb *LoadBalancer) getNextHealthyBackend() *Backend {
 	attempts := len(lb.backends)
-	
+
 	for i := 0; i < attempts; i++ {
 		idx := atomic.AddUint64(&lb.current, 1) % uint64(len(lb.backends))
 		backend := &lb.backends[idx]
-		
+
 		backend.mutex.RLock()
 		isHealthy := backend.Health == Healthy
 		backend.mutex.RUnlock()
-		
+
 		if isHealthy {
 			return backend
 		}
 	}
-	
+
 	// No healthy backends found
 	return nil
 }
@@ -246,13 +246,13 @@ func (lb *LoadBalancer) markBackendUnhealthy(backendID string) {
 			lb.backends[i].Health = Unhealthy
 			lb.backends[i].FailCount++
 			lb.backends[i].mutex.Unlock()
-			
+
 			lb.logger.Warn().
 				Str("backend_id", backendID).
 				Str("backend_url", lb.backends[i].URL.String()).
 				Int("fail_count", int(lb.backends[i].FailCount)).
 				Msg("Backend marked as unhealthy")
-			
+
 			break
 		}
 	}
@@ -287,7 +287,7 @@ func (lb *LoadBalancer) performHealthChecks() {
 func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 	start := time.Now()
 	healthCheckID := uuid.New().String()
-	
+
 	lb.logger.Debug().
 		Str("health_check_id", healthCheckID).
 		Str("backend_id", backend.ID).
@@ -318,14 +318,14 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 
 	backend.mutex.Lock()
 	defer backend.mutex.Unlock()
-	
+
 	backend.LastCheck = time.Now()
 	previousHealth := backend.Health
 
 	if err != nil {
 		backend.Health = Unhealthy
 		backend.FailCount++
-		
+
 		lb.logger.Warn().
 			Str("health_check_id", healthCheckID).
 			Str("backend_id", backend.ID).
@@ -334,7 +334,7 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 			Err(err).
 			Int("fail_count", int(backend.FailCount)).
 			Msg("Backend health check failed")
-		
+
 		return
 	}
 
@@ -392,13 +392,13 @@ func (lb *LoadBalancer) Stats() map[string]interface{} {
 	for i, backend := range lb.backends {
 		backend.mutex.RLock()
 		backendStats := map[string]interface{}{
-			"id":             backend.ID,
-			"url":            backend.URL.String(),
-			"health_status":  backend.Health.String(),
-			"last_check":     backend.LastCheck.Format(time.RFC3339),
-			"fail_count":     backend.FailCount,
-			"request_count":  atomic.LoadInt64(&backend.RequestCount),
-			"response_time":  backend.ResponseTime.String(),
+			"id":            backend.ID,
+			"url":           backend.URL.String(),
+			"health_status": backend.Health.String(),
+			"last_check":    backend.LastCheck.Format(time.RFC3339),
+			"fail_count":    backend.FailCount,
+			"request_count": atomic.LoadInt64(&backend.RequestCount),
+			"response_time": backend.ResponseTime.String(),
 		}
 		backend.mutex.RUnlock()
 
@@ -447,9 +447,9 @@ func NewApplication(backendURLs []string) *Application {
 // statsHandler provides load balancer statistics
 func (app *Application) statsHandler(w http.ResponseWriter, r *http.Request) {
 	correlationID := getOrCreateCorrelationID(r)
-	
+
 	stats := app.loadBalancer.Stats()
-	
+
 	app.logger.Info().
 		Str("correlation_id", correlationID).
 		Str("operation", "get_stats").
@@ -458,26 +458,26 @@ func (app *Application) statsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Correlation-ID", correlationID)
-	
+
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"load_balancer_stats": stats,
-		"timestamp":          time.Now().UTC().Format(time.RFC3339),
-		"correlation_id":     correlationID,
+		"timestamp":           time.Now().UTC().Format(time.RFC3339),
+		"correlation_id":      correlationID,
 	})
 }
 
 // healthHandler provides load balancer health check
 func (app *Application) healthHandler(w http.ResponseWriter, r *http.Request) {
 	correlationID := getOrCreateCorrelationID(r)
-	
+
 	stats := app.loadBalancer.Stats()
 	healthyCount := stats["healthy_count"].(int)
 	totalCount := stats["total_backends"].(int)
-	
+
 	isHealthy := healthyCount > 0
 	status := "unhealthy"
 	statusCode := http.StatusServiceUnavailable
-	
+
 	if isHealthy {
 		status = "healthy"
 		statusCode = http.StatusOK
@@ -494,7 +494,7 @@ func (app *Application) healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Correlation-ID", correlationID)
 	w.WriteHeader(statusCode)
-	
+
 	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":           status,
 		"healthy_backends": healthyCount,
@@ -545,11 +545,11 @@ func runBackend(port int) {
 		Logger()
 
 	mux := http.NewServeMux()
-	
+
 	// Health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		correlationID := getOrCreateCorrelationID(r)
-		
+
 		// Simulate occasional health check failures (5% chance)
 		if rand.Intn(20) == 0 {
 			logger.Warn().
@@ -566,7 +566,7 @@ func runBackend(port int) {
 			Msg("Health check OK")
 
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"status":"healthy","backend":"backend-%d","timestamp":"%s"}`, 
+		fmt.Fprintf(w, `{"status":"healthy","backend":"backend-%d","timestamp":"%s"}`,
 			port, time.Now().UTC().Format(time.RFC3339))
 	})
 
@@ -595,7 +595,7 @@ func runBackend(port int) {
 			"processing_time_ms": %.3f,
 			"correlation_id": "%s",
 			"timestamp": "%s"
-		}`, port, port, float64(processingTime.Nanoseconds())/1_000_000, 
+		}`, port, port, float64(processingTime.Nanoseconds())/1_000_000,
 			correlationID, time.Now().UTC().Format(time.RFC3339))
 	})
 
@@ -646,16 +646,16 @@ func main() {
 
 	// Setup routes
 	mux := http.NewServeMux()
-	
+
 	// Load balancer management endpoints
 	mux.HandleFunc("/lb/stats", app.statsHandler)
 	mux.HandleFunc("/lb/health", app.healthHandler)
-	
+
 	// Default handler - proxy to backends
 	mux.Handle("/", app.loadBalancer)
 
 	port := getEnv("PORT", "8080")
-	
+
 	app.logger.Info().
 		Str("port", port).
 		Interface("backend_urls", backendURLs).

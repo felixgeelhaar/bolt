@@ -73,8 +73,8 @@ func (mv *MigrationValidator) ValidateZerologMigration() *ValidationResult {
 		for _, pattern := range zerologPatterns {
 			if matches := pattern.FindAllStringIndex(string(content), -1); len(matches) > 0 {
 				result.Success = false
-				result.Errors = append(result.Errors, 
-					fmt.Sprintf("Found unmigrated Zerolog code in %s (pattern: %s)", 
+				result.Errors = append(result.Errors,
+					fmt.Sprintf("Found unmigrated Zerolog code in %s (pattern: %s)",
 						filePath, pattern.String()))
 			}
 		}
@@ -126,8 +126,8 @@ func (mv *MigrationValidator) ValidateZapMigration() *ValidationResult {
 		for _, pattern := range zapPatterns {
 			if matches := pattern.FindAllStringIndex(string(content), -1); len(matches) > 0 {
 				result.Success = false
-				result.Errors = append(result.Errors, 
-					fmt.Sprintf("Found unmigrated Zap code in %s (pattern: %s)", 
+				result.Errors = append(result.Errors,
+					fmt.Sprintf("Found unmigrated Zap code in %s (pattern: %s)",
 						filePath, pattern.String()))
 			}
 		}
@@ -180,8 +180,8 @@ func (mv *MigrationValidator) ValidateLogrusMigration() *ValidationResult {
 		for _, pattern := range logrusPatterns {
 			if matches := pattern.FindAllStringIndex(string(content), -1); len(matches) > 0 {
 				result.Success = false
-				result.Errors = append(result.Errors, 
-					fmt.Sprintf("Found unmigrated Logrus code in %s (pattern: %s)", 
+				result.Errors = append(result.Errors,
+					fmt.Sprintf("Found unmigrated Logrus code in %s (pattern: %s)",
 						filePath, pattern.String()))
 			}
 		}
@@ -243,26 +243,26 @@ func (mv *MigrationValidator) ValidateBoltUsage() *ValidationResult {
 // validateBoltPatterns checks for proper Bolt usage patterns.
 func (mv *MigrationValidator) validateBoltPatterns(filePath, content string, result *ValidationResult) {
 	lines := strings.Split(content, "\n")
-	
+
 	for lineNum, line := range lines {
 		line = strings.TrimSpace(line)
-		
+
 		// Check for proper message termination
-		if strings.Contains(line, "bolt.") && (strings.Contains(line, ".Str(") || 
+		if strings.Contains(line, "bolt.") && (strings.Contains(line, ".Str(") ||
 			strings.Contains(line, ".Int(") || strings.Contains(line, ".Bool(")) {
 			if !strings.Contains(line, ".Msg(") && !strings.Contains(line, ".Send()") &&
 				!strings.Contains(line, ".Printf(") {
-				result.Warnings = append(result.Warnings, 
-					fmt.Sprintf("%s:%d: Bolt event chain should end with .Msg(), .Send(), or .Printf()", 
+				result.Warnings = append(result.Warnings,
+					fmt.Sprintf("%s:%d: Bolt event chain should end with .Msg(), .Send(), or .Printf()",
 						filePath, lineNum+1))
 			}
 		}
-		
+
 		// Check for proper logger initialization
 		if strings.Contains(line, "bolt.New(") && !strings.Contains(line, "bolt.NewJSONHandler") &&
 			!strings.Contains(line, "bolt.NewConsoleHandler") {
 			result.Warnings = append(result.Warnings,
-				fmt.Sprintf("%s:%d: Consider using bolt.NewJSONHandler() or bolt.NewConsoleHandler()", 
+				fmt.Sprintf("%s:%d: Consider using bolt.NewJSONHandler() or bolt.NewConsoleHandler()",
 					filePath, lineNum+1))
 		}
 	}
@@ -289,23 +289,23 @@ func (lov *LogOutputValidator) ValidateJSONOutput(output io.Reader) *ValidationR
 
 	scanner := bufio.NewScanner(output)
 	lineNum := 0
-	
+
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		
+
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		
+
 		var logEntry map[string]interface{}
 		if err := json.Unmarshal([]byte(line), &logEntry); err != nil {
 			result.Success = false
-			result.Errors = append(result.Errors, 
+			result.Errors = append(result.Errors,
 				fmt.Sprintf("Line %d: Invalid JSON: %v", lineNum, err))
 			continue
 		}
-		
+
 		// Check for required fields
 		for _, field := range lov.expectedFields {
 			if _, exists := logEntry[field]; !exists {
@@ -313,7 +313,7 @@ func (lov *LogOutputValidator) ValidateJSONOutput(output io.Reader) *ValidationR
 					fmt.Sprintf("Line %d: Missing expected field '%s'", lineNum, field))
 			}
 		}
-		
+
 		// Check for standard fields
 		if level, exists := logEntry["level"]; !exists {
 			result.Warnings = append(result.Warnings,
@@ -325,7 +325,7 @@ func (lov *LogOutputValidator) ValidateJSONOutput(output io.Reader) *ValidationR
 			result.Warnings = append(result.Warnings,
 				fmt.Sprintf("Line %d: Unknown log level '%s'", lineNum, levelStr))
 		}
-		
+
 		if _, exists := logEntry["message"]; !exists {
 			result.Warnings = append(result.Warnings,
 				fmt.Sprintf("Line %d: Missing 'message' field", lineNum))
@@ -355,7 +355,7 @@ func isValidLogLevel(level string) bool {
 // generateSummary generates a summary for migration validation results.
 func (mv *MigrationValidator) generateSummary(result *ValidationResult, migrationType string) {
 	if result.Success {
-		result.Summary = fmt.Sprintf("%s migration validation passed. Scanned %d files.", 
+		result.Summary = fmt.Sprintf("%s migration validation passed. Scanned %d files.",
 			migrationType, result.FilesCount)
 	} else {
 		result.Summary = fmt.Sprintf("%s migration validation failed with %d errors and %d warnings. Scanned %d files.",
@@ -390,10 +390,10 @@ func NewCodeAnalyzer() *CodeAnalyzer {
 
 // AnalysisResult contains the results of code analysis.
 type AnalysisResult struct {
-	FilePath           string            `json:"file_path"`
-	LoggingCalls       []LoggingCall     `json:"logging_calls"`
-	ImportStatements   []ImportStatement `json:"import_statements"`
-	MigrationSuggestions []string        `json:"migration_suggestions"`
+	FilePath             string            `json:"file_path"`
+	LoggingCalls         []LoggingCall     `json:"logging_calls"`
+	ImportStatements     []ImportStatement `json:"import_statements"`
+	MigrationSuggestions []string          `json:"migration_suggestions"`
 }
 
 // LoggingCall represents a logging function call found in code.
@@ -435,18 +435,18 @@ func (ca *CodeAnalyzer) AnalyzeFile(filePath string) (*AnalysisResult, error) {
 	for _, imp := range file.Imports {
 		importPath := strings.Trim(imp.Path.Value, `"`)
 		position := ca.fileSet.Position(imp.Pos())
-		
+
 		importStmt := ImportStatement{
 			Line: position.Line,
 			Path: importPath,
 		}
-		
+
 		if imp.Name != nil {
 			importStmt.Name = imp.Name.Name
 		}
-		
+
 		result.ImportStatements = append(result.ImportStatements, importStmt)
-		
+
 		// Generate migration suggestions based on imports
 		ca.generateImportSuggestions(importPath, result)
 	}
@@ -468,13 +468,13 @@ func (ca *CodeAnalyzer) inspectNode(n ast.Node, result *AnalysisResult, content 
 	}
 
 	position := ca.fileSet.Position(call.Pos())
-	
+
 	// Extract the source code for this call
 	start := ca.fileSet.Position(call.Pos()).Offset
 	end := ca.fileSet.Position(call.End()).Offset
 	if start >= 0 && end <= len(content) && end > start {
 		code := string(content[start:end])
-		
+
 		// Detect logging library calls
 		if selector, ok := call.Fun.(*ast.SelectorExpr); ok {
 			if ident, ok := selector.X.(*ast.Ident); ok {
@@ -499,25 +499,25 @@ func (ca *CodeAnalyzer) identifyLibrary(receiver, method string) string {
 	zapPatterns := []string{"Info", "Debug", "Error", "Warn", "Fatal", "Panic"}
 	zerologPatterns := []string{"Info", "Debug", "Error", "Warn", "Fatal", "Trace"}
 	logrusPatterns := []string{"Info", "Debug", "Error", "Warn", "Fatal", "WithFields"}
-	
+
 	for _, pattern := range zapPatterns {
 		if method == pattern && (receiver == "logger" || strings.Contains(receiver, "zap")) {
 			return "zap"
 		}
 	}
-	
+
 	for _, pattern := range zerologPatterns {
 		if method == pattern && (receiver == "logger" || strings.Contains(receiver, "log")) {
 			return "zerolog"
 		}
 	}
-	
+
 	for _, pattern := range logrusPatterns {
 		if method == pattern && (receiver == "logger" || receiver == "log") {
 			return "logrus"
 		}
 	}
-	
+
 	return ""
 }
 

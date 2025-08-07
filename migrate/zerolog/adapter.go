@@ -216,14 +216,14 @@ func (e *Event) Msg(msg string) {
 	if e.disabled {
 		return
 	}
-	
+
 	// Add accumulated fields from logger context
 	if e.logger != nil {
 		for k, v := range e.logger.fields {
 			e.addField(k, v)
 		}
 	}
-	
+
 	e.event.Msg(msg)
 }
 

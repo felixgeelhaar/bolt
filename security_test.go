@@ -21,25 +21,25 @@ func TestJSONEscaping(t *testing.T) {
 	}{
 		{
 			name:     "quotes in key and value",
-			key:      `keywithquotes`,  // Valid key
+			key:      `keywithquotes`, // Valid key
 			value:    `value"with"quotes`,
 			expected: `"keywithquotes":"value\"with\"quotes"`,
 		},
 		{
 			name:     "backslashes in value",
-			key:      `keywithbackslashes`,  // Valid key
+			key:      `keywithbackslashes`, // Valid key
 			value:    `value\with\backslashes`,
 			expected: `"keywithbackslashes":"value\\with\\backslashes"`,
 		},
 		{
 			name:     "newlines and tabs in value",
-			key:      "keywithtabs",  // Valid key
+			key:      "keywithtabs", // Valid key
 			value:    "value\nwith\ttabs",
 			expected: `"keywithtabs":"value\nwith\ttabs"`,
 		},
 		{
 			name:     "mixed special characters in value",
-			key:      "keytest",  // Valid key  
+			key:      "keytest", // Valid key
 			value:    "value\"\\test\r\t",
 			expected: `"keytest":"value\"\\test\r\t"`,
 		},
@@ -49,12 +49,12 @@ func TestJSONEscaping(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf.Reset()
 			logger.Info().Str(tt.key, tt.value).Msg("test")
-			
+
 			output := buf.String()
 			if !strings.Contains(output, tt.expected) {
 				t.Errorf("Expected output to contain %q, got %q", tt.expected, output)
 			}
-			
+
 			// Verify it's valid JSON by checking structure
 			if !strings.HasPrefix(output, `{"level":"info",`) {
 				t.Errorf("Invalid JSON structure: %q", output)
@@ -68,7 +68,7 @@ func TestInputValidation(t *testing.T) {
 	var buf bytes.Buffer
 	var errorCalled bool
 	var lastError error
-	
+
 	logger := New(NewJSONHandler(&buf)).SetErrorHandler(func(err error) {
 		errorCalled = true
 		lastError = err
@@ -78,7 +78,7 @@ func TestInputValidation(t *testing.T) {
 		errorCalled = false
 		buf.Reset()
 		logger.Info().Str("", "value").Msg("test")
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for empty key")
 		}
@@ -92,7 +92,7 @@ func TestInputValidation(t *testing.T) {
 		buf.Reset()
 		longKey := strings.Repeat("a", MaxKeyLength+1)
 		logger.Info().Str(longKey, "value").Msg("test")
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for long key")
 		}
@@ -105,7 +105,7 @@ func TestInputValidation(t *testing.T) {
 		errorCalled = false
 		buf.Reset()
 		logger.Info().Str("key\x00with\x1Fcontrol", "value").Msg("test")
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for control character in key")
 		}
@@ -119,7 +119,7 @@ func TestInputValidation(t *testing.T) {
 		buf.Reset()
 		longValue := strings.Repeat("a", MaxValueLength+1)
 		logger.Info().Str("key", longValue).Msg("test")
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for long value")
 		}
@@ -133,7 +133,7 @@ func TestInputValidation(t *testing.T) {
 		buf.Reset()
 		longMessage := strings.Repeat("a", MaxValueLength+1)
 		logger.Info().Msg(longMessage)
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for long message")
 		}
@@ -147,10 +147,10 @@ func TestInputValidation(t *testing.T) {
 func TestErrorHandling(t *testing.T) {
 	var errorCalled bool
 	var lastError error
-	
+
 	// Create a handler that always fails
 	failingHandler := &failingTestHandler{shouldFail: true}
-	
+
 	logger := New(failingHandler).SetErrorHandler(func(err error) {
 		errorCalled = true
 		lastError = err
@@ -159,7 +159,7 @@ func TestErrorHandling(t *testing.T) {
 	t.Run("handler write error", func(t *testing.T) {
 		errorCalled = false
 		logger.Info().Str("key", "value").Msg("test")
-		
+
 		if !errorCalled {
 			t.Error("Expected error handler to be called for handler write failure")
 		}
@@ -173,13 +173,13 @@ func TestErrorHandling(t *testing.T) {
 func TestZeroAllocationWithSecurity(t *testing.T) {
 	var buf bytes.Buffer
 	logger := New(NewJSONHandler(&buf))
-	
+
 	// This should still have zero allocations
 	allocs := testing.AllocsPerRun(100, func() {
 		buf.Reset()
 		logger.Info().Str("key", "value").Int("number", 42).Bool("flag", true).Msg("test message")
 	})
-	
+
 	if allocs > 0 {
 		t.Errorf("Expected 0 allocations, got %f", allocs)
 	}
@@ -216,7 +216,7 @@ func TestMessageEscaping(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf.Reset()
 			logger.Info().Msg(tt.message)
-			
+
 			output := buf.String()
 			if !strings.Contains(output, tt.expected) {
 				t.Errorf("Expected output to contain %q, got %q", tt.expected, output)
@@ -236,7 +236,7 @@ func TestBufferSizeLimits(t *testing.T) {
 		if err != nil {
 			t.Errorf("Small buffer should not trigger error: %v", err)
 		}
-		
+
 		// We can't create a buffer larger than MaxBufferSize in memory for testing,
 		// but we can verify the function logic
 		if MaxBufferSize <= 0 {
@@ -261,13 +261,13 @@ func (h *failingTestHandler) Write(e *Event) error {
 func TestAllFieldTypesWithValidation(t *testing.T) {
 	var buf bytes.Buffer
 	var errorCalled bool
-	
+
 	logger := New(NewJSONHandler(&buf)).SetErrorHandler(func(err error) {
 		errorCalled = true
 	})
 
 	invalidKey := "key\x00with\x1Fcontrol"
-	
+
 	fieldTests := []struct {
 		name string
 		fn   func() *Event
@@ -289,7 +289,7 @@ func TestAllFieldTypesWithValidation(t *testing.T) {
 			errorCalled = false
 			buf.Reset()
 			tt.fn().Msg("test")
-			
+
 			if !errorCalled {
 				t.Errorf("Expected error handler to be called for invalid key in %s method", tt.name)
 			}

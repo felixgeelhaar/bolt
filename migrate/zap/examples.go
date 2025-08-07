@@ -45,7 +45,7 @@ func ExampleStructuredLogging() {
 	// BEFORE: Zap structured logging
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// zapLogger.Info("User login",
 	//     zap.String("username", "john_doe"),
 	//     zap.Int("user_id", 12345),
@@ -72,11 +72,11 @@ func ExampleSugarAPIMigration() {
 	// zapLogger, _ := zap.NewDevelopment()
 	// defer zapLogger.Sync()
 	// sugar := zapLogger.Sugar()
-	// 
+	//
 	// // Printf-style logging
 	// sugar.Infof("User %s logged in with ID %d", "john_doe", 12345)
 	// sugar.Errorf("Failed to process user %s: %v", "jane_doe", errors.New("database error"))
-	// 
+	//
 	// // Key-value pair logging
 	// sugar.Infow("User action",
 	//     "username", "john_doe",
@@ -117,14 +117,14 @@ func ExampleLoggerWithContext() {
 	// BEFORE: Zap with context fields
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// // Create logger with context fields
 	// contextLogger := zapLogger.With(
 	//     zap.String("service", "payment-service"),
 	//     zap.String("version", "v2.1.0"),
 	//     zap.String("environment", "production"),
 	// )
-	// 
+	//
 	// contextLogger.Info("Service started")
 	// contextLogger.Info("Processing payment",
 	//     zap.String("payment_id", "pay_123"),
@@ -155,7 +155,7 @@ func ExampleErrorHandling() {
 	// BEFORE: Zap error handling
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// zapLogger.Error("Database connection failed",
 	//     zap.Error(err),
 	//     zap.String("database", "users_db"),
@@ -179,7 +179,7 @@ func ExampleLogLevels() {
 	// BEFORE: Zap log levels
 	// zapLogger, _ := zap.NewDevelopment()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// zapLogger.Debug("Debug message", zap.String("component", "auth"))
 	// zapLogger.Info("Info message", zap.Int("user_count", 100))
 	// zapLogger.Warn("Warning message", zap.String("warning", "high_memory"))
@@ -211,7 +211,7 @@ func ExampleConfigurationMigration() {
 	//         "version": "v1.0.0",
 	//     },
 	// }
-	// 
+	//
 	// zapLogger, _ := config.Build()
 	// defer zapLogger.Sync()
 
@@ -233,7 +233,7 @@ func ExampleAdvancedFieldTypes() {
 	// BEFORE: Zap field types
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// zapLogger.Info("Complex data types",
 	//     zap.String("string_field", "value"),
 	//     zap.Int("int_field", 42),
@@ -271,20 +271,20 @@ func ExampleMiddlewareLogging() {
 	// BEFORE: Zap middleware pattern
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// func LoggingMiddleware(next http.Handler) http.Handler {
 	//     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	//         start := time.Now()
-	//         
+	//
 	//         zapLogger.Info("Request started",
 	//             zap.String("method", r.Method),
 	//             zap.String("path", r.URL.Path),
 	//             zap.String("remote_addr", r.RemoteAddr),
 	//             zap.String("user_agent", r.UserAgent()),
 	//         )
-	//         
+	//
 	//         next.ServeHTTP(w, r)
-	//         
+	//
 	//         zapLogger.Info("Request completed",
 	//             zap.String("method", r.Method),
 	//             zap.String("path", r.URL.Path),
@@ -327,7 +327,7 @@ func ExamplePanicRecovery() {
 	// BEFORE: Zap panic recovery
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// func RecoverMiddleware() {
 	//     if r := recover(); r != nil {
 	//         zapLogger.Error("Panic recovered",
@@ -346,8 +346,8 @@ func ExamplePanicRecovery() {
 			if r := recover(); r != nil {
 				boltLogger.Error().
 					Any("panic", r).
-					Stack().        // Bolt has built-in stack trace support
-					Caller().       // Add caller information
+					Stack().               // Bolt has built-in stack trace support
+					Caller().              // Add caller information
 					RandID("incident_id"). // Generate incident ID
 					Msg("Panic recovered")
 			}
@@ -363,18 +363,18 @@ func ExampleWorkerLogging() {
 	// BEFORE: Zap worker logging
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// func ProcessJob(jobID string, jobType string) {
 	//     logger := zapLogger.With(
 	//         zap.String("job_id", jobID),
 	//         zap.String("job_type", jobType),
 	//         zap.Time("start_time", time.Now()),
 	//     )
-	//     
+	//
 	//     logger.Info("Job started")
-	//     
+	//
 	//     // ... process job ...
-	//     
+	//
 	//     logger.Info("Job completed",
 	//         zap.Int("items_processed", 1000),
 	//         zap.Duration("processing_time", 30*time.Second),
@@ -411,17 +411,17 @@ func ExampleDatabaseLogging() {
 	// BEFORE: Zap database logging
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// func ExecuteQuery(query string, args ...interface{}) {
 	//     start := time.Now()
-	//     
+	//
 	//     zapLogger.Debug("Executing query",
 	//         zap.String("query", query),
 	//         zap.Any("args", args),
 	//     )
-	//     
+	//
 	//     // ... execute query ...
-	//     
+	//
 	//     zapLogger.Info("Query executed",
 	//         zap.String("query", query),
 	//         zap.Duration("duration", time.Since(start)),
@@ -433,7 +433,7 @@ func ExampleDatabaseLogging() {
 	boltLogger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 
 	query := "SELECT * FROM users WHERE status = ? AND created_at > ?"
-	args := []interface{}{"active", time.Now().Add(-24*time.Hour)}
+	args := []interface{}{"active", time.Now().Add(-24 * time.Hour)}
 	start := time.Now()
 
 	boltLogger.Debug().
@@ -457,7 +457,7 @@ func ExampleMetricsLogging() {
 	// BEFORE: Zap metrics logging
 	// zapLogger, _ := zap.NewProduction()
 	// defer zapLogger.Sync()
-	// 
+	//
 	// func LogMetrics(operation string, duration time.Duration, count int) {
 	//     zapLogger.Info("Performance metric",
 	//         zap.String("operation", operation),
@@ -489,10 +489,10 @@ func ExampleMetricsLogging() {
 // ExampleConfigurationComparison shows configuration patterns side-by-side.
 func ExampleConfigurationComparison() {
 	// BEFORE: Zap configuration patterns
-	// 
+	//
 	// // Pattern 1: Simple configuration
 	// logger1, _ := zap.NewProduction()
-	// 
+	//
 	// // Pattern 2: Custom configuration
 	// config := zap.Config{
 	//     Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
@@ -502,7 +502,7 @@ func ExampleConfigurationComparison() {
 	//     OutputPaths: []string{"stdout"},
 	// }
 	// logger2, _ := config.Build()
-	// 
+	//
 	// // Pattern 3: Core configuration
 	// core := zapcore.NewCore(
 	//     zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
@@ -537,27 +537,27 @@ func ExampleMigrationWorkflow() {
 	// type UserService struct {
 	//     logger *zap.Logger
 	// }
-	// 
+	//
 	// func NewUserService() *UserService {
 	//     logger, _ := zap.NewProduction()
 	//     return &UserService{logger: logger}
 	// }
-	// 
+	//
 	// func (s *UserService) CreateUser(username string, email string) error {
 	//     start := time.Now()
-	//     
+	//
 	//     s.logger.Info("Creating user",
 	//         zap.String("username", username),
 	//         zap.String("email", email),
 	//     )
-	//     
+	//
 	//     // ... create user logic ...
-	//     
+	//
 	//     s.logger.Info("User created successfully",
 	//         zap.String("username", username),
 	//         zap.Duration("duration", time.Since(start)),
 	//     )
-	//     
+	//
 	//     return nil
 	// }
 
@@ -663,28 +663,28 @@ func ExampleTroubleshooting() {
 	fmt.Println("Common Migration Issues and Solutions:")
 	fmt.Println("=====================================")
 	fmt.Println()
-	
+
 	fmt.Println("Issue: Sugar API dependencies")
 	fmt.Println("Problem: Code uses logger.Sugar().Infof(...)")
 	fmt.Println("Solution: Replace with structured logging")
-	fmt.Println("Before: sugar.Infof(\"User %s logged in\", username)")
+	fmt.Println("Before: sugar.Infof(\"User %%s logged in\", username)")
 	fmt.Println("After:  logger.Info().Str(\"username\", username).Msg(\"User logged in\")")
 	fmt.Println()
-	
+
 	fmt.Println("Issue: Field constructor patterns")
 	fmt.Println("Problem: Code uses zap.String(\"key\", \"value\")")
 	fmt.Println("Solution: Convert to method calls")
 	fmt.Println("Before: logger.Info(\"message\", zap.String(\"key\", \"value\"))")
 	fmt.Println("After:  logger.Info().Str(\"key\", \"value\").Msg(\"message\")")
 	fmt.Println()
-	
+
 	fmt.Println("Issue: With() method differences")
 	fmt.Println("Problem: Zap's With() returns Logger, Bolt's returns Event")
 	fmt.Println("Solution: Use .Logger() to get logger from event")
 	fmt.Println("Before: contextLogger := logger.With(zap.String(\"service\", \"api\"))")
 	fmt.Println("After:  contextLogger := logger.With().Str(\"service\", \"api\").Logger()")
 	fmt.Println()
-	
+
 	fmt.Println("Issue: Configuration complexity")
 	fmt.Println("Problem: Complex zapcore configuration")
 	fmt.Println("Solution: Use Bolt's simpler handler system or ConfigMigrator")

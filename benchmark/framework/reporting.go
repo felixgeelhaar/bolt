@@ -39,32 +39,32 @@ func (rg *ReportGenerator) GenerateHTMLReport() error {
 
 	// Generate summary statistics
 	summary := rg.generateSummaryStats(allResults)
-	
+
 	// Generate comparison data
 	comparisons := rg.generateComparisons(allResults)
-	
+
 	// Generate trend analysis
 	trends := rg.generateTrendAnalysis(allResults)
 
 	// Create report data structure
 	reportData := struct {
-		Title         string                    `json:"title"`
-		Generated     time.Time                 `json:"generated"`
-		Summary       SummaryStats              `json:"summary"`
-		Comparisons   []LibraryComparison       `json:"comparisons"`
-		Trends        []TrendAnalysis           `json:"trends"`
-		RawResults    map[string][]BenchmarkResult `json:"raw_results"`
-		ScenarioData  []ScenarioAnalysis        `json:"scenario_data"`
-		SystemInfo    SystemInfo                `json:"system_info"`
+		Title        string                       `json:"title"`
+		Generated    time.Time                    `json:"generated"`
+		Summary      SummaryStats                 `json:"summary"`
+		Comparisons  []LibraryComparison          `json:"comparisons"`
+		Trends       []TrendAnalysis              `json:"trends"`
+		RawResults   map[string][]BenchmarkResult `json:"raw_results"`
+		ScenarioData []ScenarioAnalysis           `json:"scenario_data"`
+		SystemInfo   SystemInfo                   `json:"system_info"`
 	}{
-		Title:       "Bolt Logging Library - Competitive Performance Analysis",
-		Generated:   time.Now(),
-		Summary:     summary,
-		Comparisons: comparisons,
-		Trends:      trends,
-		RawResults:  allResults,
+		Title:        "Bolt Logging Library - Competitive Performance Analysis",
+		Generated:    time.Now(),
+		Summary:      summary,
+		Comparisons:  comparisons,
+		Trends:       trends,
+		RawResults:   allResults,
 		ScenarioData: rg.generateScenarioAnalysis(allResults),
-		SystemInfo:  rg.getSystemInfo(),
+		SystemInfo:   rg.getSystemInfo(),
 	}
 
 	// Write HTML report
@@ -115,53 +115,53 @@ func (rg *ReportGenerator) GenerateHTMLReport() error {
 // Data structures for report generation
 
 type SummaryStats struct {
-	TotalTests      int                      `json:"total_tests"`
-	FastestLibrary  string                   `json:"fastest_library"`
-	SlowestLibrary  string                   `json:"slowest_library"`
-	ZeroAllocLibs   []string                 `json:"zero_alloc_libs"`
-	AvgPerformance  map[string]PerformanceMetrics `json:"avg_performance"`
-	BestScenarios   map[string]string        `json:"best_scenarios"`
+	TotalTests     int                           `json:"total_tests"`
+	FastestLibrary string                        `json:"fastest_library"`
+	SlowestLibrary string                        `json:"slowest_library"`
+	ZeroAllocLibs  []string                      `json:"zero_alloc_libs"`
+	AvgPerformance map[string]PerformanceMetrics `json:"avg_performance"`
+	BestScenarios  map[string]string             `json:"best_scenarios"`
 }
 
 type PerformanceMetrics struct {
-	AvgNsPerOp    float64 `json:"avg_ns_per_op"`
+	AvgNsPerOp     float64 `json:"avg_ns_per_op"`
 	AvgAllocsPerOp float64 `json:"avg_allocs_per_op"`
 	AvgBytesPerOp  float64 `json:"avg_bytes_per_op"`
 	StdDevNsPerOp  float64 `json:"stddev_ns_per_op"`
 }
 
 type LibraryComparison struct {
-	Library           string  `json:"library"`
-	VsBolt            string  `json:"vs_bolt"`
-	PerformanceRatio  float64 `json:"performance_ratio"`
-	AllocationRatio   float64 `json:"allocation_ratio"`
-	Rank             int     `json:"rank"`
+	Library          string   `json:"library"`
+	VsBolt           string   `json:"vs_bolt"`
+	PerformanceRatio float64  `json:"performance_ratio"`
+	AllocationRatio  float64  `json:"allocation_ratio"`
+	Rank             int      `json:"rank"`
 	Strengths        []string `json:"strengths"`
 	Weaknesses       []string `json:"weaknesses"`
 }
 
 type TrendAnalysis struct {
-	Scenario     string    `json:"scenario"`
-	Winner       string    `json:"winner"`
-	Confidence   float64   `json:"confidence"`
-	Margin       float64   `json:"margin"`
-	Consistency  float64   `json:"consistency"`
+	Scenario    string  `json:"scenario"`
+	Winner      string  `json:"winner"`
+	Confidence  float64 `json:"confidence"`
+	Margin      float64 `json:"margin"`
+	Consistency float64 `json:"consistency"`
 }
 
 type ScenarioAnalysis struct {
-	Name         string                    `json:"name"`
-	Description  string                    `json:"description"`
-	Results      map[string]PerformanceMetrics `json:"results"`
-	Winner       string                    `json:"winner"`
-	WinMargin    float64                   `json:"win_margin"`
-	Ranking      []LibraryRank             `json:"ranking"`
+	Name        string                        `json:"name"`
+	Description string                        `json:"description"`
+	Results     map[string]PerformanceMetrics `json:"results"`
+	Winner      string                        `json:"winner"`
+	WinMargin   float64                       `json:"win_margin"`
+	Ranking     []LibraryRank                 `json:"ranking"`
 }
 
 type LibraryRank struct {
-	Library  string  `json:"library"`
-	NsPerOp  float64 `json:"ns_per_op"`
-	Rank     int     `json:"rank"`
-	Score    float64 `json:"score"`
+	Library string  `json:"library"`
+	NsPerOp float64 `json:"ns_per_op"`
+	Rank    int     `json:"rank"`
+	Score   float64 `json:"score"`
 }
 
 type SystemInfo struct {
@@ -179,7 +179,7 @@ func (rg *ReportGenerator) generateSummaryStats(allResults map[string][]Benchmar
 	libraryPerformance := make(map[string][]float64)
 	libraryAllocations := make(map[string][]float64)
 	scenarioWinners := make(map[string]string)
-	
+
 	// Collect performance data by library
 	for key, results := range allResults {
 		parts := strings.Split(key, "-")
@@ -188,14 +188,14 @@ func (rg *ReportGenerator) generateSummaryStats(allResults map[string][]Benchmar
 		}
 		library := parts[0]
 		scenario := strings.Join(parts[1:], "-")
-		
+
 		// Get the final result (after statistical analysis)
 		if len(results) > 0 {
 			finalResult := results[len(results)-1]
 			libraryPerformance[library] = append(libraryPerformance[library], finalResult.NsPerOp)
 			libraryAllocations[library] = append(libraryAllocations[library], finalResult.AllocsPerOp)
 		}
-		
+
 		// Track scenario winners
 		if winner, exists := scenarioWinners[scenario]; !exists {
 			scenarioWinners[scenario] = library
@@ -255,29 +255,29 @@ func (rg *ReportGenerator) generateSummaryStats(allResults map[string][]Benchmar
 
 func (rg *ReportGenerator) generateComparisons(allResults map[string][]BenchmarkResult) []LibraryComparison {
 	var comparisons []LibraryComparison
-	
+
 	// Get Bolt baseline performance
 	boltPerformance := rg.getLibraryAveragePerformance(allResults, "Bolt")
-	
+
 	for _, library := range rg.analyzer.libraryNames() {
 		if library == "Bolt" {
 			continue // Skip self-comparison
 		}
-		
+
 		libPerformance := rg.getLibraryAveragePerformance(allResults, library)
-		
+
 		performanceRatio := libPerformance.AvgNsPerOp / boltPerformance.AvgNsPerOp
 		allocationRatio := libPerformance.AvgAllocsPerOp / math.Max(boltPerformance.AvgAllocsPerOp, 1)
-		
+
 		var vsText string
 		if performanceRatio < 1 {
 			vsText = fmt.Sprintf("%.1fx faster", 1/performanceRatio)
 		} else {
 			vsText = fmt.Sprintf("%.1fx slower", performanceRatio)
 		}
-		
+
 		strengths, weaknesses := rg.analyzeLibraryCharacteristics(allResults, library)
-		
+
 		comparisons = append(comparisons, LibraryComparison{
 			Library:          library,
 			VsBolt:           vsText,
@@ -287,25 +287,25 @@ func (rg *ReportGenerator) generateComparisons(allResults map[string][]Benchmark
 			Weaknesses:       weaknesses,
 		})
 	}
-	
+
 	// Sort by performance ratio
 	sort.Slice(comparisons, func(i, j int) bool {
 		return comparisons[i].PerformanceRatio < comparisons[j].PerformanceRatio
 	})
-	
+
 	// Assign ranks
 	for i := range comparisons {
 		comparisons[i].Rank = i + 1
 	}
-	
+
 	return comparisons
 }
 
 func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]BenchmarkResult) []TrendAnalysis {
 	var trends []TrendAnalysis
-	
+
 	scenarioResults := make(map[string]map[string][]float64)
-	
+
 	// Group results by scenario
 	for key, results := range allResults {
 		parts := strings.Split(key, "-")
@@ -314,30 +314,30 @@ func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]Benchma
 		}
 		library := parts[0]
 		scenario := strings.Join(parts[1:], "-")
-		
+
 		if scenarioResults[scenario] == nil {
 			scenarioResults[scenario] = make(map[string][]float64)
 		}
-		
+
 		for _, result := range results {
 			scenarioResults[scenario][library] = append(scenarioResults[scenario][library], result.NsPerOp)
 		}
 	}
-	
+
 	// Analyze each scenario
 	for scenario, libraryResults := range scenarioResults {
 		var bestLibrary string
 		var bestTime float64 = math.MaxFloat64
 		var confidenceSum, _ float64
 		count := 0
-		
+
 		for library, times := range libraryResults {
 			avgTime := rg.average(times)
 			if avgTime < bestTime {
 				bestTime = avgTime
 				bestLibrary = library
 			}
-			
+
 			// Calculate confidence (inverse of coefficient of variation)
 			if len(times) > 1 {
 				stdDev := rg.standardDev(times)
@@ -346,7 +346,7 @@ func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]Benchma
 				count++
 			}
 		}
-		
+
 		// Calculate margin over second-best
 		var secondBest float64 = math.MaxFloat64
 		for library, times := range libraryResults {
@@ -357,11 +357,11 @@ func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]Benchma
 				}
 			}
 		}
-		
+
 		margin := (secondBest - bestTime) / bestTime
 		confidence := confidenceSum / math.Max(float64(count), 1)
 		consistency := 1.0 - (rg.standardDev(libraryResults[bestLibrary]) / bestTime)
-		
+
 		trends = append(trends, TrendAnalysis{
 			Scenario:    scenario,
 			Winner:      bestLibrary,
@@ -370,21 +370,21 @@ func (rg *ReportGenerator) generateTrendAnalysis(allResults map[string][]Benchma
 			Consistency: consistency,
 		})
 	}
-	
+
 	return trends
 }
 
 func (rg *ReportGenerator) generateScenarioAnalysis(allResults map[string][]BenchmarkResult) []ScenarioAnalysis {
-	var analyses []ScenarioAnalysis
-	
+	var analyzes []ScenarioAnalysis
+
 	scenarioData := make(map[string]map[string][]BenchmarkResult)
 	scenarioDescriptions := make(map[string]string)
-	
+
 	// Group by scenario
 	for _, scenario := range rg.analyzer.scenarios {
 		scenarioDescriptions[scenario.Name] = scenario.Description
 		scenarioData[scenario.Name] = make(map[string][]BenchmarkResult)
-		
+
 		for key, results := range allResults {
 			if strings.Contains(key, "-"+scenario.Name) {
 				library := strings.Split(key, "-")[0]
@@ -392,7 +392,7 @@ func (rg *ReportGenerator) generateScenarioAnalysis(allResults map[string][]Benc
 			}
 		}
 	}
-	
+
 	// Analyze each scenario
 	for scenarioName, libraryResults := range scenarioData {
 		analysis := ScenarioAnalysis{
@@ -400,16 +400,16 @@ func (rg *ReportGenerator) generateScenarioAnalysis(allResults map[string][]Benc
 			Description: scenarioDescriptions[scenarioName],
 			Results:     make(map[string]PerformanceMetrics),
 		}
-		
+
 		var bestLibrary string
 		var bestTime float64 = math.MaxFloat64
 		var rankings []LibraryRank
-		
+
 		for library, results := range libraryResults {
 			if len(results) == 0 {
 				continue
 			}
-			
+
 			finalResult := results[len(results)-1]
 			metrics := PerformanceMetrics{
 				AvgNsPerOp:     finalResult.NsPerOp,
@@ -417,43 +417,43 @@ func (rg *ReportGenerator) generateScenarioAnalysis(allResults map[string][]Benc
 				AvgBytesPerOp:  finalResult.BytesPerOp,
 				StdDevNsPerOp:  finalResult.NsPerOpStdDev,
 			}
-			
+
 			analysis.Results[library] = metrics
-			
+
 			if finalResult.NsPerOp < bestTime {
 				bestTime = finalResult.NsPerOp
 				bestLibrary = library
 			}
-			
+
 			rankings = append(rankings, LibraryRank{
 				Library: library,
 				NsPerOp: finalResult.NsPerOp,
 			})
 		}
-		
+
 		// Sort rankings and assign scores
 		sort.Slice(rankings, func(i, j int) bool {
 			return rankings[i].NsPerOp < rankings[j].NsPerOp
 		})
-		
+
 		for i := range rankings {
 			rankings[i].Rank = i + 1
 			// Score based on performance relative to best (higher is better)
 			rankings[i].Score = bestTime / rankings[i].NsPerOp
 		}
-		
+
 		analysis.Winner = bestLibrary
 		analysis.Ranking = rankings
-		
+
 		// Calculate win margin
 		if len(rankings) > 1 {
 			analysis.WinMargin = (rankings[1].NsPerOp - rankings[0].NsPerOp) / rankings[0].NsPerOp
 		}
-		
-		analyses = append(analyses, analysis)
+
+		analyzes = append(analyzes, analysis)
 	}
-	
-	return analyses
+
+	return analyzes
 }
 
 // Helper methods
@@ -471,7 +471,7 @@ func (rg *ReportGenerator) getAveragePerformance(results []BenchmarkResult) floa
 
 func (rg *ReportGenerator) getLibraryAveragePerformance(allResults map[string][]BenchmarkResult, library string) PerformanceMetrics {
 	var nsPerOpValues, allocsPerOpValues, bytesPerOpValues []float64
-	
+
 	for key, results := range allResults {
 		if strings.HasPrefix(key, library+"-") && len(results) > 0 {
 			finalResult := results[len(results)-1]
@@ -480,7 +480,7 @@ func (rg *ReportGenerator) getLibraryAveragePerformance(allResults map[string][]
 			bytesPerOpValues = append(bytesPerOpValues, finalResult.BytesPerOp)
 		}
 	}
-	
+
 	return PerformanceMetrics{
 		AvgNsPerOp:     rg.average(nsPerOpValues),
 		AvgAllocsPerOp: rg.average(allocsPerOpValues),
@@ -491,28 +491,28 @@ func (rg *ReportGenerator) getLibraryAveragePerformance(allResults map[string][]
 
 func (rg *ReportGenerator) analyzeLibraryCharacteristics(allResults map[string][]BenchmarkResult, library string) ([]string, []string) {
 	var strengths, weaknesses []string
-	
+
 	metrics := rg.getLibraryAveragePerformance(allResults, library)
-	
+
 	// Analyze characteristics based on performance data
 	if metrics.AvgAllocsPerOp == 0 {
 		strengths = append(strengths, "Zero allocations")
 	} else if metrics.AvgAllocsPerOp > 5 {
 		weaknesses = append(weaknesses, "High allocation count")
 	}
-	
+
 	if metrics.StdDevNsPerOp/metrics.AvgNsPerOp < 0.1 {
 		strengths = append(strengths, "Consistent performance")
 	} else if metrics.StdDevNsPerOp/metrics.AvgNsPerOp > 0.3 {
 		weaknesses = append(weaknesses, "Performance variability")
 	}
-	
+
 	if metrics.AvgNsPerOp < 100 {
 		strengths = append(strengths, "Ultra-low latency")
 	} else if metrics.AvgNsPerOp > 1000 {
 		weaknesses = append(weaknesses, "High latency")
 	}
-	
+
 	return strengths, weaknesses
 }
 

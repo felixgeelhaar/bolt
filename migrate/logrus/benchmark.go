@@ -16,10 +16,10 @@ func BenchmarkLogrusStructuredLogging(b *testing.B) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
 	logger.SetFormatter(&logrus.JSONFormatter{})
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.WithFields(logrus.Fields{
 			"service":  "auth",
@@ -34,10 +34,10 @@ func BenchmarkLogrusStructuredLogging(b *testing.B) {
 // BenchmarkBoltStructuredLogging benchmarks Bolt structured logging.
 func BenchmarkBoltStructuredLogging(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("service", "auth").
@@ -54,10 +54,10 @@ func BenchmarkLogrusSimpleLogging(b *testing.B) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
 	logger.SetFormatter(&logrus.JSONFormatter{})
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info("Simple log message")
 	}
@@ -66,10 +66,10 @@ func BenchmarkLogrusSimpleLogging(b *testing.B) {
 // BenchmarkBoltSimpleLogging benchmarks simple Bolt logging.
 func BenchmarkBoltSimpleLogging(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().Msg("Simple log message")
 	}
@@ -80,10 +80,10 @@ func BenchmarkLogrusWithContext(b *testing.B) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
 	logger.SetFormatter(&logrus.JSONFormatter{})
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.WithField("request_id", "req_123").
 			WithField("user_id", 456).
@@ -94,10 +94,10 @@ func BenchmarkLogrusWithContext(b *testing.B) {
 // BenchmarkBoltWithContext benchmarks Bolt context logging.
 func BenchmarkBoltWithContext(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("request_id", "req_123").
@@ -112,10 +112,10 @@ func BenchmarkLogrusErrorLogging(b *testing.B) {
 	logger.SetOutput(io.Discard)
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	err := os.ErrNotExist
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.WithError(err).
 			WithField("operation", "file_read").
@@ -127,10 +127,10 @@ func BenchmarkLogrusErrorLogging(b *testing.B) {
 func BenchmarkBoltErrorLogging(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
 	err := os.ErrNotExist
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Error().
 			Err(err).
@@ -144,10 +144,10 @@ func BenchmarkLogrusComplexStructure(b *testing.B) {
 	logger := logrus.New()
 	logger.SetOutput(io.Discard)
 	logger.SetFormatter(&logrus.JSONFormatter{})
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.WithFields(logrus.Fields{
 			"service":        "payment",
@@ -167,10 +167,10 @@ func BenchmarkLogrusComplexStructure(b *testing.B) {
 // BenchmarkBoltComplexStructure benchmarks complex structured logging with Bolt.
 func BenchmarkBoltComplexStructure(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("service", "payment").
@@ -189,24 +189,24 @@ func BenchmarkBoltComplexStructure(b *testing.B) {
 
 // PerformanceComparisonResult holds the results of a performance comparison.
 type PerformanceComparisonResult struct {
-	TestName           string  `json:"test_name"`
-	LogrusNsPerOp      int64   `json:"logrus_ns_per_op"`
-	BoltNsPerOp        int64   `json:"bolt_ns_per_op"`
-	LogrusAllocsPerOp  int64   `json:"logrus_allocs_per_op"`
-	BoltAllocsPerOp    int64   `json:"bolt_allocs_per_op"`
-	LogrusBytesPerOp   int64   `json:"logrus_bytes_per_op"`
-	BoltBytesPerOp     int64   `json:"bolt_bytes_per_op"`
-	SpeedImprovement   float64 `json:"speed_improvement_percent"`
-	AllocImprovement   float64 `json:"alloc_improvement_percent"`
-	MemoryImprovement  float64 `json:"memory_improvement_percent"`
+	TestName          string  `json:"test_name"`
+	LogrusNsPerOp     int64   `json:"logrus_ns_per_op"`
+	BoltNsPerOp       int64   `json:"bolt_ns_per_op"`
+	LogrusAllocsPerOp int64   `json:"logrus_allocs_per_op"`
+	BoltAllocsPerOp   int64   `json:"bolt_allocs_per_op"`
+	LogrusBytesPerOp  int64   `json:"logrus_bytes_per_op"`
+	BoltBytesPerOp    int64   `json:"bolt_bytes_per_op"`
+	SpeedImprovement  float64 `json:"speed_improvement_percent"`
+	AllocImprovement  float64 `json:"alloc_improvement_percent"`
+	MemoryImprovement float64 `json:"memory_improvement_percent"`
 }
 
 // RunPerformanceComparison runs a comprehensive performance comparison between Logrus and Bolt.
 func RunPerformanceComparison() []PerformanceComparisonResult {
 	benchmarks := []struct {
-		name        string
-		logrusFunc  func(*testing.B)
-		boltFunc    func(*testing.B)
+		name       string
+		logrusFunc func(*testing.B)
+		boltFunc   func(*testing.B)
 	}{
 		{"StructuredLogging", BenchmarkLogrusStructuredLogging, BenchmarkBoltStructuredLogging},
 		{"SimpleLogging", BenchmarkLogrusSimpleLogging, BenchmarkBoltSimpleLogging},
@@ -220,7 +220,7 @@ func RunPerformanceComparison() []PerformanceComparisonResult {
 	for i, bench := range benchmarks {
 		// Run Logrus benchmark
 		logrusResult := testing.Benchmark(bench.logrusFunc)
-		
+
 		// Run Bolt benchmark
 		boltResult := testing.Benchmark(bench.boltFunc)
 
@@ -230,16 +230,16 @@ func RunPerformanceComparison() []PerformanceComparisonResult {
 		memoryImprovement := float64(logrusResult.AllocedBytesPerOp()-boltResult.AllocedBytesPerOp()) / float64(logrusResult.AllocedBytesPerOp()) * 100
 
 		results[i] = PerformanceComparisonResult{
-			TestName:           bench.name,
-			LogrusNsPerOp:      logrusResult.NsPerOp(),
-			BoltNsPerOp:        boltResult.NsPerOp(),
-			LogrusAllocsPerOp:  logrusResult.AllocsPerOp(),
-			BoltAllocsPerOp:    boltResult.AllocsPerOp(),
-			LogrusBytesPerOp:   logrusResult.AllocedBytesPerOp(),
-			BoltBytesPerOp:     boltResult.AllocedBytesPerOp(),
-			SpeedImprovement:   speedImprovement,
-			AllocImprovement:   allocImprovement,
-			MemoryImprovement:  memoryImprovement,
+			TestName:          bench.name,
+			LogrusNsPerOp:     logrusResult.NsPerOp(),
+			BoltNsPerOp:       boltResult.NsPerOp(),
+			LogrusAllocsPerOp: logrusResult.AllocsPerOp(),
+			BoltAllocsPerOp:   boltResult.AllocsPerOp(),
+			LogrusBytesPerOp:  logrusResult.AllocedBytesPerOp(),
+			BoltBytesPerOp:    boltResult.AllocedBytesPerOp(),
+			SpeedImprovement:  speedImprovement,
+			AllocImprovement:  allocImprovement,
+			MemoryImprovement: memoryImprovement,
 		}
 	}
 
@@ -249,7 +249,7 @@ func RunPerformanceComparison() []PerformanceComparisonResult {
 // PrintPerformanceResults prints performance comparison results in a readable format.
 func PrintPerformanceResults(results []PerformanceComparisonResult) {
 	println("\n=== Logrus vs Bolt Performance Comparison ===\n")
-	
+
 	for _, result := range results {
 		println("Test:", result.TestName)
 		println("├── Logrus:    ", result.LogrusNsPerOp, "ns/op,", result.LogrusAllocsPerOp, "allocs/op,", result.LogrusBytesPerOp, "bytes/op")
@@ -260,22 +260,22 @@ func PrintPerformanceResults(results []PerformanceComparisonResult) {
 		println("    └── Memory:  ", formatFloat(result.MemoryImprovement), "% less memory")
 		println("")
 	}
-	
+
 	// Calculate averages
 	avgSpeed := 0.0
 	avgAllocs := 0.0
 	avgMemory := 0.0
-	
+
 	for _, result := range results {
 		avgSpeed += result.SpeedImprovement
 		avgAllocs += result.AllocImprovement
 		avgMemory += result.MemoryImprovement
 	}
-	
+
 	avgSpeed /= float64(len(results))
 	avgAllocs /= float64(len(results))
 	avgMemory /= float64(len(results))
-	
+
 	println("=== Average Improvements ===")
 	println("Speed:       ", formatFloat(avgSpeed), "% faster")
 	println("Allocations: ", formatFloat(avgAllocs), "% fewer")
@@ -288,7 +288,6 @@ func PrintPerformanceResults(results []PerformanceComparisonResult) {
 func formatFloat(f float64) string {
 	return fmt.Sprintf("%.1f", f)
 }
-
 
 // MemoryUsageTest demonstrates memory usage patterns.
 func MemoryUsageTest() {
@@ -317,7 +316,7 @@ func MemoryUsageTest() {
 	fmt.Println("Memory Usage Comparison:")
 	fmt.Println("Logrus allocates memory for each field map and intermediate objects")
 	fmt.Println("Bolt uses zero allocations with object pooling and direct serialization")
-	
+
 	// In actual usage, run these with:
 	// go test -bench=. -benchmem
 	_ = logrusLogger
@@ -328,7 +327,7 @@ func MemoryUsageTest() {
 func ConcurrentLoggingBenchmark() {
 	// Both Logrus and Bolt are thread-safe, but Bolt is more efficient
 	// due to its zero-allocation design and optimized concurrency primitives
-	
+
 	fmt.Println("Concurrent Logging Performance:")
 	fmt.Println("- Logrus: Thread-safe but with allocation overhead")
 	fmt.Println("- Bolt: Thread-safe with zero allocations and atomic operations")
@@ -337,39 +336,39 @@ func ConcurrentLoggingBenchmark() {
 
 // BenchmarkReport generates a detailed benchmark report.
 type BenchmarkReport struct {
-	Timestamp   string                            `json:"timestamp"`
-	Summary     BenchmarkSummary                  `json:"summary"`
-	Comparisons []PerformanceComparisonResult     `json:"comparisons"`
-	Conclusions []string                          `json:"conclusions"`
+	Timestamp   string                        `json:"timestamp"`
+	Summary     BenchmarkSummary              `json:"summary"`
+	Comparisons []PerformanceComparisonResult `json:"comparisons"`
+	Conclusions []string                      `json:"conclusions"`
 }
 
 // BenchmarkSummary provides overall summary statistics.
 type BenchmarkSummary struct {
-	TotalTests              int     `json:"total_tests"`
-	AverageSpeedImprovement float64 `json:"average_speed_improvement"`
-	AverageAllocImprovement float64 `json:"average_alloc_improvement"`
+	TotalTests               int     `json:"total_tests"`
+	AverageSpeedImprovement  float64 `json:"average_speed_improvement"`
+	AverageAllocImprovement  float64 `json:"average_alloc_improvement"`
 	AverageMemoryImprovement float64 `json:"average_memory_improvement"`
-	MaxSpeedImprovement     float64 `json:"max_speed_improvement"`
-	MinSpeedImprovement     float64 `json:"min_speed_improvement"`
+	MaxSpeedImprovement      float64 `json:"max_speed_improvement"`
+	MinSpeedImprovement      float64 `json:"min_speed_improvement"`
 }
 
 // GenerateBenchmarkReport creates a comprehensive benchmark report.
 func GenerateBenchmarkReport() *BenchmarkReport {
 	results := RunPerformanceComparison()
-	
+
 	// Calculate summary statistics
 	summary := BenchmarkSummary{
 		TotalTests: len(results),
 	}
-	
+
 	var speedSum, allocSum, memorySum float64
 	maxSpeed, minSpeed := results[0].SpeedImprovement, results[0].SpeedImprovement
-	
+
 	for _, result := range results {
 		speedSum += result.SpeedImprovement
 		allocSum += result.AllocImprovement
 		memorySum += result.MemoryImprovement
-		
+
 		if result.SpeedImprovement > maxSpeed {
 			maxSpeed = result.SpeedImprovement
 		}
@@ -377,13 +376,13 @@ func GenerateBenchmarkReport() *BenchmarkReport {
 			minSpeed = result.SpeedImprovement
 		}
 	}
-	
+
 	summary.AverageSpeedImprovement = speedSum / float64(len(results))
 	summary.AverageAllocImprovement = allocSum / float64(len(results))
 	summary.AverageMemoryImprovement = memorySum / float64(len(results))
 	summary.MaxSpeedImprovement = maxSpeed
 	summary.MinSpeedImprovement = minSpeed
-	
+
 	// Generate conclusions
 	conclusions := []string{
 		fmt.Sprintf("Bolt is on average %.1f%% faster than Logrus", summary.AverageSpeedImprovement),
@@ -393,7 +392,7 @@ func GenerateBenchmarkReport() *BenchmarkReport {
 		"Migration from Logrus to Bolt provides significant performance benefits",
 		"The compatibility layer allows gradual migration with immediate benefits",
 	}
-	
+
 	return &BenchmarkReport{
 		Timestamp:   "2024-08-06T12:00:00Z",
 		Summary:     summary,

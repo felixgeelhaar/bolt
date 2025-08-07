@@ -42,7 +42,7 @@ type AuditEvent struct {
 
 // AuditLogger handles enterprise audit logging
 type AuditLogger struct {
-	logger         *bolt.Logger
+	logger          *bolt.Logger
 	sensitiveFields []string
 }
 
@@ -165,12 +165,12 @@ func (app *Application) auditMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(wrapper, r)
 
 		duration := time.Since(start)
-		
+
 		// Determine compliance severity based on status
 		severity := "INFO"
 		category := "ACCESS"
 		complianceTag := "ACCESS_LOG"
-		
+
 		if wrapper.statusCode >= 400 {
 			severity = "WARN"
 			category = "ACCESS_DENIED"
@@ -226,15 +226,15 @@ func (app *Application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	correlationID := getOrCreateCorrelationID(r)
 	userEmail := r.FormValue("email")
 	password := r.FormValue("password")
-	
+
 	// Simulate authentication
 	success := userEmail != "" && password != ""
-	
+
 	result := "FAILURE"
 	resultCode := http.StatusUnauthorized
 	severity := "WARN"
 	category := "AUTHENTICATION_FAILURE"
-	
+
 	if success {
 		result = "SUCCESS"
 		resultCode = http.StatusOK
@@ -273,7 +273,7 @@ func (app *Application) loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(resultCode)
-	
+
 	if success {
 		fmt.Fprintf(w, `{
 			"status": "success", 
@@ -298,7 +298,7 @@ func (app *Application) getUserDataHandler(w http.ResponseWriter, r *http.Reques
 
 	// Simulate authorization check
 	authorized := requestorID == userID || requestorID == "admin"
-	
+
 	if !authorized {
 		// Audit unauthorized access attempt
 		app.auditLogger.LogAuditEvent(AuditEvent{
@@ -395,7 +395,7 @@ func (app *Application) updateUserDataHandler(w http.ResponseWriter, r *http.Req
 	// Simulate data update
 	afterData := map[string]interface{}{
 		"id":    userID,
-		"name":  "John Smith", // Changed
+		"name":  "John Smith",             // Changed
 		"email": "john.smith@example.com", // Changed
 		"role":  "user",
 	}
@@ -449,7 +449,7 @@ func (app *Application) deleteUserHandler(w http.ResponseWriter, r *http.Request
 
 	// Simulate authorization check (only admins can delete)
 	isAdmin := requestorID == "admin"
-	
+
 	if !isAdmin {
 		// Audit unauthorized administrative attempt
 		app.auditLogger.LogAuditEvent(AuditEvent{
@@ -589,13 +589,13 @@ func getClientIP(r *http.Request) string {
 		parts := strings.Split(xff, ",")
 		return strings.TrimSpace(parts[0])
 	}
-	
+
 	// Check X-Real-IP header
 	xri := r.Header.Get("X-Real-IP")
 	if xri != "" {
 		return xri
 	}
-	
+
 	// Fall back to RemoteAddr
 	return r.RemoteAddr
 }

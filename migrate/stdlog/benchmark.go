@@ -13,10 +13,10 @@ import (
 // BenchmarkStandardLogPrint benchmarks standard library log.Print.
 func BenchmarkStandardLogPrint(b *testing.B) {
 	log.SetOutput(io.Discard)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		log.Print("Simple log message")
 	}
@@ -25,10 +25,10 @@ func BenchmarkStandardLogPrint(b *testing.B) {
 // BenchmarkBoltSimpleLogging benchmarks equivalent Bolt logging.
 func BenchmarkBoltSimpleLogging(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().Msg("Simple log message")
 	}
@@ -37,10 +37,10 @@ func BenchmarkBoltSimpleLogging(b *testing.B) {
 // BenchmarkStandardLogPrintf benchmarks standard library log.Printf.
 func BenchmarkStandardLogPrintf(b *testing.B) {
 	log.SetOutput(io.Discard)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		log.Printf("User %d performed action %s with result %v", 12345, "login", true)
 	}
@@ -49,10 +49,10 @@ func BenchmarkStandardLogPrintf(b *testing.B) {
 // BenchmarkBoltStructuredLogging benchmarks equivalent structured Bolt logging.
 func BenchmarkBoltStructuredLogging(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Int("user_id", 12345).
@@ -66,10 +66,10 @@ func BenchmarkBoltStructuredLogging(b *testing.B) {
 func BenchmarkStandardLogWithCallerInfo(b *testing.B) {
 	log.SetOutput(io.Discard)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		log.Print("Message with caller info")
 	}
@@ -78,10 +78,10 @@ func BenchmarkStandardLogWithCallerInfo(b *testing.B) {
 // BenchmarkBoltWithCallerInfo benchmarks Bolt logging with caller info.
 func BenchmarkBoltWithCallerInfo(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().Caller().Msg("Message with caller info")
 	}
@@ -90,10 +90,10 @@ func BenchmarkBoltWithCallerInfo(b *testing.B) {
 // BenchmarkStandardLogComplexFormatting benchmarks complex string formatting.
 func BenchmarkStandardLogComplexFormatting(b *testing.B) {
 	log.SetOutput(io.Discard)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		log.Printf("Request %s %s from %s completed with status %d in %.2fms (user: %d, session: %s)",
 			"GET", "/api/users", "192.168.1.100", 200, 45.67, 12345, "sess_abc123")
@@ -103,10 +103,10 @@ func BenchmarkStandardLogComplexFormatting(b *testing.B) {
 // BenchmarkBoltComplexStructured benchmarks equivalent complex structured logging.
 func BenchmarkBoltComplexStructured(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(io.Discard))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("method", "GET").
@@ -123,10 +123,10 @@ func BenchmarkBoltComplexStructured(b *testing.B) {
 // BenchmarkStandardLogCompatibility benchmarks the compatibility layer.
 func BenchmarkStandardLogCompatibility(b *testing.B) {
 	logger := New(io.Discard, "", LstdFlags)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Print("Compatibility layer message")
 	}
@@ -135,10 +135,10 @@ func BenchmarkStandardLogCompatibility(b *testing.B) {
 // BenchmarkStandardLogCustomLogger benchmarks custom logger usage.
 func BenchmarkStandardLogCustomLogger(b *testing.B) {
 	logger := log.New(io.Discard, "[API] ", log.LstdFlags)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Print("Custom logger message")
 	}
@@ -148,10 +148,10 @@ func BenchmarkStandardLogCustomLogger(b *testing.B) {
 func BenchmarkBoltContextualLogger(b *testing.B) {
 	baseLogger := bolt.New(bolt.NewJSONHandler(io.Discard))
 	logger := baseLogger.With().Str("component", "API").Logger()
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().Msg("Contextual logger message")
 	}
@@ -174,9 +174,9 @@ type PerformanceMetrics struct {
 // RunPerformanceComparison runs a comprehensive performance comparison.
 func RunPerformanceComparison() []PerformanceMetrics {
 	comparisons := []struct {
-		name        string
-		standardFn  func(*testing.B)
-		boltFn      func(*testing.B)
+		name       string
+		standardFn func(*testing.B)
+		boltFn     func(*testing.B)
 	}{
 		{"SimpleLogging", BenchmarkStandardLogPrint, BenchmarkBoltSimpleLogging},
 		{"FormattedLogging", BenchmarkStandardLogPrintf, BenchmarkBoltStructuredLogging},
@@ -190,7 +190,7 @@ func RunPerformanceComparison() []PerformanceMetrics {
 	for _, comp := range comparisons {
 		// Run standard log benchmark
 		stdResult := testing.Benchmark(comp.standardFn)
-		
+
 		// Run Bolt benchmark
 		boltResult := testing.Benchmark(comp.boltFn)
 
@@ -219,7 +219,7 @@ func RunPerformanceComparison() []PerformanceMetrics {
 // PrintPerformanceReport prints a detailed performance comparison report.
 func PrintPerformanceReport(metrics []PerformanceMetrics) {
 	println("\n=== Standard Log vs Bolt Performance Report ===\n")
-	
+
 	for _, m := range metrics {
 		println("Test:", m.TestName)
 		println("├── Standard Log:", m.StandardLogNsPerOp, "ns/op,", m.StandardLogAllocsPerOp, "allocs/op,", m.StandardLogBytesPerOp, "bytes/op")
@@ -230,7 +230,7 @@ func PrintPerformanceReport(metrics []PerformanceMetrics) {
 		println("    └── Memory: ", formatFloat(m.MemoryReductionPercent), "% less memory")
 		println("")
 	}
-	
+
 	// Calculate averages
 	var avgSpeed, avgAlloc, avgMemory float64
 	for _, m := range metrics {
@@ -238,11 +238,11 @@ func PrintPerformanceReport(metrics []PerformanceMetrics) {
 		avgAlloc += m.AllocReductionPercent
 		avgMemory += m.MemoryReductionPercent
 	}
-	
+
 	avgSpeed /= float64(len(metrics))
 	avgAlloc /= float64(len(metrics))
 	avgMemory /= float64(len(metrics))
-	
+
 	println("=== Summary ===")
 	println("Average Speed Improvement: ", formatFloat(avgSpeed), "%")
 	println("Average Allocation Reduction:", formatFloat(avgAlloc), "%")
@@ -250,7 +250,6 @@ func PrintPerformanceReport(metrics []PerformanceMetrics) {
 	println("")
 	println("🚀 Migration from standard log to Bolt provides substantial performance benefits!")
 }
-
 
 func formatFloat(f float64) string {
 	return fmt.Sprintf("%.1f", f)
@@ -298,68 +297,68 @@ func MemoryProfileComparison() {
 
 // MigrationImpactReport demonstrates the business impact of migration.
 type MigrationImpactReport struct {
-	ApplicationScenario      string  `json:"application_scenario"`
-	LogsPerSecond           int     `json:"logs_per_second"`
-	StandardLogLatency      float64 `json:"standard_log_latency_ns"`
-	BoltLatency             float64 `json:"bolt_latency_ns"`
-	LatencyReduction        float64 `json:"latency_reduction_percent"`
-	ThroughputImprovement   float64 `json:"throughput_improvement_percent"`
-	MemoryReduction         float64 `json:"memory_reduction_percent"`
-	CPUReduction            float64 `json:"cpu_reduction_percent"`
+	ApplicationScenario   string  `json:"application_scenario"`
+	LogsPerSecond         int     `json:"logs_per_second"`
+	StandardLogLatency    float64 `json:"standard_log_latency_ns"`
+	BoltLatency           float64 `json:"bolt_latency_ns"`
+	LatencyReduction      float64 `json:"latency_reduction_percent"`
+	ThroughputImprovement float64 `json:"throughput_improvement_percent"`
+	MemoryReduction       float64 `json:"memory_reduction_percent"`
+	CPUReduction          float64 `json:"cpu_reduction_percent"`
 }
 
 // GenerateMigrationImpactReport creates impact reports for different scenarios.
 func GenerateMigrationImpactReport() []MigrationImpactReport {
 	scenarios := []MigrationImpactReport{
 		{
-			ApplicationScenario:      "Low-traffic Web Service",
-			LogsPerSecond:           100,
-			StandardLogLatency:      1200.0,
-			BoltLatency:            65.0,
-			LatencyReduction:        94.6,
-			ThroughputImprovement:   1746.2,
-			MemoryReduction:         85.0,
-			CPUReduction:            40.0,
+			ApplicationScenario:   "Low-traffic Web Service",
+			LogsPerSecond:         100,
+			StandardLogLatency:    1200.0,
+			BoltLatency:           65.0,
+			LatencyReduction:      94.6,
+			ThroughputImprovement: 1746.2,
+			MemoryReduction:       85.0,
+			CPUReduction:          40.0,
 		},
 		{
-			ApplicationScenario:      "High-traffic API Server",
-			LogsPerSecond:           10000,
-			StandardLogLatency:      1500.0,
-			BoltLatency:            70.0,
-			LatencyReduction:        95.3,
-			ThroughputImprovement:   2042.9,
-			MemoryReduction:         92.0,
-			CPUReduction:            55.0,
+			ApplicationScenario:   "High-traffic API Server",
+			LogsPerSecond:         10000,
+			StandardLogLatency:    1500.0,
+			BoltLatency:           70.0,
+			LatencyReduction:      95.3,
+			ThroughputImprovement: 2042.9,
+			MemoryReduction:       92.0,
+			CPUReduction:          55.0,
 		},
 		{
-			ApplicationScenario:      "Microservices Platform",
-			LogsPerSecond:           50000,
-			StandardLogLatency:      2000.0,
-			BoltLatency:            75.0,
-			LatencyReduction:        96.3,
-			ThroughputImprovement:   2567.7,
-			MemoryReduction:         95.0,
-			CPUReduction:            65.0,
+			ApplicationScenario:   "Microservices Platform",
+			LogsPerSecond:         50000,
+			StandardLogLatency:    2000.0,
+			BoltLatency:           75.0,
+			LatencyReduction:      96.3,
+			ThroughputImprovement: 2567.7,
+			MemoryReduction:       95.0,
+			CPUReduction:          65.0,
 		},
 		{
-			ApplicationScenario:      "Data Processing Pipeline",
-			LogsPerSecond:           100000,
-			StandardLogLatency:      2500.0,
-			BoltLatency:            80.0,
-			LatencyReduction:        96.8,
-			ThroughputImprovement:   3025.0,
-			MemoryReduction:         97.0,
-			CPUReduction:            70.0,
+			ApplicationScenario:   "Data Processing Pipeline",
+			LogsPerSecond:         100000,
+			StandardLogLatency:    2500.0,
+			BoltLatency:           80.0,
+			LatencyReduction:      96.8,
+			ThroughputImprovement: 3025.0,
+			MemoryReduction:       97.0,
+			CPUReduction:          70.0,
 		},
 	}
-	
+
 	return scenarios
 }
 
 // PrintMigrationImpactReport prints the business impact of migration.
 func PrintMigrationImpactReport(reports []MigrationImpactReport) {
 	println("\n=== Migration Business Impact Report ===\n")
-	
+
 	for _, report := range reports {
 		println("Scenario:", report.ApplicationScenario)
 		println("├── Log Volume:        ", report.LogsPerSecond, "logs/sec")
@@ -369,7 +368,7 @@ func PrintMigrationImpactReport(reports []MigrationImpactReport) {
 		println("└── CPU Savings:       ", formatFloat(report.CPUReduction), "%")
 		println("")
 	}
-	
+
 	println("=== Business Benefits ===")
 	println("• Reduced infrastructure costs due to lower CPU and memory usage")
 	println("• Improved application responsiveness and user experience")
@@ -382,42 +381,42 @@ func PrintMigrationImpactReport(reports []MigrationImpactReport) {
 
 // BenchmarkReport provides a comprehensive benchmark report.
 type BenchmarkReport struct {
-	Timestamp        string                   `json:"timestamp"`
-	Summary          BenchmarkSummary         `json:"summary"`
-	PerformanceTests []PerformanceMetrics     `json:"performance_tests"`
-	ImpactAnalysis   []MigrationImpactReport  `json:"impact_analysis"`
-	Recommendations  []string                 `json:"recommendations"`
+	Timestamp        string                  `json:"timestamp"`
+	Summary          BenchmarkSummary        `json:"summary"`
+	PerformanceTests []PerformanceMetrics    `json:"performance_tests"`
+	ImpactAnalysis   []MigrationImpactReport `json:"impact_analysis"`
+	Recommendations  []string                `json:"recommendations"`
 }
 
 // BenchmarkSummary provides overall benchmark statistics.
 type BenchmarkSummary struct {
-	TotalTests               int     `json:"total_tests"`
-	AverageSpeedImprovement  float64 `json:"average_speed_improvement"`
-	AverageAllocReduction    float64 `json:"average_alloc_reduction"`
-	AverageMemoryReduction   float64 `json:"average_memory_reduction"`
-	MaxSpeedImprovement      float64 `json:"max_speed_improvement"`
-	MinSpeedImprovement      float64 `json:"min_speed_improvement"`
-	RecommendedMigration     string  `json:"recommended_migration"`
+	TotalTests              int     `json:"total_tests"`
+	AverageSpeedImprovement float64 `json:"average_speed_improvement"`
+	AverageAllocReduction   float64 `json:"average_alloc_reduction"`
+	AverageMemoryReduction  float64 `json:"average_memory_reduction"`
+	MaxSpeedImprovement     float64 `json:"max_speed_improvement"`
+	MinSpeedImprovement     float64 `json:"min_speed_improvement"`
+	RecommendedMigration    string  `json:"recommended_migration"`
 }
 
 // GenerateComprehensiveBenchmarkReport creates a full benchmark report.
 func GenerateComprehensiveBenchmarkReport() *BenchmarkReport {
 	// Run performance tests
 	performanceTests := RunPerformanceComparison()
-	
+
 	// Generate impact analysis
 	impactAnalysis := GenerateMigrationImpactReport()
-	
+
 	// Calculate summary statistics
 	var speedSum, allocSum, memorySum float64
 	maxSpeed := performanceTests[0].SpeedImprovementPercent
 	minSpeed := performanceTests[0].SpeedImprovementPercent
-	
+
 	for _, test := range performanceTests {
 		speedSum += test.SpeedImprovementPercent
 		allocSum += test.AllocReductionPercent
 		memorySum += test.MemoryReductionPercent
-		
+
 		if test.SpeedImprovementPercent > maxSpeed {
 			maxSpeed = test.SpeedImprovementPercent
 		}
@@ -425,7 +424,7 @@ func GenerateComprehensiveBenchmarkReport() *BenchmarkReport {
 			minSpeed = test.SpeedImprovementPercent
 		}
 	}
-	
+
 	summary := BenchmarkSummary{
 		TotalTests:              len(performanceTests),
 		AverageSpeedImprovement: speedSum / float64(len(performanceTests)),
@@ -435,7 +434,7 @@ func GenerateComprehensiveBenchmarkReport() *BenchmarkReport {
 		MinSpeedImprovement:     minSpeed,
 		RecommendedMigration:    "Drop-in replacement followed by gradual structured adoption",
 	}
-	
+
 	// Generate recommendations
 	recommendations := []string{
 		"Use drop-in replacement for immediate benefits with zero code changes",
@@ -446,7 +445,7 @@ func GenerateComprehensiveBenchmarkReport() *BenchmarkReport {
 		"Consider log level optimization to further improve performance",
 		"Use structured fields instead of string formatting for better queryability",
 	}
-	
+
 	return &BenchmarkReport{
 		Timestamp:        "2024-08-06T12:00:00Z",
 		Summary:          summary,

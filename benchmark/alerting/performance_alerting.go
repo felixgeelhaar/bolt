@@ -17,45 +17,45 @@ import (
 // AlertingConfig configures the alerting system
 type AlertingConfig struct {
 	// Alert channels
-	SlackWebhookURL    string `json:"slack_webhook_url"`
-	DiscordWebhookURL  string `json:"discord_webhook_url"`
-	TeamsWebhookURL    string `json:"teams_webhook_url"`
-	EmailSMTPServer    string `json:"email_smtp_server"`
-	EmailSMTPPort      int    `json:"email_smtp_port"`
-	EmailUsername      string `json:"email_username"`
-	EmailPassword      string `json:"email_password"`
-	EmailRecipients    []string `json:"email_recipients"`
-	
+	SlackWebhookURL   string   `json:"slack_webhook_url"`
+	DiscordWebhookURL string   `json:"discord_webhook_url"`
+	TeamsWebhookURL   string   `json:"teams_webhook_url"`
+	EmailSMTPServer   string   `json:"email_smtp_server"`
+	EmailSMTPPort     int      `json:"email_smtp_port"`
+	EmailUsername     string   `json:"email_username"`
+	EmailPassword     string   `json:"email_password"`
+	EmailRecipients   []string `json:"email_recipients"`
+
 	// GitHub integration
-	GitHubToken        string `json:"github_token"`
-	GitHubOwner        string `json:"github_owner"`
-	GitHubRepo         string `json:"github_repo"`
-	CreateIssues       bool   `json:"create_issues"`
-	
+	GitHubToken  string `json:"github_token"`
+	GitHubOwner  string `json:"github_owner"`
+	GitHubRepo   string `json:"github_repo"`
+	CreateIssues bool   `json:"create_issues"`
+
 	// Alert thresholds
-	AlertOnRegression  bool   `json:"alert_on_regression"`
-	AlertOnThreshold   bool   `json:"alert_on_threshold"`
-	AlertOnFailure     bool   `json:"alert_on_failure"`
-	
+	AlertOnRegression bool `json:"alert_on_regression"`
+	AlertOnThreshold  bool `json:"alert_on_threshold"`
+	AlertOnFailure    bool `json:"alert_on_failure"`
+
 	// Rate limiting
-	CooldownPeriod     time.Duration `json:"cooldown_period"`
-	MaxAlertsPerHour   int    `json:"max_alerts_per_hour"`
-	
+	CooldownPeriod   time.Duration `json:"cooldown_period"`
+	MaxAlertsPerHour int           `json:"max_alerts_per_hour"`
+
 	// Alert severity levels
-	CriticalThreshold  float64 `json:"critical_threshold"`  // Performance degradation %
-	WarningThreshold   float64 `json:"warning_threshold"`   // Performance degradation %
+	CriticalThreshold float64 `json:"critical_threshold"` // Performance degradation %
+	WarningThreshold  float64 `json:"warning_threshold"`  // Performance degradation %
 }
 
 // DefaultAlertingConfig provides sensible defaults
 var DefaultAlertingConfig = AlertingConfig{
-	AlertOnRegression:  true,
-	AlertOnThreshold:   true,
-	AlertOnFailure:     true,
-	CooldownPeriod:     30 * time.Minute,
-	MaxAlertsPerHour:   10,
-	CriticalThreshold:  0.10, // 10% degradation
-	WarningThreshold:   0.05, // 5% degradation
-	CreateIssues:       true,
+	AlertOnRegression: true,
+	AlertOnThreshold:  true,
+	AlertOnFailure:    true,
+	CooldownPeriod:    30 * time.Minute,
+	MaxAlertsPerHour:  10,
+	CriticalThreshold: 0.10, // 10% degradation
+	WarningThreshold:  0.05, // 5% degradation
+	CreateIssues:      true,
 }
 
 // AlertSeverity represents the severity of an alert
@@ -69,29 +69,29 @@ const (
 
 // PerformanceAlert represents a performance alert
 type PerformanceAlert struct {
-	ID          string                     `json:"id"`
-	Timestamp   time.Time                  `json:"timestamp"`
-	Severity    AlertSeverity              `json:"severity"`
-	Title       string                     `json:"title"`
-	Description string                     `json:"description"`
-	
+	ID          string        `json:"id"`
+	Timestamp   time.Time     `json:"timestamp"`
+	Severity    AlertSeverity `json:"severity"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+
 	// Context information
-	Repository  string                     `json:"repository"`
-	Branch      string                     `json:"branch"`
-	Commit      string                     `json:"commit"`
-	TestSuite   string                     `json:"test_suite"`
-	
+	Repository string `json:"repository"`
+	Branch     string `json:"branch"`
+	Commit     string `json:"commit"`
+	TestSuite  string `json:"test_suite"`
+
 	// Performance metrics
-	RegressionDetails []RegressionAlert    `json:"regression_details"`
-	ThresholdViolations []ThresholdAlert   `json:"threshold_violations"`
-	
+	RegressionDetails   []RegressionAlert `json:"regression_details"`
+	ThresholdViolations []ThresholdAlert  `json:"threshold_violations"`
+
 	// Validation results
 	ValidationResult *validation.ValidationResult `json:"validation_result"`
-	
+
 	// Alert metadata
-	Actions     []AlertAction              `json:"actions"`
-	Links       []AlertLink               `json:"links"`
-	Tags        []string                  `json:"tags"`
+	Actions []AlertAction `json:"actions"`
+	Links   []AlertLink   `json:"links"`
+	Tags    []string      `json:"tags"`
 }
 
 type RegressionAlert struct {
@@ -126,16 +126,16 @@ type AlertLink struct {
 
 // PerformanceAlerting manages performance alerts
 type PerformanceAlerting struct {
-	config      AlertingConfig
-	httpClient  *http.Client
+	config       AlertingConfig
+	httpClient   *http.Client
 	alertHistory map[string]time.Time // For rate limiting
 }
 
 // NewPerformanceAlerting creates a new alerting system
 func NewPerformanceAlerting(config AlertingConfig) *PerformanceAlerting {
 	return &PerformanceAlerting{
-		config:      config,
-		httpClient:  &http.Client{Timeout: 30 * time.Second},
+		config:       config,
+		httpClient:   &http.Client{Timeout: 30 * time.Second},
 		alertHistory: make(map[string]time.Time),
 	}
 }
@@ -368,7 +368,7 @@ func (pa *PerformanceAlerting) sendSlackAlert(ctx context.Context, alert *Perfor
 					},
 				},
 				"actions": pa.generateSlackActions(alert),
-				"ts": alert.Timestamp.Unix(),
+				"ts":      alert.Timestamp.Unix(),
 			},
 		},
 	}
@@ -479,17 +479,17 @@ func (pa *PerformanceAlerting) createGitHubIssue(ctx context.Context, alert *Per
 	}
 
 	issueBody := pa.generateGitHubIssueBody(alert)
-	
+
 	payload := map[string]interface{}{
-		"title": alert.Title,
-		"body":  issueBody,
+		"title":  alert.Title,
+		"body":   issueBody,
 		"labels": alert.Tags,
 	}
 
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/issues", 
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/issues",
 		pa.config.GitHubOwner, pa.config.GitHubRepo)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, 
+	req, err := http.NewRequestWithContext(ctx, "POST", url,
 		bytes.NewBuffer([]byte(fmt.Sprintf("%v", payload))))
 	if err != nil {
 		return err
@@ -581,7 +581,7 @@ func (pa *PerformanceAlerting) generateCriticalDescription(result *validation.Va
 • Failed Tests: %d
 • Critical Issues: %d
 
-Immediate attention required!`, 
+Immediate attention required!`,
 		result.SuccessRate*100,
 		result.QualityGates.GateScore,
 		result.FailedTests,
@@ -596,7 +596,7 @@ func (pa *PerformanceAlerting) generateWarningDescription(result *validation.Val
 • Warning Tests: %d
 • Issues: %d
 
-Review recommended.`, 
+Review recommended.`,
 		result.SuccessRate*100,
 		result.QualityGates.GateScore,
 		result.WarningTests,
@@ -610,7 +610,7 @@ func (pa *PerformanceAlerting) generateInfoDescription(result *validation.Valida
 • Quality Score: %.0f/100
 • All Tests: %d
 
-No action required.`, 
+No action required.`,
 		result.SuccessRate*100,
 		result.QualityGates.GateScore,
 		result.TotalTests)
@@ -720,7 +720,7 @@ func (pa *PerformanceAlerting) generateGitHubIssueBody(alert *PerformanceAlert) 
 - **Commit:** %s
 - **Timestamp:** %s
 
-`, alert.Title, alert.Description, 
+`, alert.Title, alert.Description,
 		alert.ValidationResult.SuccessRate*100,
 		alert.ValidationResult.QualityGates.GateScore,
 		alert.ValidationResult.TotalTests,
@@ -760,4 +760,3 @@ func (pa *PerformanceAlerting) generateGitHubIssueBody(alert *PerformanceAlert) 
 
 	return body
 }
-

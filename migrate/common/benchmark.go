@@ -73,10 +73,10 @@ func (bs *BenchmarkSuite) RunComparison() []BenchmarkResult {
 // benchmarkBolt benchmarks the Bolt logging library.
 func (bs *BenchmarkSuite) benchmarkBolt(b *testing.B) {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("service", "auth").
@@ -91,10 +91,10 @@ func (bs *BenchmarkSuite) benchmarkBolt(b *testing.B) {
 // benchmarkZerolog benchmarks the Zerolog library.
 func (bs *BenchmarkSuite) benchmarkZerolog(b *testing.B) {
 	logger := zerolog.New(os.Stdout).Level(zerolog.InfoLevel)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info().
 			Str("service", "auth").
@@ -112,10 +112,10 @@ func (bs *BenchmarkSuite) benchmarkZap(b *testing.B) {
 	config.OutputPaths = []string{"stdout"}
 	logger, _ := config.Build()
 	defer logger.Sync()
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.Info("User authenticated",
 			zap.String("service", "auth"),
@@ -133,10 +133,10 @@ func (bs *BenchmarkSuite) benchmarkLogrus(b *testing.B) {
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(os.Stdout)
 	logger.SetLevel(logrus.InfoLevel)
-	
+
 	b.ResetTimer()
 	b.ReportAllocs()
-	
+
 	for i := 0; i < b.N; i++ {
 		logger.WithFields(logrus.Fields{
 			"service":  "auth",
@@ -151,10 +151,10 @@ func (bs *BenchmarkSuite) benchmarkLogrus(b *testing.B) {
 // PrintResults prints the benchmark results in a formatted table.
 func (bs *BenchmarkSuite) PrintResults() {
 	fmt.Println("\n=== Logging Library Performance Comparison ===")
-	fmt.Printf("%-10s | %-12s | %-12s | %-12s | %-10s\n", 
+	fmt.Printf("%-10s | %-12s | %-12s | %-12s | %-10s\n",
 		"Library", "ns/op", "allocs/op", "bytes/op", "ops")
 	fmt.Println(strings.Repeat("-", 70))
-	
+
 	for _, result := range bs.results {
 		fmt.Printf("%-10s | %-12d | %-12d | %-12d | %-10d\n",
 			result.Library,
@@ -164,7 +164,7 @@ func (bs *BenchmarkSuite) PrintResults() {
 			result.Operations,
 		)
 	}
-	
+
 	// Calculate and display performance improvements
 	if len(bs.results) > 1 {
 		bolt := bs.results[0] // Assuming Bolt is first
@@ -172,8 +172,8 @@ func (bs *BenchmarkSuite) PrintResults() {
 		for i := 1; i < len(bs.results); i++ {
 			other := bs.results[i]
 			improvement := float64(other.NsPerOp-bolt.NsPerOp) / float64(bolt.NsPerOp) * 100
-			fmt.Printf("%s: %.1f%% %s\n", 
-				other.Library, 
+			fmt.Printf("%s: %.1f%% %s\n",
+				other.Library,
 				abs(improvement),
 				func() string {
 					if improvement > 0 {
@@ -233,23 +233,23 @@ func NewLoadTester(loggerFunc func(context.Context, string, ...interface{}), gor
 func (lt *LoadTester) Run() time.Duration {
 	var wg sync.WaitGroup
 	ctx := context.Background()
-	
+
 	start := time.Now()
-	
+
 	for i := 0; i < lt.goroutines; i++ {
 		wg.Add(1)
 		go func(worker int) {
 			defer wg.Done()
 			for j := 0; j < lt.operations; j++ {
-				lt.loggerFunc(ctx, "Load test message", 
-					"worker", worker, 
+				lt.loggerFunc(ctx, "Load test message",
+					"worker", worker,
 					"operation", j,
 					"timestamp", time.Now(),
 				)
 			}
 		}(i)
 	}
-	
+
 	wg.Wait()
 	return time.Since(start)
 }

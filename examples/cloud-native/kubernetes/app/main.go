@@ -89,7 +89,7 @@ func (app *Application) healthLiveHandler(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status":"alive","timestamp":"%s","pod":"%s"}`, 
+	fmt.Fprintf(w, `{"status":"alive","timestamp":"%s","pod":"%s"}`,
 		time.Now().UTC().Format(time.RFC3339), app.config.PodName)
 }
 
@@ -110,14 +110,14 @@ func (app *Application) healthReadyHandler(w http.ResponseWriter, r *http.Reques
 		Msg("Readiness probe check")
 
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	if ready {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"ready","timestamp":"%s","pod":"%s"}`, 
+		fmt.Fprintf(w, `{"status":"ready","timestamp":"%s","pod":"%s"}`,
 			time.Now().UTC().Format(time.RFC3339), app.config.PodName)
 	} else {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		fmt.Fprintf(w, `{"status":"not_ready","timestamp":"%s","pod":"%s"}`, 
+		fmt.Fprintf(w, `{"status":"not_ready","timestamp":"%s","pod":"%s"}`,
 			time.Now().UTC().Format(time.RFC3339), app.config.PodName)
 	}
 }
@@ -139,14 +139,14 @@ func (app *Application) healthStartupHandler(w http.ResponseWriter, r *http.Requ
 		Msg("Startup probe check")
 
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	if started {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"started","timestamp":"%s","pod":"%s"}`, 
+		fmt.Fprintf(w, `{"status":"started","timestamp":"%s","pod":"%s"}`,
 			time.Now().UTC().Format(time.RFC3339), app.config.PodName)
 	} else {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		fmt.Fprintf(w, `{"status":"starting","timestamp":"%s","pod":"%s"}`, 
+		fmt.Fprintf(w, `{"status":"starting","timestamp":"%s","pod":"%s"}`,
 			time.Now().UTC().Format(time.RFC3339), app.config.PodName)
 	}
 }
@@ -181,7 +181,7 @@ func (app *Application) rootHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	
+
 	// Simulate JSON response
 	fmt.Fprintf(w, `{
 		"message": "%s",
@@ -224,7 +224,7 @@ func (app *Application) apiUsersHandler(w http.ResponseWriter, r *http.Request) 
 
 	// Simulate database query
 	time.Sleep(10 * time.Millisecond)
-	
+
 	duration := time.Since(start)
 
 	app.logger.Info().
@@ -253,7 +253,7 @@ func (app *Application) apiUsersHandler(w http.ResponseWriter, r *http.Request) 
 func (app *Application) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		
+
 		correlationID := r.Header.Get("X-Correlation-ID")
 		if correlationID == "" {
 			correlationID = uuid.New().String()
@@ -261,7 +261,7 @@ func (app *Application) loggingMiddleware(next http.Handler) http.Handler {
 		r.Header.Set("X-Correlation-ID", correlationID)
 
 		wrapper := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-		
+
 		app.logger.Info().
 			Str("correlation_id", correlationID).
 			Str("method", r.Method).
@@ -356,7 +356,7 @@ func (app *Application) startMetricsServer() {
 		},
 		[]string{"method", "endpoint", "status", "pod"},
 	)
-	
+
 	requestDuration := prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "http_request_duration_seconds",
@@ -370,7 +370,7 @@ func (app *Application) startMetricsServer() {
 
 	metricsMux := http.NewServeMux()
 	metricsMux.Handle("/metrics", promhttp.Handler())
-	
+
 	metricsServer := &http.Server{
 		Addr:    ":" + app.config.MetricsPort,
 		Handler: metricsMux,

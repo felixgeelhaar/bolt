@@ -569,7 +569,7 @@ func (e *Event) Str(key, value string) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate inputs for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -583,7 +583,7 @@ func (e *Event) Str(key, value string) *Event {
 		}
 		return e
 	}
-	
+
 	// Check buffer size before adding content
 	if err := checkBufferSize(e.buf); err != nil {
 		if e.l.errorHandler != nil {
@@ -591,7 +591,7 @@ func (e *Event) Str(key, value string) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -606,7 +606,7 @@ func (e *Event) Int(key string, value int) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -614,7 +614,7 @@ func (e *Event) Int(key string, value int) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -628,7 +628,7 @@ func (e *Event) Bool(key string, value bool) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -636,7 +636,7 @@ func (e *Event) Bool(key string, value bool) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -649,7 +649,7 @@ func (e *Event) Float64(key string, value float64) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -657,7 +657,7 @@ func (e *Event) Float64(key string, value float64) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -670,7 +670,7 @@ func (e *Event) Time(key string, value time.Time) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -678,7 +678,7 @@ func (e *Event) Time(key string, value time.Time) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -692,7 +692,7 @@ func (e *Event) Dur(key string, value time.Duration) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -700,7 +700,7 @@ func (e *Event) Dur(key string, value time.Duration) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -713,7 +713,7 @@ func (e *Event) Uint(key string, value uint) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -721,7 +721,7 @@ func (e *Event) Uint(key string, value uint) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -734,7 +734,7 @@ func (e *Event) Any(key string, value interface{}) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -742,7 +742,7 @@ func (e *Event) Any(key string, value interface{}) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -773,7 +773,7 @@ func (e *Event) Msg(message string) {
 	if e.l == nil {
 		return // No-op for disabled events
 	}
-	
+
 	// Validate message length
 	if err := validateValue(message); err != nil {
 		if e.l.errorHandler != nil {
@@ -781,7 +781,7 @@ func (e *Event) Msg(message string) {
 		}
 		return
 	}
-	
+
 	// Check buffer size before finalizing
 	if err := checkBufferSize(e.buf); err != nil {
 		if e.l.errorHandler != nil {
@@ -789,7 +789,7 @@ func (e *Event) Msg(message string) {
 		}
 		return
 	}
-	
+
 	// Add message with proper JSON escaping
 	e.buf = append(e.buf, `,"message":"`...)
 	e.buf = appendJSONString(e.buf, message)
@@ -981,7 +981,7 @@ func (e *Event) Hex(key string, value []byte) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -989,7 +989,7 @@ func (e *Event) Hex(key string, value []byte) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -1004,7 +1004,7 @@ func (e *Event) Base64(key string, value []byte) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -1012,7 +1012,7 @@ func (e *Event) Base64(key string, value []byte) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -1083,7 +1083,7 @@ func (e *Event) Int64(key string, value int64) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -1091,7 +1091,7 @@ func (e *Event) Int64(key string, value int64) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -1105,7 +1105,7 @@ func (e *Event) Uint64(key string, value uint64) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -1113,7 +1113,7 @@ func (e *Event) Uint64(key string, value uint64) *Event {
 		}
 		return e
 	}
-	
+
 	e.buf = append(e.buf, ',')
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
@@ -1127,7 +1127,7 @@ func (e *Event) Counter(key string, counter *int64) *Event {
 	if e.l == nil {
 		return e
 	}
-	
+
 	// Validate key for security
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
@@ -1135,7 +1135,7 @@ func (e *Event) Counter(key string, counter *int64) *Event {
 		}
 		return e
 	}
-	
+
 	value := atomic.LoadInt64(counter)
 	return e.Int64(key, value)
 }

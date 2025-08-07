@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 // GlobalLevel holds the global logging level
 var GlobalLevel Level = InfoLevel
 
@@ -60,15 +59,15 @@ func (c ConsoleWriter) FormatLevel(level Level) string {
 	if c.NoColor {
 		return fmt.Sprintf("%-5s", level.String())
 	}
-	
+
 	// Color codes for different levels
 	switch level {
 	case DebugLevel:
 		return fmt.Sprintf("\x1b[36m%-5s\x1b[0m", "DEBUG") // Cyan
 	case InfoLevel:
-		return fmt.Sprintf("\x1b[34m%-5s\x1b[0m", "INFO")  // Blue
+		return fmt.Sprintf("\x1b[34m%-5s\x1b[0m", "INFO") // Blue
 	case WarnLevel:
-		return fmt.Sprintf("\x1b[33m%-5s\x1b[0m", "WARN")  // Yellow
+		return fmt.Sprintf("\x1b[33m%-5s\x1b[0m", "WARN") // Yellow
 	case ErrorLevel:
 		return fmt.Sprintf("\x1b[31m%-5s\x1b[0m", "ERROR") // Red
 	case FatalLevel:
@@ -89,7 +88,7 @@ func (m MultiLevelWriter) Write(level Level, p []byte) (int, error) {
 	if !ok {
 		return len(p), nil // No writers for this level
 	}
-	
+
 	var lastN int
 	var lastErr error
 	for _, w := range writers {

@@ -37,7 +37,7 @@ func NewLogrusTransformer() *LogrusTransformer {
 		rules:   make([]TransformationRule, 0),
 		fileSet: token.NewFileSet(),
 	}
-	
+
 	transformer.initDefaultRules()
 	return transformer
 }
@@ -49,67 +49,67 @@ func (t *LogrusTransformer) initDefaultRules() {
 		`"github\.com/sirupsen/logrus"`,
 		`"github.com/felixgeelhaar/bolt"`,
 		true)
-	
+
 	// Logger creation
 	t.addRule("new_logger", "Replace logrus.New() with bolt.New()",
 		`logrus\.New\(\)`,
 		`bolt.New(bolt.NewJSONHandler(os.Stdout))`,
 		true)
-	
+
 	// Standard logger usage
 	t.addRule("with_fields", "Transform WithFields to Bolt chaining",
 		`\.WithFields\(logrus\.Fields\{([^}]+)\}\)`,
 		`.With()$1`,
 		true)
-	
+
 	// Level setting
 	t.addRule("set_level", "Transform SetLevel calls",
 		`\.SetLevel\(logrus\.(\w+)Level\)`,
 		`.SetLevel(bolt.$1)`,
 		true)
-	
+
 	// Formatter setting - JSON
 	t.addRule("json_formatter", "Transform JSONFormatter",
 		`\.SetFormatter\(&logrus\.JSONFormatter\{\}\)`,
 		`// Using bolt.NewJSONHandler() in logger creation`,
 		true)
-	
+
 	// Formatter setting - Text
 	t.addRule("text_formatter", "Transform TextFormatter",
 		`\.SetFormatter\(&logrus\.TextFormatter\{\}\)`,
 		`// Using bolt.NewConsoleHandler() in logger creation`,
 		true)
-	
+
 	// Output setting
 	t.addRule("set_output", "Transform SetOutput",
 		`\.SetOutput\(([^)]+)\)`,
 		`// Output set in handler creation: bolt.NewJSONHandler($1)`,
 		true)
-	
+
 	// Field types transformation
 	t.addRule("fields_type", "Transform logrus.Fields to map[string]interface{}",
 		`logrus\.Fields`,
 		`map[string]interface{}`,
 		true)
-	
+
 	// Logging method transformations - convert WithFields pattern
 	t.addRule("with_fields_log", "Transform WithFields().Info() pattern",
 		`\.WithFields\([^)]+\)\.(\w+)\(`,
 		`.With().$1().Msg(`,
 		true)
-	
+
 	// Entry logging methods
 	t.addRule("entry_methods", "Transform entry logging methods to use Msg()",
 		`\.(\w+)\(([^)]*)\)(\s*)$`,
 		`.$1().Msg($2)$3`,
 		true)
-	
+
 	// Error handling
 	t.addRule("with_error", "Transform WithError",
 		`\.WithError\(([^)]+)\)`,
 		`.With().Err($1)`,
 		true)
-	
+
 	// Level constants
 	t.rules = append(t.rules, []TransformationRule{
 		{"trace_level", "Transform TraceLevel", regexp.MustCompile(`logrus\.TraceLevel`), `bolt.TRACE`, true},
@@ -144,13 +144,13 @@ func (t *LogrusTransformer) addRule(name, description, pattern, replace string, 
 
 // TransformationResult represents the result of a transformation operation.
 type TransformationResult struct {
-	OriginalFile     string            `json:"original_file"`
-	TransformedFile  string            `json:"transformed_file"`
-	AppliedRules     []string          `json:"applied_rules"`
-	Errors           []string          `json:"errors"`
-	Warnings         []string          `json:"warnings"`
-	LineChanges      map[int]string    `json:"line_changes"`
-	Success          bool              `json:"success"`
+	OriginalFile    string         `json:"original_file"`
+	TransformedFile string         `json:"transformed_file"`
+	AppliedRules    []string       `json:"applied_rules"`
+	Errors          []string       `json:"errors"`
+	Warnings        []string       `json:"warnings"`
+	LineChanges     map[int]string `json:"line_changes"`
+	Success         bool           `json:"success"`
 }
 
 // TransformFile transforms a single file from Logrus to Bolt.
@@ -286,7 +286,7 @@ func (t *LogrusTransformer) transformCallExpr(node *ast.CallExpr, changed *bool)
 			if ident.Name == "logrus" && sel.Sel.Name == "New" {
 				ident.Name = "bolt"
 				sel.Sel.Name = "New"
-				
+
 				// Add handler argument if not present
 				if len(node.Args) == 0 {
 					// Create bolt.NewJSONHandler(os.Stdout) call
@@ -394,7 +394,7 @@ func (t *LogrusTransformer) TransformDirectory(inputDir, outputDir string) ([]*T
 			}
 			result.Errors = append(result.Errors, err.Error())
 		}
-		
+
 		results = append(results, result)
 		return nil
 	})
@@ -469,28 +469,28 @@ func (t *LogrusTransformer) GenerateMigrationReport(results []*TransformationRes
 			return "❌ Failed"
 		}())
 		fmt.Fprintf(writer, "**Output:** %s\n", result.TransformedFile)
-		
+
 		if len(result.AppliedRules) > 0 {
 			fmt.Fprintln(writer, "**Applied Rules:**")
 			for _, rule := range result.AppliedRules {
 				fmt.Fprintf(writer, "- %s\n", rule)
 			}
 		}
-		
+
 		if len(result.Warnings) > 0 {
 			fmt.Fprintln(writer, "**Warnings:**")
 			for _, warning := range result.Warnings {
 				fmt.Fprintf(writer, "- %s\n", warning)
 			}
 		}
-		
+
 		if len(result.Errors) > 0 {
 			fmt.Fprintln(writer, "**Errors:**")
 			for _, errMsg := range result.Errors {
 				fmt.Fprintf(writer, "- %s\n", errMsg)
 			}
 		}
-		
+
 		fmt.Fprintln(writer, "")
 	}
 
@@ -530,7 +530,7 @@ func (t *LogrusTransformer) ValidateTransformation(inputPath, outputPath string)
 	// Check for remaining logrus references
 	logrusRefs := regexp.MustCompile(`logrus\.`).FindAllStringIndex(string(transformed), -1)
 	if len(logrusRefs) > 0 {
-		result.Warnings = append(result.Warnings, 
+		result.Warnings = append(result.Warnings,
 			fmt.Sprintf("Found %d remaining logrus references", len(logrusRefs)))
 	}
 
@@ -575,38 +575,38 @@ func NewInteractiveMigration(input io.Reader, output io.Writer) *InteractiveMigr
 // RunInteractive runs an interactive migration session.
 func (im *InteractiveMigration) RunInteractive() error {
 	scanner := bufio.NewScanner(im.input)
-	
+
 	fmt.Fprintln(im.output, "=== Logrus to Bolt Migration Tool ===")
 	fmt.Fprintln(im.output, "This tool will help you migrate from Logrus to Bolt logging.")
 	fmt.Fprintln(im.output, "")
-	
+
 	// Get input directory
 	fmt.Fprint(im.output, "Enter the source directory path: ")
 	scanner.Scan()
 	inputDir := strings.TrimSpace(scanner.Text())
-	
+
 	// Get output directory
 	fmt.Fprint(im.output, "Enter the output directory path: ")
 	scanner.Scan()
 	outputDir := strings.TrimSpace(scanner.Text())
-	
+
 	// Confirm transformation
 	fmt.Fprintf(im.output, "Transform files from '%s' to '%s'? (y/N): ", inputDir, outputDir)
 	scanner.Scan()
 	confirmation := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	
+
 	if confirmation != "y" && confirmation != "yes" {
-		fmt.Fprintln(im.output, "Migration cancelled.")
+		fmt.Fprintln(im.output, "Migration canceled.")
 		return nil
 	}
-	
+
 	// Run transformation
 	fmt.Fprintln(im.output, "Starting migration...")
 	results, err := im.transformer.TransformDirectory(inputDir, outputDir)
 	if err != nil {
 		return fmt.Errorf("migration failed: %w", err)
 	}
-	
+
 	// Show results summary
 	successful := 0
 	for _, result := range results {
@@ -614,14 +614,14 @@ func (im *InteractiveMigration) RunInteractive() error {
 			successful++
 		}
 	}
-	
+
 	fmt.Fprintf(im.output, "Migration completed: %d/%d files successfully transformed.\n", successful, len(results))
-	
+
 	// Ask about generating report
 	fmt.Fprint(im.output, "Generate migration report? (Y/n): ")
 	scanner.Scan()
 	reportConfirm := strings.TrimSpace(strings.ToLower(scanner.Text()))
-	
+
 	if reportConfirm != "n" && reportConfirm != "no" {
 		reportPath := filepath.Join(outputDir, "migration_report.md")
 		if err := im.transformer.GenerateMigrationReport(results, reportPath); err != nil {
@@ -630,6 +630,6 @@ func (im *InteractiveMigration) RunInteractive() error {
 			fmt.Fprintf(im.output, "Migration report generated: %s\n", reportPath)
 		}
 	}
-	
+
 	return nil
 }

@@ -36,7 +36,7 @@ const (
 // The flag argument defines the logging properties.
 func New(out io.Writer, prefix string, flag int) *Logger {
 	var boltLogger *bolt.Logger
-	
+
 	// Choose handler based on output destination and flags
 	if out == os.Stderr || out == os.Stdout {
 		// For standard outputs, use console handler if it looks like a terminal
@@ -45,7 +45,7 @@ func New(out io.Writer, prefix string, flag int) *Logger {
 		// For files and other outputs, use JSON handler
 		boltLogger = bolt.New(bolt.NewJSONHandler(out))
 	}
-	
+
 	return &Logger{
 		bolt:   boltLogger,
 		prefix: prefix,
@@ -66,14 +66,14 @@ func (l *Logger) formatMessage(format string, v ...interface{}) string {
 	} else {
 		msg = fmt.Sprintf(format, v...)
 	}
-	
+
 	// Add prefix if specified and not using Lmsgprefix
 	if l.prefix != "" && (l.flag&Lmsgprefix) == 0 {
 		msg = l.prefix + msg
 	} else if l.prefix != "" && (l.flag&Lmsgprefix) != 0 {
 		msg = msg + " " + l.prefix
 	}
-	
+
 	return msg
 }
 
@@ -182,13 +182,13 @@ func (l *Logger) SetFlags(flag int) {
 func (l *Logger) SetOutput(w io.Writer) {
 	// Recreate bolt logger with new output
 	var boltLogger *bolt.Logger
-	
+
 	if w == os.Stderr || w == os.Stdout {
 		boltLogger = bolt.New(bolt.NewConsoleHandler(w))
 	} else {
 		boltLogger = bolt.New(bolt.NewJSONHandler(w))
 	}
-	
+
 	l.bolt = boltLogger
 }
 
@@ -397,7 +397,7 @@ func CreateCompatibleLogger(output io.Writer) *Logger {
 // While this compatibility layer maintains the standard log API, the underlying
 // Bolt implementation provides:
 // - Zero allocations in hot paths
-// - Sub-100ns logging operations  
+// - Sub-100ns logging operations
 // - Better performance under concurrent load
 // - Structured logging capabilities when needed
 //

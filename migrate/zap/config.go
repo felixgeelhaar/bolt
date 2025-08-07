@@ -19,15 +19,15 @@ func NewConfigMigrator(dryRun bool) *ConfigMigrator {
 
 // ZapConfig represents a Zap configuration that needs to be migrated.
 type ZapConfig struct {
-	Level             string              `json:"level" yaml:"level"`
-	Development       bool                `json:"development" yaml:"development"`
-	DisableCaller     bool                `json:"disableCaller" yaml:"disableCaller"`
-	DisableStacktrace bool                `json:"disableStacktrace" yaml:"disableStacktrace"`
-	Sampling          *ZapSampling        `json:"sampling" yaml:"sampling"`
-	Encoding          string              `json:"encoding" yaml:"encoding"`
-	EncoderConfig     ZapEncoderConfig    `json:"encoderConfig" yaml:"encoderConfig"`
-	OutputPaths       []string            `json:"outputPaths" yaml:"outputPaths"`
-	ErrorOutputPaths  []string            `json:"errorOutputPaths" yaml:"errorOutputPaths"`
+	Level             string                 `json:"level" yaml:"level"`
+	Development       bool                   `json:"development" yaml:"development"`
+	DisableCaller     bool                   `json:"disableCaller" yaml:"disableCaller"`
+	DisableStacktrace bool                   `json:"disableStacktrace" yaml:"disableStacktrace"`
+	Sampling          *ZapSampling           `json:"sampling" yaml:"sampling"`
+	Encoding          string                 `json:"encoding" yaml:"encoding"`
+	EncoderConfig     ZapEncoderConfig       `json:"encoderConfig" yaml:"encoderConfig"`
+	OutputPaths       []string               `json:"outputPaths" yaml:"outputPaths"`
+	ErrorOutputPaths  []string               `json:"errorOutputPaths" yaml:"errorOutputPaths"`
 	InitialFields     map[string]interface{} `json:"initialFields" yaml:"initialFields"`
 }
 
@@ -62,11 +62,11 @@ type BoltConfig struct {
 
 // MigrationResult contains the result of a configuration migration.
 type MigrationResult struct {
-	OriginalConfig ZapConfig   `json:"original_config"`
-	BoltConfig     BoltConfig  `json:"bolt_config"`
-	CodeSuggestion string      `json:"code_suggestion"`
-	Warnings       []string    `json:"warnings"`
-	Success        bool        `json:"success"`
+	OriginalConfig ZapConfig  `json:"original_config"`
+	BoltConfig     BoltConfig `json:"bolt_config"`
+	CodeSuggestion string     `json:"code_suggestion"`
+	Warnings       []string   `json:"warnings"`
+	Success        bool       `json:"success"`
 }
 
 // MigrateConfigFromJSON migrates a Zap JSON configuration to Bolt.
@@ -123,7 +123,7 @@ func (cm *ConfigMigrator) migrateConfig(zapConfig ZapConfig) *MigrationResult {
 		result.Warnings = append(result.Warnings,
 			"Zap sampling configuration detected - Bolt doesn't currently support sampling, consider implementing custom handler")
 		boltConfig.Notes = append(boltConfig.Notes,
-			fmt.Sprintf("Original sampling: initial=%d, thereafter=%d", 
+			fmt.Sprintf("Original sampling: initial=%d, thereafter=%d",
 				zapConfig.Sampling.Initial, zapConfig.Sampling.Thereafter))
 	}
 
@@ -242,10 +242,10 @@ func NewConfigAnalyzer() *ConfigAnalyzer {
 
 // AnalysisResult contains the results of configuration analysis.
 type AnalysisResult struct {
-	ConfigType        string              `json:"config_type"`
-	DetectedSettings  map[string]string   `json:"detected_settings"`
-	MigrationSuggestions []string         `json:"migration_suggestions"`
-	RequiresManualWork bool               `json:"requires_manual_work"`
+	ConfigType           string            `json:"config_type"`
+	DetectedSettings     map[string]string `json:"detected_settings"`
+	MigrationSuggestions []string          `json:"migration_suggestions"`
+	RequiresManualWork   bool              `json:"requires_manual_work"`
 }
 
 // AnalyzeCode analyzes Go code for Zap configuration patterns.
@@ -272,16 +272,16 @@ func (ca *ConfigAnalyzer) AnalyzeCode(code string) *AnalysisResult {
 func (ca *ConfigAnalyzer) analyzeLine(line string, result *AnalysisResult) {
 	// Detect configuration method calls
 	patterns := map[string]string{
-		"NewProduction":   "production_config",
-		"NewDevelopment":  "development_config",
-		"NewExample":      "example_config",
-		"Config{":         "struct_config",
-		".Level(":         "level_setting",
-		".Encoding(":      "encoding_setting",
-		".OutputPaths(":   "output_paths",
+		"NewProduction":      "production_config",
+		"NewDevelopment":     "development_config",
+		"NewExample":         "example_config",
+		"Config{":            "struct_config",
+		".Level(":            "level_setting",
+		".Encoding(":         "encoding_setting",
+		".OutputPaths(":      "output_paths",
 		".ErrorOutputPaths(": "error_output_paths",
-		".InitialFields(": "initial_fields",
-		".Sampling(":      "sampling_config",
+		".InitialFields(":    "initial_fields",
+		".Sampling(":         "sampling_config",
 	}
 
 	for pattern, configType := range patterns {
@@ -351,7 +351,7 @@ type BoltEnvConfig struct {
 func (em *EnvironmentMigrator) MigrateEnvironmentVars() map[string]string {
 	return map[string]string{
 		"ZAP_LEVEL":    "BOLT_LEVEL",
-		"ZAP_ENCODING": "BOLT_FORMAT", 
+		"ZAP_ENCODING": "BOLT_FORMAT",
 		"ZAP_DEV_MODE": "BOLT_FORMAT=console (if true)",
 	}
 }
@@ -430,7 +430,7 @@ func (cc *ConfigComparator) Compare(zapConfig ZapConfig, boltConfig BoltConfig) 
 	zapConfigStr := cc.generateZapConfigString(zapConfig)
 	report.ZapConfig = zapConfigStr
 
-	// Generate Bolt configuration representation  
+	// Generate Bolt configuration representation
 	boltConfigStr := cc.generateBoltConfigString(boltConfig)
 	report.BoltConfig = boltConfigStr
 
@@ -459,7 +459,7 @@ func (cc *ConfigComparator) generateZapConfigString(config ZapConfig) string {
 	str.WriteString(fmt.Sprintf("  Encoding: %s\n", config.Encoding))
 	str.WriteString(fmt.Sprintf("  Development: %t\n", config.Development))
 	if config.Sampling != nil {
-		str.WriteString(fmt.Sprintf("  Sampling: initial=%d, thereafter=%d\n", 
+		str.WriteString(fmt.Sprintf("  Sampling: initial=%d, thereafter=%d\n",
 			config.Sampling.Initial, config.Sampling.Thereafter))
 	}
 	str.WriteString(fmt.Sprintf("  Output Paths: %v\n", config.OutputPaths))

@@ -14,25 +14,25 @@ import (
 // PerformanceThresholds defines acceptable performance limits
 type PerformanceThresholds struct {
 	// Latency thresholds (nanoseconds)
-	MaxLatencyNs      float64 `json:"max_latency_ns"`
-	MaxLatencyP95Ns   float64 `json:"max_latency_p95_ns"`
-	MaxLatencyP99Ns   float64 `json:"max_latency_p99_ns"`
-	
+	MaxLatencyNs    float64 `json:"max_latency_ns"`
+	MaxLatencyP95Ns float64 `json:"max_latency_p95_ns"`
+	MaxLatencyP99Ns float64 `json:"max_latency_p99_ns"`
+
 	// Allocation thresholds
-	MaxAllocsPerOp    float64 `json:"max_allocs_per_op"`
-	MaxBytesPerOp     float64 `json:"max_bytes_per_op"`
-	
+	MaxAllocsPerOp float64 `json:"max_allocs_per_op"`
+	MaxBytesPerOp  float64 `json:"max_bytes_per_op"`
+
 	// Throughput thresholds
-	MinThroughputRPS  float64 `json:"min_throughput_rps"`
-	
+	MinThroughputRPS float64 `json:"min_throughput_rps"`
+
 	// Regression thresholds (percentage)
 	MaxLatencyRegression    float64 `json:"max_latency_regression"`
 	MaxAllocationRegression float64 `json:"max_allocation_regression"`
 	MinThroughputRegression float64 `json:"min_throughput_regression"`
-	
+
 	// Consistency thresholds
 	MaxCoefficientOfVariation float64 `json:"max_coefficient_of_variation"`
-	
+
 	// Resource thresholds
 	MaxMemoryGrowthMB float64 `json:"max_memory_growth_mb"`
 	MaxGCPauseMs      float64 `json:"max_gc_pause_ms"`
@@ -40,37 +40,37 @@ type PerformanceThresholds struct {
 
 // DefaultThresholds provides production-ready performance thresholds for Bolt
 var DefaultThresholds = PerformanceThresholds{
-	MaxLatencyNs:              100000,  // 100μs
-	MaxLatencyP95Ns:           150000,  // 150μs
-	MaxLatencyP99Ns:           200000,  // 200μs
-	MaxAllocsPerOp:            0,       // Zero allocations
-	MaxBytesPerOp:             0,       // Zero bytes allocated
+	MaxLatencyNs:              100000,   // 100μs
+	MaxLatencyP95Ns:           150000,   // 150μs
+	MaxLatencyP99Ns:           200000,   // 200μs
+	MaxAllocsPerOp:            0,        // Zero allocations
+	MaxBytesPerOp:             0,        // Zero bytes allocated
 	MinThroughputRPS:          10000000, // 10M ops/sec
-	MaxLatencyRegression:      0.05,    // 5% regression threshold
-	MaxAllocationRegression:   0.01,    // 1% allocation regression
-	MinThroughputRegression:   0.95,    // 5% throughput regression
-	MaxCoefficientOfVariation: 0.1,     // 10% CV
-	MaxMemoryGrowthMB:         100,     // 100MB max growth
-	MaxGCPauseMs:              10,      // 10ms max GC pause
+	MaxLatencyRegression:      0.05,     // 5% regression threshold
+	MaxAllocationRegression:   0.01,     // 1% allocation regression
+	MinThroughputRegression:   0.95,     // 5% throughput regression
+	MaxCoefficientOfVariation: 0.1,      // 10% CV
+	MaxMemoryGrowthMB:         100,      // 100MB max growth
+	MaxGCPauseMs:              10,       // 10ms max GC pause
 }
 
 // ValidationResult represents the outcome of performance validation
 type ValidationResult struct {
-	Timestamp      time.Time            `json:"timestamp"`
-	TestSuite      string               `json:"test_suite"`
-	OverallResult  ValidationStatus     `json:"overall_result"`
-	ThresholdChecks []ThresholdCheck    `json:"threshold_checks"`
-	RegressionChecks []RegressionCheck  `json:"regression_checks"`
+	Timestamp           time.Time           `json:"timestamp"`
+	TestSuite           string              `json:"test_suite"`
+	OverallResult       ValidationStatus    `json:"overall_result"`
+	ThresholdChecks     []ThresholdCheck    `json:"threshold_checks"`
+	RegressionChecks    []RegressionCheck   `json:"regression_checks"`
 	StatisticalAnalysis StatisticalAnalysis `json:"statistical_analysis"`
-	QualityGates   QualityGateResult    `json:"quality_gates"`
-	
+	QualityGates        QualityGateResult   `json:"quality_gates"`
+
 	// Summary metrics
-	TotalTests     int     `json:"total_tests"`
-	PassedTests    int     `json:"passed_tests"`
-	FailedTests    int     `json:"failed_tests"`
-	WarningTests   int     `json:"warning_tests"`
-	SuccessRate    float64 `json:"success_rate"`
-	
+	TotalTests   int     `json:"total_tests"`
+	PassedTests  int     `json:"passed_tests"`
+	FailedTests  int     `json:"failed_tests"`
+	WarningTests int     `json:"warning_tests"`
+	SuccessRate  float64 `json:"success_rate"`
+
 	// Recommendations
 	Recommendations []string `json:"recommendations"`
 	CriticalIssues  []string `json:"critical_issues"`
@@ -98,31 +98,31 @@ type ThresholdCheck struct {
 }
 
 type RegressionCheck struct {
-	Name            string           `json:"name"`
-	TestScenario    string           `json:"test_scenario"`
-	Library         string           `json:"library"`
-	Metric          string           `json:"metric"`
-	CurrentValue    float64          `json:"current_value"`
-	BaselineValue   float64          `json:"baseline_value"`
-	ChangePercent   float64          `json:"change_percent"`
-	Status          ValidationStatus `json:"status"`
-	IsImprovement   bool             `json:"is_improvement"`
-	Message         string           `json:"message"`
+	Name          string           `json:"name"`
+	TestScenario  string           `json:"test_scenario"`
+	Library       string           `json:"library"`
+	Metric        string           `json:"metric"`
+	CurrentValue  float64          `json:"current_value"`
+	BaselineValue float64          `json:"baseline_value"`
+	ChangePercent float64          `json:"change_percent"`
+	Status        ValidationStatus `json:"status"`
+	IsImprovement bool             `json:"is_improvement"`
+	Message       string           `json:"message"`
 }
 
 type StatisticalAnalysis struct {
-	DataPoints              int     `json:"data_points"`
-	Mean                    float64 `json:"mean"`
-	Median                  float64 `json:"median"`
-	StandardDeviation       float64 `json:"standard_deviation"`
-	CoefficientOfVariation  float64 `json:"coefficient_of_variation"`
-	Min                     float64 `json:"min"`
-	Max                     float64 `json:"max"`
-	P95                     float64 `json:"p95"`
-	P99                     float64 `json:"p99"`
-	OutlierCount            int     `json:"outlier_count"`
-	IsStatisticallyStable   bool    `json:"is_statistically_stable"`
-	ConfidenceLevel         float64 `json:"confidence_level"`
+	DataPoints             int     `json:"data_points"`
+	Mean                   float64 `json:"mean"`
+	Median                 float64 `json:"median"`
+	StandardDeviation      float64 `json:"standard_deviation"`
+	CoefficientOfVariation float64 `json:"coefficient_of_variation"`
+	Min                    float64 `json:"min"`
+	Max                    float64 `json:"max"`
+	P95                    float64 `json:"p95"`
+	P99                    float64 `json:"p99"`
+	OutlierCount           int     `json:"outlier_count"`
+	IsStatisticallyStable  bool    `json:"is_statistically_stable"`
+	ConfidenceLevel        float64 `json:"confidence_level"`
 }
 
 type QualityGateResult struct {
@@ -137,14 +137,14 @@ type QualityGateResult struct {
 
 // PerformanceValidator validates benchmark results against thresholds
 type PerformanceValidator struct {
-	thresholds PerformanceThresholds
+	thresholds   PerformanceThresholds
 	baselineData map[string]interface{}
 }
 
 // NewPerformanceValidator creates a new validator with default thresholds
 func NewPerformanceValidator() *PerformanceValidator {
 	return &PerformanceValidator{
-		thresholds: DefaultThresholds,
+		thresholds:   DefaultThresholds,
 		baselineData: make(map[string]interface{}),
 	}
 }
@@ -182,14 +182,14 @@ func (pv *PerformanceValidator) ValidateResults(resultsPath string) (*Validation
 	}
 
 	result := &ValidationResult{
-		Timestamp:    time.Now(),
-		TestSuite:    "Bolt Performance Validation",
-		OverallResult: ValidationPassed,
-		ThresholdChecks: make([]ThresholdCheck, 0),
+		Timestamp:        time.Now(),
+		TestSuite:        "Bolt Performance Validation",
+		OverallResult:    ValidationPassed,
+		ThresholdChecks:  make([]ThresholdCheck, 0),
 		RegressionChecks: make([]RegressionCheck, 0),
-		Recommendations: make([]string, 0),
-		CriticalIssues:  make([]string, 0),
-		Warnings:        make([]string, 0),
+		Recommendations:  make([]string, 0),
+		CriticalIssues:   make([]string, 0),
+		Warnings:         make([]string, 0),
 	}
 
 	// Run threshold validations
@@ -354,7 +354,7 @@ func (pv *PerformanceValidator) detectRegressions(data map[string]interface{}, r
 	for library := range currentPerf {
 		currentLib, ok1 := currentPerf[library].(map[string]interface{})
 		baselineLib, ok2 := baselinePerf[library].(map[string]interface{})
-		
+
 		if !ok1 || !ok2 {
 			continue
 		}
@@ -362,7 +362,7 @@ func (pv *PerformanceValidator) detectRegressions(data map[string]interface{}, r
 		// Compare latency
 		currentLatency, _ := currentLib["avg_ns_per_op"].(float64)
 		baselineLatency, _ := baselineLib["avg_ns_per_op"].(float64)
-		
+
 		if baselineLatency > 0 {
 			latencyChange := (currentLatency - baselineLatency) / baselineLatency
 			result.RegressionChecks = append(result.RegressionChecks, RegressionCheck{
@@ -382,12 +382,12 @@ func (pv *PerformanceValidator) detectRegressions(data map[string]interface{}, r
 		// Compare allocations
 		currentAllocs, _ := currentLib["avg_allocs_per_op"].(float64)
 		baselineAllocs, _ := baselineLib["avg_allocs_per_op"].(float64)
-		
+
 		allocsChange := currentAllocs - baselineAllocs
 		if baselineAllocs > 0 {
 			allocsChange = allocsChange / baselineAllocs
 		}
-		
+
 		result.RegressionChecks = append(result.RegressionChecks, RegressionCheck{
 			Name:          "Allocation Regression Check",
 			TestScenario:  "Average",
@@ -458,7 +458,7 @@ func (pv *PerformanceValidator) performStatisticalAnalysis(data map[string]inter
 
 	// Perform statistical calculations
 	sort.Float64s(latencies)
-	
+
 	mean := calculateMean(latencies)
 	median := calculatePercentile(latencies, 0.5)
 	stdDev := calculateStandardDeviation(latencies, mean)
@@ -467,14 +467,14 @@ func (pv *PerformanceValidator) performStatisticalAnalysis(data map[string]inter
 	max := latencies[len(latencies)-1]
 	p95 := calculatePercentile(latencies, 0.95)
 	p99 := calculatePercentile(latencies, 0.99)
-	
+
 	// Detect outliers using IQR method
 	q1 := calculatePercentile(latencies, 0.25)
 	q3 := calculatePercentile(latencies, 0.75)
 	iqr := q3 - q1
 	lowerBound := q1 - 1.5*iqr
 	upperBound := q3 + 1.5*iqr
-	
+
 	outlierCount := 0
 	for _, val := range latencies {
 		if val < lowerBound || val > upperBound {
@@ -483,8 +483,8 @@ func (pv *PerformanceValidator) performStatisticalAnalysis(data map[string]inter
 	}
 
 	// Assess statistical stability
-	isStable := cv < pv.thresholds.MaxCoefficientOfVariation && 
-		       outlierCount < len(latencies)/10 // Less than 10% outliers
+	isStable := cv < pv.thresholds.MaxCoefficientOfVariation &&
+		outlierCount < len(latencies)/10 // Less than 10% outliers
 
 	// Calculate confidence level (simplified)
 	confidenceLevel := math.Max(0, 100*(1-cv)-float64(outlierCount)/float64(len(latencies))*10)
@@ -545,23 +545,33 @@ func (pv *PerformanceValidator) evaluateQualityGates(result *ValidationResult) {
 	gates.ResourceGate = true // Would need more resource metrics
 
 	// Overall gate
-	gates.OverallGate = gates.ZeroAllocationsGate && 
-		               gates.PerformanceGate && 
-		               gates.ConsistencyGate && 
-		               gates.RegressionGate && 
-		               gates.ResourceGate
+	gates.OverallGate = gates.ZeroAllocationsGate &&
+		gates.PerformanceGate &&
+		gates.ConsistencyGate &&
+		gates.RegressionGate &&
+		gates.ResourceGate
 
 	// Gate score (0-100)
 	score := 0.0
-	if gates.ZeroAllocationsGate { score += 25 }
-	if gates.PerformanceGate { score += 25 }
-	if gates.ConsistencyGate { score += 20 }
-	if gates.RegressionGate { score += 20 }
-	if gates.ResourceGate { score += 10 }
+	if gates.ZeroAllocationsGate {
+		score += 25
+	}
+	if gates.PerformanceGate {
+		score += 25
+	}
+	if gates.ConsistencyGate {
+		score += 20
+	}
+	if gates.RegressionGate {
+		score += 20
+	}
+	if gates.ResourceGate {
+		score += 10
+	}
 	gates.GateScore = score
 
 	result.QualityGates = gates
-	
+
 	// Update overall result based on quality gates
 	if !gates.OverallGate {
 		result.OverallResult = ValidationFailed
@@ -574,13 +584,13 @@ func (pv *PerformanceValidator) generateRecommendations(result *ValidationResult
 	for _, check := range result.ThresholdChecks {
 		if check.Status == ValidationFailed {
 			if check.Metric == "allocs_per_op" && check.ActualValue > 0 {
-				result.CriticalIssues = append(result.CriticalIssues, 
-					fmt.Sprintf("CRITICAL: Zero-allocation requirement violated for %s (%.2f allocs/op)", 
+				result.CriticalIssues = append(result.CriticalIssues,
+					fmt.Sprintf("CRITICAL: Zero-allocation requirement violated for %s (%.2f allocs/op)",
 						check.Library, check.ActualValue))
 				result.Recommendations = append(result.Recommendations,
 					"Review memory allocation patterns and implement object pooling")
 			}
-			
+
 			if check.Metric == "ns_per_op" {
 				result.CriticalIssues = append(result.CriticalIssues,
 					fmt.Sprintf("CRITICAL: Performance threshold exceeded for %s (%.2f ns/op vs %.2f ns/op threshold)",
@@ -604,7 +614,7 @@ func (pv *PerformanceValidator) generateRecommendations(result *ValidationResult
 
 	// Statistical analysis recommendations
 	if !result.StatisticalAnalysis.IsStatisticallyStable {
-		result.Warnings = append(result.Warnings, 
+		result.Warnings = append(result.Warnings,
 			"Performance results show high variability")
 		result.Recommendations = append(result.Recommendations,
 			"Increase benchmark iterations and ensure consistent test environment")
@@ -628,7 +638,7 @@ func (pv *PerformanceValidator) calculateSummaryMetrics(result *ValidationResult
 	totalChecks := len(result.ThresholdChecks) + len(result.RegressionChecks)
 	passedChecks := 0
 	warningChecks := 0
-	
+
 	for _, check := range result.ThresholdChecks {
 		if check.Status == ValidationPassed {
 			passedChecks++
@@ -636,7 +646,7 @@ func (pv *PerformanceValidator) calculateSummaryMetrics(result *ValidationResult
 			warningChecks++
 		}
 	}
-	
+
 	for _, check := range result.RegressionChecks {
 		if check.Status == ValidationPassed {
 			passedChecks++
@@ -649,7 +659,7 @@ func (pv *PerformanceValidator) calculateSummaryMetrics(result *ValidationResult
 	result.PassedTests = passedChecks
 	result.WarningTests = warningChecks
 	result.FailedTests = totalChecks - passedChecks - warningChecks
-	
+
 	if totalChecks > 0 {
 		result.SuccessRate = float64(passedChecks) / float64(totalChecks)
 	}
@@ -696,18 +706,18 @@ func (pv *PerformanceValidator) checkRegression(change, threshold float64, highe
 func (pv *PerformanceValidator) generateThresholdMessage(metric string, actual, threshold float64, unit string, higherIsBetter bool) string {
 	if higherIsBetter {
 		if actual >= threshold {
-			return fmt.Sprintf("✅ %s within threshold: %.2f %s (>= %.2f %s)", 
+			return fmt.Sprintf("✅ %s within threshold: %.2f %s (>= %.2f %s)",
 				metric, actual, unit, threshold, unit)
 		} else {
-			return fmt.Sprintf("❌ %s below threshold: %.2f %s (< %.2f %s)", 
+			return fmt.Sprintf("❌ %s below threshold: %.2f %s (< %.2f %s)",
 				metric, actual, unit, threshold, unit)
 		}
 	} else {
 		if actual <= threshold {
-			return fmt.Sprintf("✅ %s within threshold: %.2f %s (<= %.2f %s)", 
+			return fmt.Sprintf("✅ %s within threshold: %.2f %s (<= %.2f %s)",
 				metric, actual, unit, threshold, unit)
 		} else {
-			return fmt.Sprintf("❌ %s exceeds threshold: %.2f %s (> %.2f %s)", 
+			return fmt.Sprintf("❌ %s exceeds threshold: %.2f %s (> %.2f %s)",
 				metric, actual, unit, threshold, unit)
 		}
 	}
@@ -715,10 +725,10 @@ func (pv *PerformanceValidator) generateThresholdMessage(metric string, actual, 
 
 func (pv *PerformanceValidator) generateRegressionMessage(metric string, change float64, unit string) string {
 	if change < 0 {
-		return fmt.Sprintf("🚀 %s improved by %.1f%% (%s)", 
+		return fmt.Sprintf("🚀 %s improved by %.1f%% (%s)",
 			metric, math.Abs(change)*100, unit)
 	} else if change > 0 {
-		return fmt.Sprintf("⚠️ %s regressed by %.1f%% (%s)", 
+		return fmt.Sprintf("⚠️ %s regressed by %.1f%% (%s)",
 			metric, change*100, unit)
 	} else {
 		return fmt.Sprintf("➡️ %s unchanged (%s)", metric, unit)
@@ -733,8 +743,8 @@ func fileExists(path string) bool {
 }
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && s[:len(substr)] == substr || 
-		   len(s) >= len(substr) && s[len(s)-len(substr):] == substr
+	return len(s) >= len(substr) && s[:len(substr)] == substr ||
+		len(s) >= len(substr) && s[len(s)-len(substr):] == substr
 }
 
 func calculateMean(values []float64) float64 {
@@ -762,15 +772,15 @@ func calculatePercentile(sortedValues []float64, p float64) float64 {
 	if len(sortedValues) == 1 {
 		return sortedValues[0]
 	}
-	
+
 	index := p * float64(len(sortedValues)-1)
 	lower := int(index)
 	upper := lower + 1
-	
+
 	if upper >= len(sortedValues) {
 		return sortedValues[len(sortedValues)-1]
 	}
-	
+
 	weight := index - float64(lower)
 	return sortedValues[lower]*(1-weight) + sortedValues[upper]*weight
 }
