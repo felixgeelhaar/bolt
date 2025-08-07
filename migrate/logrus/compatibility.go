@@ -234,9 +234,8 @@ func (entry *Entry) log(level Level, args ...interface{}) {
 		}
 
 		// Add context if present
-		if entry.Context != nil {
-			// Bolt handles OpenTelemetry context automatically
-		}
+		// Bolt handles OpenTelemetry context automatically
+		_ = entry.Context
 
 		// Add error if present
 		if entry.err != nil {

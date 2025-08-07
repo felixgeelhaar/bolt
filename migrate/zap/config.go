@@ -486,7 +486,7 @@ func (cc *ConfigComparator) generateBoltConfigString(config BoltConfig) string {
 func (cc *ConfigComparator) identifyDifferences(zapConfig ZapConfig, boltConfig BoltConfig, report *ComparisonReport) {
 	if zapConfig.Encoding != boltConfig.Format {
 		report.Differences = append(report.Differences,
-			fmt.Sprintf("Field name change: Zap 'encoding' -> Bolt 'format'"))
+			"Field name change: Zap 'encoding' -> Bolt 'format'")
 	}
 
 	if zapConfig.Sampling != nil {

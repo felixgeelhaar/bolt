@@ -589,7 +589,7 @@ func (rg *ReportGenerator) generateCSVExports(allResults map[string][]BenchmarkR
 	return nil
 }
 
-func (rg *ReportGenerator) generateMarkdownSummary(data interface{}) error {
+func (rg *ReportGenerator) generateMarkdownSummary(_data interface{}) error {
 	summaryPath := filepath.Join(rg.analyzer.outputDir, "PERFORMANCE_SUMMARY.md")
 	summaryFile, err := os.Create(summaryPath)
 	if err != nil {

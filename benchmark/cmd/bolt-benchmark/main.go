@@ -319,7 +319,7 @@ func runCompetitiveBenchmarks(ctx context.Context, config *CompetitiveConfig) er
 	return nil
 }
 
-func runEnterpriseBenchmarks(ctx context.Context, config *EnterpriseConfig) error {
+func runEnterpriseBenchmarks(_ctx context.Context, config *EnterpriseConfig) error {
 	fmt.Printf("🏢 Starting enterprise benchmarking suite...\n")
 	fmt.Printf("Max Memory: %dMB\n", config.MaxMemoryMB)
 	fmt.Printf("Max CPU: %.1f%%\n", config.MaxCPUPercent)
@@ -348,7 +348,7 @@ func runEnterpriseBenchmarks(ctx context.Context, config *EnterpriseConfig) erro
 	return suite.RunEnterpriseBenchmarks()
 }
 
-func runRegressionBenchmarks(ctx context.Context, config *RegressionConfig) error {
+func runRegressionBenchmarks(_ctx context.Context, config *RegressionConfig) error {
 	fmt.Printf("📊 Starting regression testing...\n")
 	fmt.Printf("Iterations: %d\n", config.Iterations)
 	fmt.Printf("Output: %s\n\n", config.OutputDir)
@@ -359,7 +359,7 @@ func runRegressionBenchmarks(ctx context.Context, config *RegressionConfig) erro
 	return nil
 }
 
-func runLoadBenchmarks(ctx context.Context, config *LoadConfig) error {
+func runLoadBenchmarks(_ctx context.Context, config *LoadConfig) error {
 	fmt.Printf("⚡ Starting load testing...\n")
 	fmt.Printf("Parallel workers: %d\n", config.Parallel)
 	fmt.Printf("Duration: %v\n", config.Duration)
@@ -378,14 +378,14 @@ func parseLibraries(librariesStr string) []string {
 	return strings.Split(strings.ReplaceAll(librariesStr, " ", ""), ",")
 }
 
-func parseScenarios(scenariosStr, benchmarkType string) []string {
+func parseScenarios(scenariosStr, _benchmarkType string) []string {
 	if scenariosStr == "" || scenariosStr == "all" {
 		return []string{"all"}
 	}
 	return strings.Split(strings.ReplaceAll(scenariosStr, " ", ""), ",")
 }
 
-func validateConfiguration(benchmarkType, libraries, scenarios string) error {
+func validateConfiguration(benchmarkType, libraries, _scenarios string) error {
 	validTypes := []string{"competitive", "enterprise", "regression", "load"}
 	valid := false
 	for _, t := range validTypes {

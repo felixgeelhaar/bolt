@@ -466,7 +466,7 @@ func (pa *PerformanceAlerting) sendTeamsAlert(ctx context.Context, alert *Perfor
 }
 
 // sendEmailAlert sends alert via email
-func (pa *PerformanceAlerting) sendEmailAlert(ctx context.Context, alert *PerformanceAlert) error {
+func (pa *PerformanceAlerting) sendEmailAlert(_ctx context.Context, alert *PerformanceAlert) error {
 	// Simplified email implementation - would need proper SMTP setup
 	fmt.Printf("EMAIL ALERT: %s\n%s\n", alert.Title, alert.Description)
 	return nil
@@ -663,7 +663,7 @@ func (pa *PerformanceAlerting) generateAlertActions(result *validation.Validatio
 	return actions
 }
 
-func (pa *PerformanceAlerting) generateAlertLinks(result *validation.ValidationResult) []AlertLink {
+func (pa *PerformanceAlerting) generateAlertLinks(_result *validation.ValidationResult) []AlertLink {
 	return []AlertLink{
 		{
 			Label: "Performance Dashboard",
@@ -676,7 +676,7 @@ func (pa *PerformanceAlerting) generateAlertLinks(result *validation.ValidationR
 	}
 }
 
-func (pa *PerformanceAlerting) generateSlackActions(alert *PerformanceAlert) []map[string]interface{} {
+func (pa *PerformanceAlerting) generateSlackActions(_alert *PerformanceAlert) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"type": "button",
@@ -686,7 +686,7 @@ func (pa *PerformanceAlerting) generateSlackActions(alert *PerformanceAlert) []m
 	}
 }
 
-func (pa *PerformanceAlerting) generateTeamsActions(alert *PerformanceAlert) []map[string]interface{} {
+func (pa *PerformanceAlerting) generateTeamsActions(_alert *PerformanceAlert) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"@type": "OpenUri",

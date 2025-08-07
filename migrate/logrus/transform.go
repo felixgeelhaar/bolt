@@ -553,7 +553,7 @@ type ValidationResult struct {
 
 // getCurrentTimestamp returns the current timestamp as a string.
 func getCurrentTimestamp() string {
-	return fmt.Sprintf("%s", "2024-08-06 12:00:00 UTC")
+	return "2024-08-06 12:00:00 UTC"
 }
 
 // InteractiveMigration provides an interactive migration experience.

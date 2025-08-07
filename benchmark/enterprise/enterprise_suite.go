@@ -777,7 +777,7 @@ func (ebs *EnterpriseBenchmarkSuite) collectMetrics(ctx context.Context, ticker 
 	}
 }
 
-func (ebs *EnterpriseBenchmarkSuite) evaluateQualityGates(result *EnterpriseResult, scenario EnterpriseScenario) (bool, []string) {
+func (ebs *EnterpriseBenchmarkSuite) evaluateQualityGates(result *EnterpriseResult, _scenario EnterpriseScenario) (bool, []string) {
 	var issues []string
 
 	// Check error rate
@@ -804,7 +804,7 @@ func (ebs *EnterpriseBenchmarkSuite) generateEnterpriseReport() error {
 
 	// Collect all results
 	var allResults []*EnterpriseResult
-	ebs.results.Range(func(key, value interface{}) bool {
+	ebs.results.Range(func(_key, value interface{}) bool {
 		allResults = append(allResults, value.(*EnterpriseResult))
 		return true
 	})
