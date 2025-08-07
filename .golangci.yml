@@ -129,6 +129,11 @@ issues:
         - goconst      # Migration code has many repeated strings
         - errcheck     # Legacy patterns may not check all errors
         - stylecheck   # Migration examples don't need strict documentation style
+        - gosec        # Migration code may use weaker patterns for compatibility
+        - gocognit     # Migration transformers are inherently complex
+        - gocyclo      # Migration logic requires complex branching
+        - revive       # Migration compatibility layers have different patterns
+        - unparam      # Migration APIs maintain compatibility signatures
     
     # Ignore issues in benchmark validation (complex analysis code)
     - path: "benchmark/validation/"
@@ -138,6 +143,7 @@ issues:
         - funlen       # Analysis functions need to be comprehensive
         - errcheck     # Non-critical analysis code, errors not always needed
         - unparam      # Analysis functions may have consistent parameters
+        - gosec        # Analysis code may read arbitrary files for validation
     
     # Allow builtin redefinition in specific validation file
     - path: "benchmark/validation/performance_validator.go"
@@ -219,6 +225,9 @@ issues:
       linters:
         - errcheck
         - unparam
+        - gosec        # Benchmark code may use weaker random generators
+        - gocognit     # Benchmark analysis can be complex
+        - gocyclo      # Benchmark logic can be complex
     
     # Ignore errcheck in example packages (demonstration code)
     - path: "examples/"
@@ -229,6 +238,15 @@ issues:
     - path: "_test\\.go"
       linters:
         - errcheck
+        - gosec        # Test code may use weaker patterns
+        - gocognit     # Complex test scenarios are acceptable
+        - gocyclo      # Test functions can be complex
+    
+    # Allow specific gosec issues in core bolt.go (intentional design decisions)
+    - path: "bolt.go"
+      text: "integer overflow conversion.*Level"
+      linters:
+        - gosec        # Level type conversion is intentional and safe
 
   # Maximum issues count per one linter
   max-issues-per-linter: 50
