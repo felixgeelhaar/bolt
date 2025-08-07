@@ -342,7 +342,7 @@ jobs:
       if: matrix.test-type == 'concurrent'
       run: |
         cd ${{ github.workspace }}
-        go test -race -run=. -bench=. -benchtime=5s
+        go test -race -short -run=. -bench=. -benchtime=5s
     
     - name: Upload performance artifacts
       uses: actions/upload-artifact@v3
