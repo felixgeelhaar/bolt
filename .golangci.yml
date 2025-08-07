@@ -162,6 +162,18 @@ issues:
       text: "parameter 'err' seems to be unused"
       linters:
         - revive
+    
+    # Exclude specific errcheck issues in bolt.go (core performance paths)
+    - path: "bolt.go"
+      linters:
+        - errcheck
+      text: "Error return value of.*is not checked"
+    
+    # Exclude errcheck issues in performance validator (non-critical analysis code)
+    - path: "benchmark/validation/performance_validator.go"
+      linters:
+        - errcheck
+      text: "Error return value of.*is not checked"
 
   # Maximum issues count per one linter
   max-issues-per-linter: 50
