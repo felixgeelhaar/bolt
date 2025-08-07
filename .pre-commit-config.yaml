@@ -1,0 +1,119 @@
+# Pre-commit hooks for Bolt Go project
+# Install with: pre-commit install
+# Run manually with: pre-commit run --all-files
+
+repos:
+  # Go formatting and imports
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+        name: Go Format
+        description: Runs gofmt -s to format Go code
+      - id: go-imports
+        name: Go Imports
+        description: Runs goimports to format Go imports
+      - id: go-vet-pkg
+        name: Go Vet
+        description: Runs go vet to check for suspicious constructs
+      - id: go-build-pkg
+        name: Go Build
+        description: Runs go build to check compilation
+        args: [./...]
+      - id: go-test-pkg
+        name: Go Test
+        description: Runs go test to execute tests
+        args: [./...]
+      - id: go-mod-tidy
+        name: Go Mod Tidy
+        description: Runs go mod tidy to clean up dependencies
+
+  # Advanced Go linting with golangci-lint
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.55.2
+    hooks:
+      - id: golangci-lint
+        name: Go Lint
+        description: Runs golangci-lint for comprehensive Go code analysis
+        args:
+          - --config=.golangci.yml
+          - --timeout=5m
+        pass_filenames: false
+
+  # Generic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Trims trailing whitespace
+        exclude: '\.md$|\.txt$'
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Makes sure files end in a newline and only a newline
+        exclude: '\.md$'
+      - id: check-yaml
+        name: Check YAML
+        description: Attempts to load all yaml files to verify syntax
+        exclude: '.github/.*'
+      - id: check-json
+        name: Check JSON
+        description: Attempts to load all json files to verify syntax
+      - id: check-merge-conflict
+        name: Check Merge Conflicts
+        description: Check for files that contain merge conflict strings
+      - id: check-added-large-files
+        name: Check Large Files
+        description: Prevent giant files from being committed
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+        name: Check Case Conflicts
+        description: Check for files with names that would conflict on case-insensitive filesystems
+      - id: check-executables-have-shebangs
+        name: Check Executables Have Shebangs
+        description: Checks that scripts have shebangs
+        exclude: '\.go$'
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        description: Detects potential secrets in code
+        args: ['--baseline', '.secrets.baseline']
+        exclude: 'go\.sum$|\.lock$'
+
+  # Markdown and documentation
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        name: Markdown Lint
+        description: Lints markdown files
+        args: ['--fix', '--ignore', 'CHANGELOG.md']
+
+  # Git commit message formatting
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        name: Conventional Commits
+        description: Ensures commit messages follow conventional commit format
+        stages: [commit-msg]
+
+# Configuration for hooks
+default_stages: [commit]
+default_language_version:
+  python: python3
+
+# Exclude patterns (these files won't be checked)
+exclude: |
+  (?x)^(
+    vendor/.*|
+    \.git/.*|
+    \.github/.*|
+    docs/.*\.generated\..*|
+    .*\.pb\.go$|
+    .*_generated\.go$
+  )$

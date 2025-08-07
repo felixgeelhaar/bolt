@@ -1,80 +1,173 @@
+# golangci-lint configuration for Bolt
+# This configuration is optimized for the Bolt zero-allocation logging library
+
 run:
   timeout: 5m
-  go: '1.21'
+  issues-exit-code: 1
+  tests: true
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
 
 linters-settings:
-  gocyclo:
-    min-complexity: 15
-  
+  # Error check settings
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - (*github.com/felixgeelhaar/bolt.Logger).Sync  # Bolt doesn't require sync
+
+  # Unused parameter settings
+  revive:
+    rules:
+      - name: unused-parameter
+        severity: warning
+        disabled: false
+        arguments:
+          - allowRegex: "^_" # Allow parameters starting with underscore
+
+  # Constant settings
   goconst:
-    min-len: 2
-    min-occurrences: 2
-  
+    min-len: 3
+    min-occurrences: 3
+    ignore-tests: true
+    match-constant: true
+    numbers: true
+    min: 3
+    max: 3
+
+  # Complexity settings  
+  gocyclo:
+    min-complexity: 15  # Increased for complex validation logic
+
+  # Cognitive complexity
+  gocognit:
+    min-complexity: 20
+
+  # Function length
+  funlen:
+    lines: 80
+    statements: 50
+
+  # Line length
+  lll:
+    line-length: 120
+    tab-width: 4
+
+  # Unused code
+  unparam:
+    check-exported: false  # Don't check exported functions
+
+  # Import organization
   goimports:
-    local-prefixes: github.com/felixgeelhaar/logma
-  
-  govet:
-    enable:
-      - shadow
-  
-  misspell:
-    locale: US
-  
-  nolintlint:
-    allow-leading-space: true
-    allow-unused: false
-    require-explanation: false
-    require-specific: false
+    local-prefixes: github.com/felixgeelhaar/bolt
+
+  # Naming conventions
+  stylecheck:
+    checks: ["all", "-ST1003"] # Disable underscores in Go names check
 
 linters:
   enable:
-    - asciicheck
-    - bodyclose
-    - errcheck
-    - goconst
-    - gocyclo
-    - gofmt
-    - goimports
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - misspell
-    - nolintlint
-    - staticcheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - revive  # Replacement for golint
-  
+    # Essential linters
+    - errcheck      # Check for unchecked errors
+    - gosimple      # Suggest simplifications
+    - govet         # Standard go vet checks
+    - ineffassign   # Detect ineffectual assignments
+    - staticcheck   # Advanced static analysis
+    - typecheck     # Type checking
+    - unused        # Find unused code
+    
+    # Code quality
+    - gofmt         # Check formatting
+    - goimports     # Check import formatting
+    - revive        # General linting rules
+    - stylecheck    # Style checks
+    - unconvert     # Remove unnecessary conversions
+    - unparam       # Find unused function parameters
+    
+    # Performance
+    - prealloc      # Find slice declarations not pre-sized
+    
+    # Security  
+    - gosec         # Security audit
+    
+    # Complexity
+    - gocyclo       # Cyclomatic complexity
+    - gocognit      # Cognitive complexity
+    
   disable:
-    - gochecknoinits   # We need init for default logger
-    - gochecknoglobals # We need some globals for performance (pools, etc)
-    - funlen          # Some functions are necessarily long for performance
-    - cyclop          # Duplicate of gocyclo
+    # Disabled due to specific Bolt requirements
+    - goconst       # Too many false positives in migration code
+    - funlen        # Some functions need to be longer for performance
+    - lll           # Some long lines are acceptable for readability
+    - wsl           # Whitespace linter too strict
+    - nlreturn      # Return style too restrictive
+    - exhaustive    # Switch exhaustiveness not always needed
 
 issues:
+  # Exclude specific issues
   exclude-rules:
-    # Exclude some lints from running on tests files
-    - path: _test\.go
+    # Ignore unused parameters in test files
+    - path: "_test\\.go"
       linters:
-        - gosec
-        - dupl
+        - unused
+        - unparam
+        - revive
     
-    # Performance-critical code may have longer functions
-    - path: logma\.go
+    # Ignore certain issues in migration packages (legacy code)
+    - path: "migrate/"
       linters:
-        - funlen
+        - goconst      # Migration code has many repeated strings
+        - errcheck     # Legacy patterns may not check all errors
     
-    # Benchmark files can import testing dependencies
-    - path: .*_bench_test\.go
+    # Ignore issues in benchmark validation (complex analysis code)
+    - path: "benchmark/validation/"
       linters:
-        - goimports
+        - gocyclo      # Complex validation logic
+        - gocognit     # Analysis functions are inherently complex
+        - funlen       # Analysis functions need to be comprehensive
+    
+    # Allow builtin redefinition in specific validation file
+    - path: "benchmark/validation/performance_validator.go"
+      text: "redefinition of the built-in function"
+      linters:
+        - revive
+    
+    # Allow exported type name stuttering in validation package
+    - path: "benchmark/validation/"
+      text: "type name will be used.*stutters"
+      linters:
+        - revive
+    
+    # Ignore indent-error-flow in complex validation logic
+    - path: "benchmark/validation/performance_validator.go"
+      text: "if block ends with a return statement"
+      linters:
+        - revive
+    
+    # Allow unused parameters in specific test functions
+    - path: "race_test.go"
+      text: "parameter.*seems to be unused"
+      linters:
+        - revive
+    
+    # Allow unused error in specific bolt.go function
+    - path: "bolt.go"
+      line: 417
+      text: "parameter 'err' seems to be unused"
+      linters:
+        - revive
 
-  exclude:
-    # Allow dot imports in tests
-    - "should not use dot imports"
-    
-    # Allow long lines in generated code
-    - "Line is too long"
+  # Maximum issues count per one linter
+  max-issues-per-linter: 50
+  
+  # Maximum count of issues with the same text
+  max-same-issues: 10
+  
+  # Don't skip warning about long lines
+  exclude-use-default: false

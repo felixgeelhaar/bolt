@@ -1,0 +1,145 @@
+#!/bin/bash
+# Pre-commit hook for Bolt Go project
+# This hook runs before each commit to ensure code quality
+
+set -e
+
+echo "🔍 Running pre-commit checks for Bolt..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# Check if we're in a Go project
+if [ ! -f "go.mod" ]; then
+    print_error "Not a Go project (no go.mod found)"
+    exit 1
+fi
+
+# Get list of changed Go files
+CHANGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' || true)
+
+if [ -z "$CHANGED_GO_FILES" ]; then
+    print_status "No Go files changed, skipping Go-specific checks"
+    exit 0
+fi
+
+print_status "Found changed Go files: $(echo $CHANGED_GO_FILES | wc -w) files"
+
+# 1. Format check with gofmt
+echo "📝 Checking Go formatting..."
+UNFORMATTED_FILES=$(echo "$CHANGED_GO_FILES" | xargs gofmt -l)
+if [ -n "$UNFORMATTED_FILES" ]; then
+    print_error "The following files need formatting:"
+    echo "$UNFORMATTED_FILES"
+    echo "Run: gofmt -w $UNFORMATTED_FILES"
+    exit 1
+fi
+print_status "All Go files are properly formatted"
+
+# 2. Import organization with goimports
+echo "📦 Checking Go imports..."
+if command -v goimports > /dev/null; then
+    IMPORT_ISSUES=$(echo "$CHANGED_GO_FILES" | xargs goimports -l)
+    if [ -n "$IMPORT_ISSUES" ]; then
+        print_warning "The following files have import issues:"
+        echo "$IMPORT_ISSUES"
+        echo "Run: goimports -w $IMPORT_ISSUES"
+        # Auto-fix imports
+        echo "$IMPORT_ISSUES" | xargs goimports -w
+        print_status "Auto-fixed import issues"
+    fi
+else
+    print_warning "goimports not found, skipping import check"
+fi
+
+# 3. Go vet check
+echo "🔍 Running go vet..."
+if ! go vet ./...; then
+    print_error "go vet found issues"
+    exit 1
+fi
+print_status "go vet passed"
+
+# 4. Build check
+echo "🔨 Checking if code builds..."
+if ! go build ./...; then
+    print_error "Code does not build"
+    exit 1
+fi
+print_status "Code builds successfully"
+
+# 5. Test check
+echo "🧪 Running tests..."
+if ! go test ./...; then
+    print_error "Tests failed"
+    exit 1
+fi
+print_status "All tests passed"
+
+# 6. golangci-lint check (if available)
+if command -v golangci-lint > /dev/null; then
+    echo "🧹 Running golangci-lint..."
+    if ! golangci-lint run --config .golangci.yml --timeout 5m; then
+        print_error "golangci-lint found issues"
+        exit 1
+    fi
+    print_status "golangci-lint passed"
+else
+    print_warning "golangci-lint not found, skipping advanced linting"
+fi
+
+# 7. go mod tidy check
+echo "📋 Checking go mod..."
+go mod tidy
+if [ -n "$(git diff go.mod go.sum 2>/dev/null)" ]; then
+    print_warning "go.mod or go.sum needs tidying - auto-fixed"
+    git add go.mod go.sum
+fi
+print_status "go mod is tidy"
+
+# 8. Check for common issues
+echo "🔍 Checking for common issues..."
+
+# Check for TODOs and FIXMEs in committed code
+TODO_COUNT=$(echo "$CHANGED_GO_FILES" | xargs grep -n "TODO\|FIXME\|XXX" || true | wc -l)
+if [ "$TODO_COUNT" -gt 0 ]; then
+    print_warning "Found $TODO_COUNT TODO/FIXME/XXX comments in changed files"
+    echo "$CHANGED_GO_FILES" | xargs grep -n "TODO\|FIXME\|XXX" || true
+fi
+
+# Check for debug prints
+DEBUG_PRINTS=$(echo "$CHANGED_GO_FILES" | xargs grep -n "fmt\.Print\|log\.Print" || true | wc -l)
+if [ "$DEBUG_PRINTS" -gt 0 ]; then
+    print_warning "Found $DEBUG_PRINTS potential debug prints (fmt.Print/log.Print)"
+    echo "$CHANGED_GO_FILES" | xargs grep -n "fmt\.Print\|log\.Print" || true
+fi
+
+# 9. Performance check for zero-allocation requirement
+echo "⚡ Checking for zero-allocation compliance..."
+ALLOCATION_ISSUES=$(echo "$CHANGED_GO_FILES" | grep -E "(bolt\.go|event\.go)" | xargs grep -n "make\|new\|append" || true)
+if [ -n "$ALLOCATION_ISSUES" ]; then
+    print_warning "Potential allocation in core files (review for zero-allocation compliance):"
+    echo "$ALLOCATION_ISSUES"
+fi
+
+print_status "All pre-commit checks passed! 🚀"
+echo ""
+print_status "Ready to commit $(echo $CHANGED_GO_FILES | wc -w) Go files"
+
+exit 0
