@@ -667,7 +667,7 @@ func ExampleTroubleshooting() {
 	fmt.Println("Issue: Sugar API dependencies")
 	fmt.Println("Problem: Code uses logger.Sugar().Infof(...)")
 	fmt.Println("Solution: Replace with structured logging")
-	fmt.Println(`Before: sugar.Infof("User %s logged in", username)`)
+	fmt.Println(`Before: sugar.Infof("User {name} logged in", username)`)
 	fmt.Println("After:  logger.Info().Str(\"username\", username).Msg(\"User logged in\")")
 	fmt.Println()
 
