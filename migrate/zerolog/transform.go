@@ -1,7 +1,6 @@
 package zerolog
 
 import (
-	"bufio"
 	"fmt"
 	"go/ast"
 	"go/format"

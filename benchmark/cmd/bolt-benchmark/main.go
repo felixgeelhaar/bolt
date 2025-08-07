@@ -94,6 +94,8 @@ For more information, visit: https://github.com/felixgeelhaar/bolt
 
 	flag.Parse()
 
+	_ = configFile // TODO: Implement configuration file loading
+
 	if *showVersion {
 		fmt.Printf("Bolt Benchmark Suite\n")
 		fmt.Printf("Version: %s\n", version)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"runtime"
 	"testing"
 	"time"
