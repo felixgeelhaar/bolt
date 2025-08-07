@@ -213,7 +213,7 @@ For more information, visit: https://github.com/felixgeelhaar/bolt
 	}
 }
 
-// Configuration structures
+// CompetitiveConfig defines configuration for competitive benchmarks
 type CompetitiveConfig struct {
 	OutputDir    string
 	Duration     time.Duration

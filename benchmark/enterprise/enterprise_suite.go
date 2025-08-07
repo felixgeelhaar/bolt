@@ -109,7 +109,7 @@ const (
 	RandomLoad
 )
 
-// Configuration structures
+// EnterpriseConfig defines configuration for enterprise benchmarks
 type EnterpriseConfig struct {
 	TestDuration     time.Duration
 	WarmupDuration   time.Duration
@@ -148,7 +148,7 @@ type ObservabilityConfig struct {
 	Logs    bool
 }
 
-// Results and metrics structures
+// EnterpriseResult holds results from enterprise benchmark runs
 type EnterpriseResult struct {
 	ScenarioName    string        `json:"scenario_name"`
 	StartTime       time.Time     `json:"start_time"`
@@ -202,7 +202,7 @@ type TimeSeriesPoint struct {
 	ErrorRate  float64       `json:"error_rate"`
 }
 
-// Predefined enterprise scenarios
+// EnterpriseScenarios contains predefined benchmark scenarios
 var EnterpriseScenarios = []EnterpriseScenario{
 	{
 		Name:           "HighFrequencyTrading",
