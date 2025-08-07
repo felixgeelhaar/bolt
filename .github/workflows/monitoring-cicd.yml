@@ -84,7 +84,7 @@ jobs:
     
     # Secret scanning
     - name: Run secret scan
-      uses: trufflesecurity/trufflehog@v3
+      uses: trufflesecurity/trufflehog@main
       with:
         path: ./
         base: main
@@ -93,7 +93,7 @@ jobs:
     
     # SAST scanning
     - name: Run Gosec security scanner
-      uses: securecodewarrior/github-action-gosec@master
+      uses: securego/gosec@master
       with:
         args: '-fmt sarif -out gosec-results.sarif ./...'
       continue-on-error: true
@@ -817,6 +817,7 @@ jobs:
         echo "✅ Rollback completed"
     
     - name: Notify failure
+      if: env.SLACK_WEBHOOK_URL != ''
       uses: 8398a7/action-slack@v3
       with:
         status: failure
