@@ -82,13 +82,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
     
-    # Secret scanning
+    # Secret scanning (skip on main branch push to avoid BASE==HEAD error)
     - name: Run secret scan
+      if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
         base: main
         head: HEAD
+        extra_args: --debug --only-verified
+    
+    # For main branch pushes, scan the entire repository
+    - name: Run secret scan (main branch)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
         extra_args: --debug --only-verified
     
     # SAST scanning
@@ -99,10 +108,10 @@ jobs:
       continue-on-error: true
     
     - name: Upload Gosec SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      if: always() && hashFiles('gosec-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: gosec-results.sarif
-      if: always()
     
     # Container image scanning
     - name: Build temporary image for scanning
@@ -117,10 +126,10 @@ jobs:
         output: 'trivy-results.sarif'
     
     - name: Upload Trivy SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      if: always() && hashFiles('trivy-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: 'trivy-results.sarif'
-      if: always()
     
     # Infrastructure security scanning
     - name: Setup Terraform
@@ -138,10 +147,10 @@ jobs:
       continue-on-error: true
     
     - name: Upload Checkov SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      if: always() && hashFiles('checkov-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: checkov-results.sarif
-      if: always()
     
     # Kubernetes security scanning
     - name: Run Kubesec security scan

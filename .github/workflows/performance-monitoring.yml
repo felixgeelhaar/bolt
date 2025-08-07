@@ -201,10 +201,9 @@ jobs:
 
       - name: Run benchmark suite
         run: |
-          # Run standard Go benchmarks instead of custom benchmark tool
-          # to avoid memory issues
+          # Run standard Go benchmarks with reduced time to avoid timeout
           cd ${{ github.workspace }}
-          go test -bench=. -benchmem -benchtime=30s -run=^$ > results-${{ matrix.benchmark_type }}.txt || true
+          timeout 2m go test -bench=. -benchmem -benchtime=10s -run=^$ > results-${{ matrix.benchmark_type }}.txt || echo "Benchmark completed or timed out"
 
       - name: Analyze performance results
         run: |
