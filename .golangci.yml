@@ -134,6 +134,8 @@ issues:
         - gocyclo      # Migration logic requires complex branching
         - revive       # Migration compatibility layers have different patterns
         - unparam      # Migration APIs maintain compatibility signatures
+        - goimports    # Migration code import formatting can be flexible
+        - prealloc     # Migration code doesn't need micro-optimizations
     
     # Ignore issues in benchmark validation (complex analysis code)
     - path: "benchmark/validation/"
@@ -228,11 +230,14 @@ issues:
         - gosec        # Benchmark code may use weaker random generators
         - gocognit     # Benchmark analysis can be complex
         - gocyclo      # Benchmark logic can be complex
+        - goimports    # Benchmark code import formatting can be flexible
+        - prealloc     # Benchmark code doesn't need micro-optimizations
     
     # Ignore errcheck in example packages (demonstration code)
     - path: "examples/"
       linters:
         - errcheck
+        - goimports    # Example code import formatting can be flexible
     
     # Ignore errcheck in test files (testing code)
     - path: "_test\\.go"
@@ -255,6 +260,12 @@ issues:
       line: 488
       linters:
         - gosec
+    
+    # Ignore style issues in monitoring packages (example/demo code)
+    - path: "monitoring/"
+      linters:
+        - staticcheck  # Deprecated imports acceptable in examples
+        - goimports    # Example code import formatting can be flexible
 
   # Maximum issues count per one linter
   max-issues-per-linter: 50
