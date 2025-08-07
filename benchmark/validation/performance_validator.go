@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
-
-	"github.com/felixgeelhaar/bolt/benchmark/framework"
 )
 
 // PerformanceThresholds defines acceptable performance limits
@@ -678,8 +676,6 @@ func (pv *PerformanceValidator) checkThreshold(actual, threshold float64, higher
 }
 
 func (pv *PerformanceValidator) checkRegression(change, threshold float64, higherIsBetter bool) ValidationStatus {
-	absChange := math.Abs(change)
-	
 	if higherIsBetter {
 		if change >= -threshold {
 			return ValidationPassed

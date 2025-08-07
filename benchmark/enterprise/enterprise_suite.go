@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/felixgeelhaar/bolt"
-	"github.com/felixgeelhaar/bolt/benchmark/framework"
 )
 
 // EnterpriseBenchmarkSuite provides comprehensive enterprise-grade performance testing
