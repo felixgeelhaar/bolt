@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ExampleBasicLoggerCreation demonstrates basic logger creation migration.

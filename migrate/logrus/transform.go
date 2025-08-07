@@ -47,7 +47,7 @@ func (t *LogrusTransformer) initDefaultRules() {
 	// Import statement transformations
 	t.addRule("logrus_import", "Replace Logrus import with Bolt import",
 		`"github\.com/sirupsen/logrus"`,
-		`"github.com/felixgeelhaar/bolt/v2"`,
+		`"github.com/felixgeelhaar/bolt"`,
 		true)
 
 	// Logger creation
@@ -246,7 +246,7 @@ func (t *LogrusTransformer) transformWithAST(content string) (string, error) {
 			for _, spec := range genDecl.Specs {
 				if importSpec, ok := spec.(*ast.ImportSpec); ok {
 					if importSpec.Path.Value == `"github.com/sirupsen/logrus"` {
-						importSpec.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
+						importSpec.Path.Value = `"github.com/felixgeelhaar/bolt"`
 						changed = true
 					}
 				}
@@ -523,7 +523,7 @@ func (t *LogrusTransformer) ValidateTransformation(inputPath, outputPath string)
 	}
 
 	// Check that Bolt imports are added
-	if !strings.Contains(string(transformed), "github.com/felixgeelhaar/bolt/v2") {
+	if !strings.Contains(string(transformed), "github.com/felixgeelhaar/bolt") {
 		result.Warnings = append(result.Warnings, "Bolt import not found in transformed file")
 	}
 

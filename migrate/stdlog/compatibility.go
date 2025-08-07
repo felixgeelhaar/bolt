@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // Logger provides a drop-in replacement for Go's standard log.Logger.

@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ExampleBasicMigration demonstrates basic logging migration from standard log to Bolt.

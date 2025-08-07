@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 )
 
 // ExampleBasicLogging demonstrates basic logging migration from Logrus to Bolt.
@@ -245,7 +245,7 @@ func ExamplePerformanceComparison() {
 func ExampleMigrationSteps() {
 	// Step 1: Replace imports
 	// OLD: import "github.com/sirupsen/logrus"
-	// NEW: import "github.com/felixgeelhaar/bolt/v2"
+	// NEW: import "github.com/felixgeelhaar/bolt"
 
 	// Step 2: Replace logger creation
 	// OLD: logger := logrus.New()

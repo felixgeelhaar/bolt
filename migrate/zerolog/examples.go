@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v2"
+	"github.com/felixgeelhaar/bolt"
 	"github.com/rs/zerolog"
 )
 
@@ -249,7 +249,7 @@ func ExampleComplexData() {
 func MigrateZerologToBolt() {
 	// Step 1: Replace the import
 	// OLD: import "github.com/rs/zerolog"
-	// NEW: import "github.com/felixgeelhaar/bolt/v2"
+	// NEW: import "github.com/felixgeelhaar/bolt"
 
 	// Step 2: Update logger creation
 	// OLD: logger := zerolog.New(os.Stdout)

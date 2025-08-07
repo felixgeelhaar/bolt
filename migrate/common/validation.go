@@ -224,7 +224,7 @@ func (mv *MigrationValidator) ValidateBoltUsage() *ValidationResult {
 		}
 
 		// Check for common Bolt usage patterns
-		if strings.Contains(string(content), "github.com/felixgeelhaar/bolt/v2") {
+		if strings.Contains(string(content), "github.com/felixgeelhaar/bolt") {
 			mv.validateBoltPatterns(filePath, string(content), result)
 		}
 
