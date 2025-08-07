@@ -1,3 +1,37 @@
+# AI Assistant Files
 GEMINI.md
 CLAUDE.md
 .claude/
+
+# Debug and temporary files
+*.log
+*.tmp
+*.temp
+*.debug
+*.prof
+coverage.out
+results.sarif
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Test directories
+test-*-tmp/
+
+# Build artifacts
+dist/
+build/
