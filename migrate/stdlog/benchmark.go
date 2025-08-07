@@ -7,7 +7,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v2"
 )
 
 // BenchmarkStandardLogPrint benchmarks standard library log.Print.

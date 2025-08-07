@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v2"
 	"github.com/sirupsen/logrus"
 )
 

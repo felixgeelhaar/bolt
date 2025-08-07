@@ -66,12 +66,12 @@ func (ct *CodeTransformer) TransformFile(filePath string) (*TransformResult, err
 	// Transform imports
 	for _, imp := range file.Imports {
 		if imp.Path.Value == `"github.com/rs/zerolog"` {
-			imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
+			imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
 			changed = true
 			result.Changes++
 		}
 		if imp.Path.Value == `"github.com/rs/zerolog/log"` {
-			imp.Path.Value = `"github.com/felixgeelhaar/bolt"`
+			imp.Path.Value = `"github.com/felixgeelhaar/bolt/v2"`
 			changed = true
 			result.Changes++
 		}
@@ -258,12 +258,12 @@ func (tt *TextTransformer) GetTransformationRules() []TransformationRule {
 	return []TransformationRule{
 		{
 			Pattern:     regexp.MustCompile(`"github\.com/rs/zerolog"`),
-			Replacement: `"github.com/felixgeelhaar/bolt"`,
+			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
 			Description: "Replace zerolog import with bolt import",
 		},
 		{
 			Pattern:     regexp.MustCompile(`"github\.com/rs/zerolog/log"`),
-			Replacement: `"github.com/felixgeelhaar/bolt"`,
+			Replacement: `"github.com/felixgeelhaar/bolt/v2"`,
 			Description: "Replace zerolog/log import with bolt import",
 		},
 		{

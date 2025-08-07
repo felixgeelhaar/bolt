@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v2"
 )
 
 // Logger provides a Logrus-compatible API backed by Bolt for easier migration.

@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/benchmark/validation"
+	"github.com/felixgeelhaar/bolt/v2/benchmark/validation"
 )
 
 // AlertingConfig configures the alerting system

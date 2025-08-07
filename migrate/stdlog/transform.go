@@ -47,7 +47,7 @@ func (t *StdlogTransformer) initDefaultRules() {
 	// Import transformations
 	t.addRule("log_import", "Replace log import with Bolt import",
 		`"log"`,
-		`"log"\n\t"github.com/felixgeelhaar/bolt"`,
+		`"log"\n\t"github.com/felixgeelhaar/bolt/v2"`,
 		true)
 
 	// Logger creation - for explicit log.New() calls
@@ -329,7 +329,7 @@ func (t *StdlogTransformer) transformCallExpr(node *ast.CallExpr, changed *bool)
 // addRequiredImports adds necessary imports to the transformed code.
 func (t *StdlogTransformer) addRequiredImports(content string) string {
 	// Check if we need to add bolt import
-	if strings.Contains(content, "bolt.") && !strings.Contains(content, `"github.com/felixgeelhaar/bolt"`) {
+	if strings.Contains(content, "bolt.") && !strings.Contains(content, `"github.com/felixgeelhaar/bolt/v2"`) {
 		// Find the import section and add bolt
 		lines := strings.Split(content, "\n")
 		var result []string
@@ -340,7 +340,7 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 
 			// Look for import statements
 			if !importAdded && strings.Contains(line, `"log"`) {
-				result = append(result, `	"github.com/felixgeelhaar/bolt"`)
+				result = append(result, `	"github.com/felixgeelhaar/bolt/v2"`)
 				importAdded = true
 			}
 		}
@@ -354,7 +354,7 @@ func (t *StdlogTransformer) addRequiredImports(content string) string {
 					copy(newResult, result[:i+1])
 					newResult[i+1] = ""
 					newResult[i+2] = "import ("
-					newResult[i+3] = `	"github.com/felixgeelhaar/bolt"`
+					newResult[i+3] = `	"github.com/felixgeelhaar/bolt/v2"`
 					newResult[i+4] = ")"
 					copy(newResult[i+5:], result[i+1:])
 					result = newResult

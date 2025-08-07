@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v2"
 	"go.uber.org/zap/zapcore"
 )
 

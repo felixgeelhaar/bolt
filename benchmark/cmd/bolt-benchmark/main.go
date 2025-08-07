@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/benchmark/enterprise"
-	"github.com/felixgeelhaar/bolt/benchmark/framework"
+	"github.com/felixgeelhaar/bolt/v2/benchmark/enterprise"
+	"github.com/felixgeelhaar/bolt/v2/benchmark/framework"
 )
 
 var (
