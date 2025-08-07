@@ -58,7 +58,7 @@ type Backend struct {
 
 // LoadBalancer implements a round-robin load balancer with health checking
 type LoadBalancer struct {
-	backends []Backend
+	backends []*Backend
 	current  uint64
 	logger   *bolt.Logger
 	ctx      context.Context
@@ -145,7 +145,7 @@ func NewLoadBalancer(backendURLs []string) *LoadBalancer {
 			LastCheck: time.Now(),
 		}
 
-		lb.backends = append(lb.backends, backend)
+		lb.backends = append(lb.backends, &backend)
 
 		logger.Info().
 			Str("backend_id", backendID).
@@ -223,7 +223,7 @@ func (lb *LoadBalancer) getNextHealthyBackend() *Backend {
 
 	for i := 0; i < attempts; i++ {
 		idx := atomic.AddUint64(&lb.current, 1) % uint64(len(lb.backends))
-		backend := &lb.backends[idx]
+		backend := lb.backends[idx]
 
 		backend.mutex.RLock()
 		isHealthy := backend.Health == Healthy
@@ -279,7 +279,7 @@ func (lb *LoadBalancer) startHealthChecking() {
 // performHealthChecks checks the health of all backends
 func (lb *LoadBalancer) performHealthChecks() {
 	for i := range lb.backends {
-		go lb.checkBackendHealth(&lb.backends[i])
+		go lb.checkBackendHealth(lb.backends[i])
 	}
 }
 

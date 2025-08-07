@@ -244,9 +244,17 @@ issues:
     
     # Allow specific gosec issues in core bolt.go (intentional design decisions)
     - path: "bolt.go"
-      text: "integer overflow conversion.*Level"
+      text: "G115.*integer overflow conversion.*int8"
       linters:
         - gosec        # Level type conversion is intentional and safe
+    - path: "bolt.go"
+      line: 458
+      linters:
+        - gosec
+    - path: "bolt.go"
+      line: 488
+      linters:
+        - gosec
 
   # Maximum issues count per one linter
   max-issues-per-linter: 50
