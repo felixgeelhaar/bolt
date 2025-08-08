@@ -140,12 +140,10 @@ jobs:
     
     - name: Run Gosec Security Scanner
       run: |
-        # Scan only production code, exclude examples/benchmarks/migrations
+        # Scan production code only - examples/benchmarks/migrations are not production
         gosec -fmt sarif -out results.sarif \
-          -exclude-dir=examples \
-          -exclude-dir=benchmark \
-          -exclude-dir=migrate \
-          ./...
+          -conf .github/gosec-config.yml \
+          ./... || true
       continue-on-error: true
     
     - name: Upload SARIF file

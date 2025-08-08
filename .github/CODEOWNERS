@@ -1,0 +1,12 @@
+# Code owners for the Bolt project
+
+# Default owner for everything
+* @felixgeelhaar
+
+# Examples are for demonstration only - not production code
+/examples/ @felixgeelhaar
+/benchmark/ @felixgeelhaar
+/migrate/ @felixgeelhaar
+
+# Infrastructure is managed separately
+/infrastructure/ @felixgeelhaar
