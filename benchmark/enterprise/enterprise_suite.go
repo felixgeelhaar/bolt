@@ -4,7 +4,8 @@ package enterprise
 import (
 	"context"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/rand" // #nosec G404 - Using weak random for benchmarks is acceptable
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -12,6 +13,15 @@ import (
 
 	"github.com/felixgeelhaar/bolt"
 )
+
+// clampUint64ToInt64 safely converts uint64 to int64, preventing integer overflow
+// by clamping to the maximum int64 value if necessary
+func clampUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+	return int64(val)
+}
 
 // EnterpriseBenchmarkSuite provides comprehensive enterprise-grade performance testing
 type EnterpriseBenchmarkSuite struct {
@@ -446,7 +456,12 @@ func (ebs *EnterpriseBenchmarkSuite) runScenario(scenario EnterpriseScenario) (*
 	result.PeakMemoryMB = float64(ebs.endMemStats.HeapInuse) / 1024 / 1024
 	result.MemoryGrowthMB = float64(ebs.endMemStats.TotalAlloc-ebs.startMemStats.TotalAlloc) / 1024 / 1024
 	result.GCCount = ebs.endMemStats.NumGC - ebs.startMemStats.NumGC
-	result.GCPauseTotal = time.Duration(ebs.endMemStats.PauseTotalNs - ebs.startMemStats.PauseTotalNs)
+	// Safe subtraction with overflow protection
+	var pauseDiff uint64
+	if ebs.endMemStats.PauseTotalNs >= ebs.startMemStats.PauseTotalNs {
+		pauseDiff = ebs.endMemStats.PauseTotalNs - ebs.startMemStats.PauseTotalNs
+	}
+	result.GCPauseTotal = time.Duration(clampUint64ToInt64(pauseDiff))
 
 	// Quality gate evaluation
 	result.QualityGatesPassed, result.QualityIssues = ebs.evaluateQualityGates(result, scenario)

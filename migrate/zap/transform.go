@@ -48,7 +48,7 @@ func (zct *ZapCodeTransformer) TransformFile(filePath string) (*ZapTransformResu
 	}
 
 	// Read original file
-	originalContent, err := os.ReadFile(filePath)
+	originalContent, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -94,7 +94,7 @@ func (zct *ZapCodeTransformer) TransformFile(filePath string) (*ZapTransformResu
 
 		// Write the file if not in dry-run mode
 		if !zct.dryRun {
-			if err := os.WriteFile(filePath, []byte(transformedCode), 0644); err != nil {
+			if err := os.WriteFile(filePath, []byte(transformedCode), 0600); err != nil {
 				result.Success = false
 				result.Errors = append(result.Errors, fmt.Sprintf("write error: %v", err))
 				return result, nil
@@ -368,7 +368,7 @@ func (ztt *ZapTextTransformer) TransformFileText(filePath string) (*ZapTransform
 	}
 
 	// Read file
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -394,7 +394,7 @@ func (ztt *ZapTextTransformer) TransformFileText(filePath string) (*ZapTransform
 
 	// Write file if changes were made and not in dry-run mode
 	if result.Changes > 0 && !ztt.dryRun {
-		if err := os.WriteFile(filePath, []byte(transformedContent), 0644); err != nil {
+		if err := os.WriteFile(filePath, []byte(transformedContent), 0600); err != nil {
 			result.Success = false
 			result.Errors = append(result.Errors, fmt.Sprintf("write error: %v", err))
 		}
@@ -452,7 +452,7 @@ func NewZapMigrationGuide() *ZapMigrationGuide {
 
 // AnalyzeFile analyzes a file and detects Zap patterns that need migration.
 func (zmg *ZapMigrationGuide) AnalyzeFile(filePath string) error {
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
@@ -676,5 +676,5 @@ func (zmg *ZapMigrationGuide) GenerateGuide() string {
 // SaveGuide saves the migration guide to a file.
 func (zmg *ZapMigrationGuide) SaveGuide(filePath string) error {
 	guide := zmg.GenerateGuide()
-	return os.WriteFile(filePath, []byte(guide), 0644)
+	return os.WriteFile(filePath, []byte(guide), 0600)
 }

@@ -81,7 +81,7 @@ func (cm *ConfigMigrator) MigrateConfigFromJSON(jsonData []byte) (*MigrationResu
 
 // MigrateConfigFromFile migrates a Zap configuration file to Bolt.
 func (cm *ConfigMigrator) MigrateConfigFromFile(filePath string) (*MigrationResult, error) {
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
@@ -400,7 +400,7 @@ echo "  BOLT_FORMAT=$BOLT_FORMAT"
 // SaveEnvMigrationScript saves the environment migration script to a file.
 func (em *EnvironmentMigrator) SaveEnvMigrationScript(filePath string) error {
 	script := em.GenerateEnvMigrationScript()
-	return os.WriteFile(filePath, []byte(script), 0755)
+	return os.WriteFile(filePath, []byte(script), 0600) // Restrict to owner read/write only
 }
 
 // ConfigComparator compares Zap and Bolt configurations side by side.

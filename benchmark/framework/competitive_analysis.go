@@ -50,6 +50,15 @@ func (lt LibraryType) String() string {
 	}
 }
 
+// clampUint64ToInt64 safely converts uint64 to int64, preventing integer overflow
+// by clamping to the maximum int64 value if necessary
+func clampUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+	return int64(val)
+}
+
 // BenchmarkResult holds comprehensive performance metrics for a single benchmark run
 type BenchmarkResult struct {
 	Library        string        `json:"library"`
@@ -307,7 +316,7 @@ func (ca *CompetitiveAnalyzer) runScenarioBenchmark(library LibraryType, scenari
 			HeapAllocs:     memStats.HeapAlloc,
 			HeapSys:        memStats.HeapSys,
 			GCCount:        memStats.NumGC,
-			GCPauseTotal:   time.Duration(int64(memStats.PauseTotalNs)),
+			GCPauseTotal:   time.Duration(clampUint64ToInt64(memStats.PauseTotalNs)),
 		}
 
 		results = append(results, benchResult)

@@ -434,6 +434,7 @@ func runServer() error {
 	pb.RegisterUserServiceServer(server, userService)
 
 	// Listen on port
+	// #nosec G102 - Example code binding to all interfaces for demonstration
 	lis, err := net.Listen("tcp", ":9090")
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to listen on port 9090")

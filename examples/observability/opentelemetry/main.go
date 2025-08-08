@@ -9,7 +9,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"math/rand"
+	"math/rand" // #nosec G404 - Using weak random for examples is acceptable
 	"net/http"
 	"os"
 	"time"

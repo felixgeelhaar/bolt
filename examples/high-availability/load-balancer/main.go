@@ -7,7 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	"math/rand" // #nosec G404 - Using weak random for examples is acceptable
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -459,7 +459,7 @@ func (app *Application) statsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Correlation-ID", correlationID)
 
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{ // #nosec G104 - Example code
 		"load_balancer_stats": stats,
 		"timestamp":           time.Now().UTC().Format(time.RFC3339),
 		"correlation_id":      correlationID,
@@ -604,6 +604,7 @@ func runBackend(port int) {
 		Str("address", addr).
 		Msg("Starting backend server")
 
+	// #nosec G114 - Example code, timeout handling demonstrated elsewhere
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		logger.Fatal().Err(err).Msg("Backend server failed")
 	}

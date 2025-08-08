@@ -457,10 +457,13 @@ var eventPool = &sync.Pool{
 func (l *Logger) With() *Event {
 	levelValue := atomic.LoadInt64(&l.level)
 	// Ensure level is within valid range (defensive programming)
-	if levelValue < 0 || levelValue > 127 {
+	// Level is int8, so valid range is -128 to 127, but our levels are 0-5
+	if levelValue < int64(TRACE) || levelValue > int64(FATAL) {
 		levelValue = int64(INFO) // Default to INFO if somehow corrupted
 	}
-	return &Event{buf: append([]byte{}, l.context...), level: Level(levelValue), l: l}
+	// Safe conversion after bounds check
+	level := Level(levelValue) // #nosec G115 - bounds already checked above
+	return &Event{buf: append([]byte{}, l.context...), level: level, l: l}
 }
 
 // Logger returns a new Logger with the event's fields as context.
@@ -492,10 +495,12 @@ func (l *Logger) log(level Level) *Event {
 	// Use atomic load to safely read the current level
 	levelValue := atomic.LoadInt64(&l.level)
 	// Ensure level is within valid range (defensive programming)
-	if levelValue < 0 || levelValue > 127 {
+	// Level is int8, so valid range is -128 to 127, but our levels are 0-5
+	if levelValue < int64(TRACE) || levelValue > int64(FATAL) {
 		levelValue = int64(INFO) // Default to INFO if somehow corrupted
 	}
-	currentLevel := Level(levelValue)
+	// Safe conversion after bounds check
+	currentLevel := Level(levelValue) // #nosec G115 - bounds already checked above
 	if level < currentLevel {
 		return nil
 	}

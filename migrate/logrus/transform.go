@@ -166,7 +166,7 @@ func (t *LogrusTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	}
 
 	// Read input file
-	content, err := os.ReadFile(inputPath)
+	content, err := os.ReadFile(inputPath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		result.Errors = append(result.Errors, fmt.Sprintf("Failed to read input file: %v", err))
 		return result, err
@@ -177,7 +177,7 @@ func (t *LogrusTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	if !strings.Contains(contentStr, "github.com/sirupsen/logrus") {
 		result.Warnings = append(result.Warnings, "File does not appear to use Logrus")
 		// Just copy the file without transformation
-		if err := os.WriteFile(outputPath, content, 0644); err != nil {
+		if err := os.WriteFile(outputPath, content, 0600); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write output file: %v", err))
 			return result, err
 		}
@@ -219,7 +219,7 @@ func (t *LogrusTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	}
 
 	// Write transformed content
-	if err := os.WriteFile(outputPath, []byte(transformedContent), 0644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(transformedContent), 0600); err != nil {
 		result.Errors = append(result.Errors, fmt.Sprintf("Failed to write output file: %v", err))
 		return result, err
 	}
@@ -354,7 +354,7 @@ func (t *LogrusTransformer) TransformDirectory(inputDir, outputDir string) ([]*T
 	var results []*TransformationResult
 
 	// Create output directory if it doesn't exist
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -380,7 +380,7 @@ func (t *LogrusTransformer) TransformDirectory(inputDir, outputDir string) ([]*T
 
 		// Create output directory for this file
 		outputFileDir := filepath.Dir(outputPath)
-		if err := os.MkdirAll(outputFileDir, 0755); err != nil {
+		if err := os.MkdirAll(outputFileDir, 0750); err != nil {
 			return fmt.Errorf("failed to create output directory %s: %w", outputFileDir, err)
 		}
 
@@ -500,12 +500,12 @@ func (t *LogrusTransformer) GenerateMigrationReport(results []*TransformationRes
 // ValidateTransformation validates that the transformation was successful.
 func (t *LogrusTransformer) ValidateTransformation(inputPath, outputPath string) (*ValidationResult, error) {
 	// Read both files
-	_, err := os.ReadFile(inputPath)
+	_, err := os.ReadFile(inputPath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read original file: %w", err)
 	}
 
-	transformed, err := os.ReadFile(outputPath)
+	transformed, err := os.ReadFile(outputPath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read transformed file: %w", err)
 	}

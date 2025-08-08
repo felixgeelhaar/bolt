@@ -372,8 +372,9 @@ func (app *Application) startMetricsServer() {
 	metricsMux.Handle("/metrics", promhttp.Handler())
 
 	metricsServer := &http.Server{
-		Addr:    ":" + app.config.MetricsPort,
-		Handler: metricsMux,
+		Addr:              ":" + app.config.MetricsPort,
+		Handler:           metricsMux,
+		ReadHeaderTimeout: 10 * time.Second, // Prevent Slowloris attacks
 	}
 
 	app.logger.Info().

@@ -64,7 +64,7 @@ func (mv *MigrationValidator) ValidateZerologMigration() *ValidationResult {
 		}
 
 		result.FilesCount++
-		content, err := os.ReadFile(filePath)
+		content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files // #nosec G304 - Migration tool needs to read user-specified files
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", filePath, err))
 			return nil
@@ -117,7 +117,7 @@ func (mv *MigrationValidator) ValidateZapMigration() *ValidationResult {
 		}
 
 		result.FilesCount++
-		content, err := os.ReadFile(filePath)
+		content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files // #nosec G304 - Migration tool needs to read user-specified files
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", filePath, err))
 			return nil
@@ -171,7 +171,7 @@ func (mv *MigrationValidator) ValidateLogrusMigration() *ValidationResult {
 		}
 
 		result.FilesCount++
-		content, err := os.ReadFile(filePath)
+		content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files // #nosec G304 - Migration tool needs to read user-specified files
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", filePath, err))
 			return nil
@@ -217,7 +217,7 @@ func (mv *MigrationValidator) ValidateBoltUsage() *ValidationResult {
 		}
 
 		result.FilesCount++
-		content, err := os.ReadFile(filePath)
+		content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files // #nosec G304 - Migration tool needs to read user-specified files
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", filePath, err))
 			return nil
@@ -414,7 +414,7 @@ type ImportStatement struct {
 
 // AnalyzeFile analyzes a Go file for logging usage.
 func (ca *CodeAnalyzer) AnalyzeFile(filePath string) (*AnalysisResult, error) {
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}

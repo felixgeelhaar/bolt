@@ -436,7 +436,7 @@ func (app *Application) createUserHandler(w http.ResponseWriter, r *http.Request
 	maskedResponse := app.piiMasker.MaskStruct(user)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{ // #nosec G104 - Example code
 		"status":         "created",
 		"user":           maskedResponse,
 		"correlation_id": correlationID,

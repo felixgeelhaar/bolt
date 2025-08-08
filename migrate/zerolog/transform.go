@@ -46,7 +46,7 @@ func (ct *CodeTransformer) TransformFile(filePath string) (*TransformResult, err
 	}
 
 	// Read original file
-	originalContent, err := os.ReadFile(filePath)
+	originalContent, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -99,7 +99,7 @@ func (ct *CodeTransformer) TransformFile(filePath string) (*TransformResult, err
 
 		// Write the file if not in dry-run mode
 		if !ct.dryRun {
-			if err := os.WriteFile(filePath, []byte(transformedCode), 0644); err != nil {
+			if err := os.WriteFile(filePath, []byte(transformedCode), 0600); err != nil {
 				result.Success = false
 				result.Errors = append(result.Errors, fmt.Sprintf("write error: %v", err))
 				return result, nil
@@ -299,7 +299,7 @@ func (tt *TextTransformer) TransformFileText(filePath string) (*TransformResult,
 	}
 
 	// Read file
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
@@ -322,7 +322,7 @@ func (tt *TextTransformer) TransformFileText(filePath string) (*TransformResult,
 
 	// Write file if changes were made and not in dry-run mode
 	if result.Changes > 0 && !tt.dryRun {
-		if err := os.WriteFile(filePath, []byte(transformedContent), 0644); err != nil {
+		if err := os.WriteFile(filePath, []byte(transformedContent), 0600); err != nil {
 			result.Success = false
 			result.Errors = append(result.Errors, fmt.Sprintf("write error: %v", err))
 		}
@@ -379,7 +379,7 @@ func NewMigrationGuide() *MigrationGuide {
 
 // AnalyzeFile analyzes a file and detects patterns that need migration.
 func (mg *MigrationGuide) AnalyzeFile(filePath string) error {
-	content, err := os.ReadFile(filePath)
+	content, err := os.ReadFile(filePath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
@@ -513,5 +513,5 @@ func (mg *MigrationGuide) GenerateGuide() string {
 // SaveGuide saves the migration guide to a file.
 func (mg *MigrationGuide) SaveGuide(filePath string) error {
 	guide := mg.GenerateGuide()
-	return os.WriteFile(filePath, []byte(guide), 0644)
+	return os.WriteFile(filePath, []byte(guide), 0600)
 }

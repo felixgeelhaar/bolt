@@ -595,7 +595,7 @@ func ExampleMigrationWorkflow() {
 	}
 
 	// Use the service
-	CreateUser("john_doe", "john@example.com")
+	_ = CreateUser("john_doe", "john@example.com") // #nosec G104 - Example code
 }
 
 // ExamplePerformanceBenefits demonstrates the performance benefits of migration.

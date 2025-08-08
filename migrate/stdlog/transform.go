@@ -175,7 +175,7 @@ func (t *StdlogTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	}
 
 	// Read input file
-	content, err := os.ReadFile(inputPath)
+	content, err := os.ReadFile(inputPath) // #nosec G304 - Migration tool needs to read user-specified files
 	if err != nil {
 		result.Errors = append(result.Errors, fmt.Sprintf("Failed to read input file: %v", err))
 		return result, err
@@ -191,7 +191,7 @@ func (t *StdlogTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	if !usesLog {
 		result.Warnings = append(result.Warnings, "File does not appear to use standard log package")
 		// Copy file without transformation
-		if err := os.WriteFile(outputPath, content, 0644); err != nil {
+		if err := os.WriteFile(outputPath, content, 0600); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write output file: %v", err))
 			return result, err
 		}
@@ -242,7 +242,7 @@ func (t *StdlogTransformer) TransformFile(inputPath, outputPath string) (*Transf
 	}
 
 	// Write transformed content
-	if err := os.WriteFile(outputPath, []byte(transformedContent), 0644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(transformedContent), 0600); err != nil {
 		result.Errors = append(result.Errors, fmt.Sprintf("Failed to write output file: %v", err))
 		return result, err
 	}
@@ -411,7 +411,7 @@ func (t *StdlogTransformer) TransformDirectory(inputDir, outputDir string) ([]*T
 	var results []*TransformationResult
 
 	// Create output directory
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -433,7 +433,7 @@ func (t *StdlogTransformer) TransformDirectory(inputDir, outputDir string) ([]*T
 		outputPath := filepath.Join(outputDir, relPath)
 
 		// Create output directory for file
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(outputPath), 0750); err != nil {
 			return err
 		}
 
@@ -777,7 +777,7 @@ func (im *InteractiveMigration) runAnalysisOnly() error {
 			return err
 		}
 
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(path) // #nosec G304 - Migration tool needs to read user-specified files
 		if err != nil {
 			return err
 		}
