@@ -29,8 +29,12 @@ Thumbs.db
 .idea/
 *.sublime-*
 
-# Test directories
+# Test directories and files
+test-*/
 test-*-tmp/
+test-bolt*/
+demo/
+**/test-*
 
 # Build artifacts
 dist/
