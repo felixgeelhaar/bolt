@@ -380,6 +380,20 @@ go test -bench=. -benchmem | grep allocs
 3. **Community support**: Open GitHub issues with minimal reproduction cases
 4. **Security issues**: Follow responsible disclosure in [SECURITY.md](SECURITY.md)
 
+## 📚 Documentation
+
+### Core Documentation
+- [📖 **Full Documentation**](docs/README.md) - Complete documentation index
+- [🚀 **Development Guide**](docs/DEVELOPMENT.md) - Setup and development workflow
+- [🏢 **Enterprise Guide**](docs/ENTERPRISE.md) - Enterprise deployment and scaling
+- [⚡ **Performance Guide**](docs/PERFORMANCE.md) - Benchmarks and optimization
+- [🔧 **Troubleshooting**](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Community Guidelines
+- [🤝 **Contributing**](CONTRIBUTING.md) - How to contribute to Bolt
+- [🛡️ **Security Policy**](SECURITY.md) - Security vulnerability reporting
+- [📜 **Code of Conduct**](CODE_OF_CONDUCT.md) - Community standards
+
 ## 🤝 Contributing
 
 We welcome contributions! **Please fork the repository** and submit pull requests from your fork.
