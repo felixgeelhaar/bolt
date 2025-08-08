@@ -26,18 +26,39 @@ resource "kubernetes_namespace" "monitoring" {
     name = var.namespace
     
     labels = {
-      name        = var.namespace
-      environment = var.environment
+      name                                 = var.namespace
+      environment                          = var.environment
+      "pod-security.kubernetes.io/enforce" = "restricted"
+      "pod-security.kubernetes.io/audit"   = "restricted"
+      "pod-security.kubernetes.io/warn"    = "restricted"
     }
   }
 
   depends_on = [aws_eks_node_group.monitoring]
 }
 
+# Grafana admin password secret
+resource "kubernetes_secret" "grafana_admin" {
+  metadata {
+    name      = "grafana-admin-secret"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
+  }
+
+  data = {
+    admin-password = "bolt-monitoring-2024-secure"
+  }
+
+  type = "Opaque"
+}
+
 # StorageClass for monitoring components
 resource "kubernetes_storage_class" "gp3" {
   metadata {
     name = "gp3-monitoring"
+    
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "false"
+    }
   }
   
   storage_provisioner    = "ebs.csi.aws.com"
@@ -79,7 +100,7 @@ resource "kubernetes_persistent_volume_claim" "grafana_data" {
   
   spec {
     access_modes = ["ReadWriteOnce"]
-    storage_class_name = kubernetes_storage_storage.gp3.metadata[0].name
+    storage_class_name = kubernetes_storage_class.gp3.metadata[0].name
     
     resources {
       requests = {
@@ -160,7 +181,7 @@ resource "kubernetes_service_account" "prometheus" {
     namespace = kubernetes_namespace.monitoring.metadata[0].name
   }
   
-  automount_service_account_token = true
+  automount_service_account_token = false
 }
 
 resource "kubernetes_cluster_role" "prometheus" {
@@ -237,7 +258,15 @@ resource "kubernetes_deployment" "prometheus" {
       }
       
       spec {
-        service_account_name = kubernetes_service_account.prometheus.metadata[0].name
+        service_account_name            = kubernetes_service_account.prometheus.metadata[0].name
+        automount_service_account_token = false
+        
+        security_context {
+          run_as_non_root = true
+          run_as_user     = 65534
+          run_as_group    = 65534
+          fs_group        = 65534
+        }
         
         # Toleration for monitoring nodes
         toleration {
@@ -284,6 +313,15 @@ resource "kubernetes_deployment" "prometheus" {
         container {
           name  = "prometheus"
           image = "prom/prometheus:v2.47.0"
+          
+          security_context {
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+            }
+            read_only_root_filesystem = true
+            run_as_non_root          = true
+          }
           
           port {
             container_port = 9090
@@ -406,7 +444,7 @@ resource "kubernetes_service" "prometheus" {
       protocol    = "TCP"
     }
     
-    type = "LoadBalancer"
+    type = "ClusterIP"
   }
 }
 
@@ -438,6 +476,13 @@ resource "kubernetes_deployment" "alertmanager" {
       }
       
       spec {
+        security_context {
+          run_as_non_root = true
+          run_as_user     = 65534
+          run_as_group    = 65534
+          fs_group        = 65534
+        }
+        
         # Toleration for monitoring nodes
         toleration {
           key    = "monitoring"
@@ -464,6 +509,15 @@ resource "kubernetes_deployment" "alertmanager" {
         container {
           name  = "alertmanager"
           image = "prom/alertmanager:v0.26.0"
+          
+          security_context {
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+            }
+            read_only_root_filesystem = true
+            run_as_non_root          = true
+          }
           
           port {
             container_port = 9093
@@ -591,7 +645,7 @@ resource "kubernetes_service" "alertmanager" {
       protocol    = "TCP"
     }
     
-    type = "LoadBalancer"
+    type = "ClusterIP"
   }
 }
 
@@ -623,6 +677,13 @@ resource "kubernetes_deployment" "grafana" {
       }
       
       spec {
+        security_context {
+          run_as_non_root = true
+          run_as_user     = 472
+          run_as_group    = 0
+          fs_group        = 472
+        }
+        
         # Toleration for monitoring nodes
         toleration {
           key    = "monitoring"
@@ -634,14 +695,28 @@ resource "kubernetes_deployment" "grafana" {
           name  = "grafana"
           image = "grafana/grafana:10.1.0"
           
+          security_context {
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+            }
+            read_only_root_filesystem = false
+            run_as_non_root          = true
+          }
+          
           port {
             container_port = 3000
             name          = "http"
           }
           
           env {
-            name  = "GF_SECURITY_ADMIN_PASSWORD"
-            value = "bolt-admin-2024"
+            name = "GF_SECURITY_ADMIN_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.grafana_admin.metadata[0].name
+                key  = "admin-password"
+              }
+            }
           }
           
           env {
@@ -740,22 +815,104 @@ resource "kubernetes_service" "grafana" {
       protocol    = "TCP"
     }
     
-    type = "LoadBalancer"
+    type = "ClusterIP"
   }
 }
 
-# Outputs for monitoring stack
+# Network Policies for secure communication
+resource "kubernetes_network_policy" "monitoring_default_deny" {
+  metadata {
+    name      = "default-deny-all"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
+  }
+
+  spec {
+    pod_selector {}
+    policy_types = ["Ingress", "Egress"]
+  }
+}
+
+resource "kubernetes_network_policy" "prometheus_ingress" {
+  metadata {
+    name      = "prometheus-ingress"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
+  }
+
+  spec {
+    pod_selector {
+      match_labels = {
+        app = "prometheus"
+      }
+    }
+
+    policy_types = ["Ingress"]
+
+    ingress {
+      from {
+        pod_selector {
+          match_labels = {
+            app = "grafana"
+          }
+        }
+      }
+      ports {
+        port     = "9090"
+        protocol = "TCP"
+      }
+    }
+  }
+}
+
+resource "kubernetes_network_policy" "grafana_ingress" {
+  metadata {
+    name      = "grafana-ingress"
+    namespace = kubernetes_namespace.monitoring.metadata[0].name
+  }
+
+  spec {
+    pod_selector {
+      match_labels = {
+        app = "grafana"
+      }
+    }
+
+    policy_types = ["Ingress", "Egress"]
+
+    ingress {
+      ports {
+        port     = "3000"
+        protocol = "TCP"
+      }
+    }
+    
+    egress {
+      to {
+        pod_selector {
+          match_labels = {
+            app = "prometheus"
+          }
+        }
+      }
+      ports {
+        port     = "9090"
+        protocol = "TCP"
+      }
+    }
+  }
+}
+
+# Outputs for monitoring stack (updated for ClusterIP services)
 output "prometheus_endpoint" {
-  description = "Prometheus service endpoint"
-  value       = "http://${kubernetes_service.prometheus.status[0].load_balancer[0].ingress[0].hostname}:9090"
+  description = "Prometheus service endpoint (ClusterIP)"
+  value       = "http://${kubernetes_service.prometheus.metadata[0].name}.${kubernetes_namespace.monitoring.metadata[0].name}.svc.cluster.local:9090"
 }
 
 output "grafana_endpoint" {
-  description = "Grafana service endpoint"  
-  value       = "http://${kubernetes_service.grafana.status[0].load_balancer[0].ingress[0].hostname}:3000"
+  description = "Grafana service endpoint (ClusterIP)"  
+  value       = "http://${kubernetes_service.grafana.metadata[0].name}.${kubernetes_namespace.monitoring.metadata[0].name}.svc.cluster.local:3000"
 }
 
 output "alertmanager_endpoint" {
-  description = "AlertManager service endpoint"
-  value       = "http://${kubernetes_service.alertmanager.status[0].load_balancer[0].ingress[0].hostname}:9093"
+  description = "AlertManager service endpoint (ClusterIP)"
+  value       = "http://${kubernetes_service.alertmanager.metadata[0].name}.${kubernetes_namespace.monitoring.metadata[0].name}.svc.cluster.local:9093"
 }

@@ -23,9 +23,11 @@ terraform {
   }
   
   backend "s3" {
-    bucket = "bolt-monitoring-terraform-state"
-    key    = "monitoring/terraform.tfstate"
-    region = "us-west-2"
+    bucket         = "bolt-monitoring-terraform-state"
+    key            = "monitoring/terraform.tfstate"
+    region         = "us-west-2"
+    encrypt        = true
+    dynamodb_table = "terraform-state-lock"
   }
 }
 
@@ -348,7 +350,7 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_registry_policy" {
 # Additional IAM policy for CloudWatch and monitoring
 resource "aws_iam_policy" "monitoring" {
   name        = "${local.cluster_name}-monitoring-policy"
-  description = "IAM policy for monitoring components"
+  description = "IAM policy for monitoring components (least privilege)"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -356,14 +358,35 @@ resource "aws_iam_policy" "monitoring" {
       {
         Effect = "Allow"
         Action = [
-          "cloudwatch:*",
-          "logs:*",
+          "cloudwatch:PutMetricData",
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:ListMetrics",
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups"
+        ]
+        Resource = [
+          "arn:aws:cloudwatch:${var.region}:${data.aws_caller_identity.current.account_id}:metric/*",
+          "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/${local.cluster_name}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "s3:GetObject",
           "s3:PutObject",
-          "s3:DeleteObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "${aws_s3_bucket.monitoring_data.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "s3:ListBucket"
         ]
-        Resource = "*"
+        Resource = aws_s3_bucket.monitoring_data.arn
       }
     ]
   })
@@ -386,8 +409,9 @@ resource "aws_eks_cluster" "monitoring" {
     subnet_ids              = concat(aws_subnet.public[*].id, aws_subnet.private[*].id)
     security_group_ids      = [aws_security_group.eks_cluster.id]
     endpoint_private_access = true
-    endpoint_public_access  = true
-    public_access_cidrs     = ["0.0.0.0/0"]
+    endpoint_public_access  = false
+    # Restrict public access to specific IP ranges if needed
+    # public_access_cidrs     = ["YOUR_OFFICE_IP/32"]
   }
 
   encryption_config {
@@ -411,8 +435,39 @@ resource "aws_eks_cluster" "monitoring" {
 
 # KMS key for EKS encryption
 resource "aws_kms_key" "eks" {
-  description             = "KMS key for EKS cluster encryption"
-  deletion_window_in_days = 7
+  description                        = "KMS key for EKS cluster encryption"
+  deletion_window_in_days           = 7
+  key_usage                         = "ENCRYPT_DECRYPT"
+  customer_master_key_spec          = "SYMMETRIC_DEFAULT"
+  enable_key_rotation               = true
+  multi_region                      = false
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow EKS Service"
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-kms-key"
@@ -424,10 +479,99 @@ resource "aws_kms_alias" "eks" {
   target_key_id = aws_kms_key.eks.key_id
 }
 
+# KMS key for CloudWatch logs encryption
+resource "aws_kms_key" "logs" {
+  description                        = "KMS key for CloudWatch logs encryption"
+  deletion_window_in_days           = 7
+  key_usage                         = "ENCRYPT_DECRYPT"
+  customer_master_key_spec          = "SYMMETRIC_DEFAULT"
+  enable_key_rotation               = true
+  multi_region                      = false
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow CloudWatch Logs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${var.region}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ]
+        Resource = "*"
+        Condition = {
+          ArnEquals = {
+            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = merge(local.common_tags, {
+    Name = "${local.cluster_name}-logs-kms-key"
+  })
+}
+
+resource "aws_kms_alias" "logs" {
+  name          = "alias/${local.cluster_name}-logs"
+  target_key_id = aws_kms_key.logs.key_id
+}
+
+# KMS key for S3 bucket encryption
+resource "aws_kms_key" "s3" {
+  description                        = "KMS key for S3 bucket encryption"
+  deletion_window_in_days           = 7
+  key_usage                         = "ENCRYPT_DECRYPT"
+  customer_master_key_spec          = "SYMMETRIC_DEFAULT"
+  enable_key_rotation               = true
+  multi_region                      = false
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      }
+    ]
+  })
+
+  tags = merge(local.common_tags, {
+    Name = "${local.cluster_name}-s3-kms-key"
+  })
+}
+
+resource "aws_kms_alias" "s3" {
+  name          = "alias/${local.cluster_name}-s3"
+  target_key_id = aws_kms_key.s3.key_id
+}
+
 # CloudWatch Log Group for EKS
 resource "aws_cloudwatch_log_group" "eks" {
   name              = "/aws/eks/${local.cluster_name}/cluster"
   retention_in_days = 30
+  kms_key_id        = aws_kms_key.logs.arn
 
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-logs"
@@ -514,8 +658,10 @@ resource "aws_s3_bucket_encryption" "monitoring_data" {
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
+        sse_algorithm     = "aws:kms"
+        kms_master_key_id = aws_kms_key.s3.arn
       }
+      bucket_key_enabled = true
     }
   }
 }
@@ -534,7 +680,56 @@ resource "aws_s3_bucket_lifecycle_configuration" "monitoring_data" {
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
   }
+}
+
+# S3 bucket public access block
+resource "aws_s3_bucket_public_access_block" "monitoring_data" {
+  bucket = aws_s3_bucket.monitoring_data.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# S3 bucket notification configuration (optional but recommended for monitoring)
+resource "aws_s3_bucket_notification" "monitoring_data" {
+  bucket = aws_s3_bucket.monitoring_data.id
+
+  depends_on = [aws_s3_bucket_public_access_block.monitoring_data]
+}
+
+# S3 bucket logging (access logging)
+resource "aws_s3_bucket" "access_logs" {
+  bucket        = "${local.cluster_name}-access-logs-${random_id.bucket_suffix.hex}"
+  force_destroy = true
+
+  tags = merge(local.common_tags, {
+    Name = "${local.cluster_name}-access-logs"
+  })
+}
+
+resource "aws_s3_bucket_public_access_block" "access_logs" {
+  bucket = aws_s3_bucket.access_logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_logging" "monitoring_data" {
+  bucket = aws_s3_bucket.monitoring_data.id
+
+  target_bucket = aws_s3_bucket.access_logs.id
+  target_prefix = "access-logs/"
+
+  depends_on = [aws_s3_bucket_public_access_block.access_logs]
 }
 
 # Outputs
