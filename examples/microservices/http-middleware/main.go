@@ -16,7 +16,7 @@ import (
 
 // Service represents a microservice with structured logging
 type Service struct {
-	logger bolt.Logger
+	logger *bolt.Logger
 	name   string
 }
 
@@ -24,7 +24,7 @@ type Service struct {
 func NewService(name string) *Service {
 	// Configure logger for production JSON output
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", name).
 		Str("version", "v1.0.0").

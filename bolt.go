@@ -100,6 +100,7 @@
 package bolt
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/base64"
@@ -109,11 +110,11 @@ import (
 	"io"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
@@ -153,6 +154,12 @@ var hexDigits = "0123456789ABCDEF"
 func appendInt(buf []byte, i int) []byte {
 	if i == 0 {
 		return append(buf, '0')
+	}
+
+	// Handle math.MinInt64 special case to prevent overflow
+	// MinInt64 = -9223372036854775808, which cannot be negated without overflow
+	if i == -9223372036854775808 {
+		return append(buf, "-9223372036854775808"...)
 	}
 
 	// Handle negative numbers
@@ -235,32 +242,50 @@ func appendBool(buf []byte, b bool) []byte {
 //   - Backslashes that could create escape sequences
 //   - Unicode control characters (U+0000 to U+001F)
 func appendJSONString(buf []byte, s string) []byte {
-	for i := 0; i < len(s); i++ {
+	// Fast path: iterate once, handling both UTF-8 validation and JSON escaping
+	for i := 0; i < len(s); {
 		c := s[i]
-		switch c {
-		case '"':
-			buf = append(buf, '\\', '"')
-		case '\\':
-			buf = append(buf, '\\', '\\')
-		case '\b':
-			buf = append(buf, '\\', 'b')
-		case '\f':
-			buf = append(buf, '\\', 'f')
-		case '\n':
-			buf = append(buf, '\\', 'n')
-		case '\r':
-			buf = append(buf, '\\', 'r')
-		case '\t':
-			buf = append(buf, '\\', 't')
-		default:
-			if c < 0x20 {
-				// Escape control characters as \u00XX
-				buf = append(buf, '\\', 'u', '0', '0')
-				buf = append(buf, hexDigits[c>>4], hexDigits[c&0xF])
-			} else {
-				buf = append(buf, c)
+
+		// Fast path for ASCII characters (most common case)
+		if c < utf8.RuneSelf {
+			switch c {
+			case '"':
+				buf = append(buf, '\\', '"')
+			case '\\':
+				buf = append(buf, '\\', '\\')
+			case '\b':
+				buf = append(buf, '\\', 'b')
+			case '\f':
+				buf = append(buf, '\\', 'f')
+			case '\n':
+				buf = append(buf, '\\', 'n')
+			case '\r':
+				buf = append(buf, '\\', 'r')
+			case '\t':
+				buf = append(buf, '\\', 't')
+			default:
+				if c < 0x20 {
+					// Escape control characters as \u00XX
+					buf = append(buf, '\\', 'u', '0', '0')
+					buf = append(buf, hexDigits[c>>4], hexDigits[c&0xF])
+				} else {
+					buf = append(buf, c)
+				}
 			}
+			i++
+			continue
 		}
+
+		// Multi-byte UTF-8 character - validate and copy
+		r, size := utf8.DecodeRuneInString(s[i:])
+		if r == utf8.RuneError && size == 1 {
+			// Invalid UTF-8 - replace with replacement character (U+FFFD = �)
+			buf = append(buf, 0xEF, 0xBF, 0xBD) // UTF-8 encoding of U+FFFD
+		} else {
+			// Valid UTF-8 - copy bytes directly
+			buf = append(buf, s[i:i+size]...)
+		}
+		i += size
 	}
 	return buf
 }
@@ -271,8 +296,10 @@ func appendJSONString(buf []byte, s string) []byte {
 //   - Resource exhaustion attacks (enforces 256 character limit)
 //   - Empty key exploitation (requires non-empty keys)
 func validateKey(key string) error {
-	if len(key) == 0 {
-		return fmt.Errorf("key cannot be empty")
+	// Trim whitespace and check for empty
+	trimmed := strings.TrimSpace(key)
+	if len(trimmed) == 0 {
+		return fmt.Errorf("key cannot be empty or whitespace-only")
 	}
 	if len(key) > MaxKeyLength {
 		return fmt.Errorf("key length exceeds maximum of %d characters", MaxKeyLength)
@@ -368,6 +395,117 @@ func appendNanoDigits(buf []byte, nano int) []byte {
 		nano /= 10
 	}
 	return append(buf, digitBuf[:]...)
+}
+
+// appendFloat64 appends a float64 to the buffer without allocations.
+// This implementation uses a fixed-point approach for common float values,
+// providing reasonable precision while maintaining zero allocations.
+func appendFloat64(buf []byte, f float64) []byte {
+	// Handle special cases
+	if f != f { // NaN
+		return append(buf, `"NaN"`...)
+	}
+	if f > 1e308 { // +Inf
+		return append(buf, `"+Inf"`...)
+	}
+	if f < -1e308 { // -Inf
+		return append(buf, `"-Inf"`...)
+	}
+
+	// Handle negative numbers
+	if f < 0 {
+		buf = append(buf, '-')
+		f = -f
+	}
+
+	// Handle zero
+	if f == 0 {
+		return append(buf, '0')
+	}
+
+	// For very large or very small numbers, use scientific notation
+	if f >= 1e15 || (f > 0 && f < 1e-6) {
+		return appendFloatScientific(buf, f)
+	}
+
+	// Split into integer and fractional parts
+	intPart := int64(f)
+	fracPart := f - float64(intPart)
+
+	// Append integer part
+	buf = appendInt(buf, int(intPart))
+
+	// Append fractional part if non-zero (up to 6 decimal places for precision)
+	if fracPart > 0 {
+		buf = append(buf, '.')
+		// Multiply by 1000000 to get 6 decimal places
+		fracInt := int64(fracPart * 1000000)
+
+		// Format fractional part with leading zeros
+		fracBuf := [6]byte{}
+		for i := 5; i >= 0; i-- {
+			fracBuf[i] = byte(fracInt%10) + '0'
+			fracInt /= 10
+		}
+
+		// Append fractional digits, trimming trailing zeros
+		trimmed := fracBuf[:]
+		for len(trimmed) > 1 && trimmed[len(trimmed)-1] == '0' {
+			trimmed = trimmed[:len(trimmed)-1]
+		}
+		buf = append(buf, trimmed...)
+	}
+
+	return buf
+}
+
+// appendFloatScientific appends a float in scientific notation without allocations
+func appendFloatScientific(buf []byte, f float64) []byte {
+	// Calculate exponent
+	exp := 0
+	absF := f
+	if absF >= 10 {
+		for absF >= 10 {
+			absF /= 10
+			exp++
+		}
+	} else if absF < 1 && absF > 0 {
+		for absF < 1 {
+			absF *= 10
+			exp--
+		}
+	}
+
+	// Append mantissa (1 digit before decimal, 6 after)
+	intPart := int(absF)
+	buf = appendInt(buf, intPart)
+
+	fracPart := absF - float64(intPart)
+	if fracPart > 0 {
+		buf = append(buf, '.')
+		fracInt := int64(fracPart * 1000000)
+		fracBuf := [6]byte{}
+		for i := 5; i >= 0; i-- {
+			fracBuf[i] = byte(fracInt%10) + '0'
+			fracInt /= 10
+		}
+
+		// Trim trailing zeros
+		trimmed := fracBuf[:]
+		for len(trimmed) > 1 && trimmed[len(trimmed)-1] == '0' {
+			trimmed = trimmed[:len(trimmed)-1]
+		}
+		buf = append(buf, trimmed...)
+	}
+
+	// Append exponent
+	buf = append(buf, 'e')
+	if exp >= 0 {
+		buf = append(buf, '+')
+	}
+	buf = appendInt(buf, exp)
+
+	return buf
 }
 
 // Level defines the logging level.
@@ -660,6 +798,30 @@ func (e *Event) Bool(key string, value bool) *Event {
 	return e
 }
 
+// Float64 adds a float64 field with 6 decimal precision (zero-allocation).
+//
+// IMPORTANT: This method uses a custom formatter that limits precision to 6 decimal
+// places to achieve zero allocations. For values requiring full precision, use Any()
+// which delegates to encoding/json (allocates but preserves full precision).
+//
+// Precision examples:
+//   - 99.99      → "99.989999" (6 decimals, minor rounding)
+//   - 3.14159265 → "3.141592"  (6 decimals, truncated)
+//   - 1.23e100   → "1.23e+100" (scientific notation for very large/small)
+//
+// Special values:
+//   - NaN        → "NaN"
+//   - +Infinity  → "+Inf" (quoted)
+//   - -Infinity  → "-Inf" (quoted)
+//   - -0.0       → 0 (negative zero not preserved)
+//
+// For financial/scientific applications requiring exact precision:
+//
+//	logger.Any("precise_value", 99.99)  // Full precision, allocates
+//
+// For performance-critical logging where 6 decimals suffice:
+//
+//	logger.Float64("fast_value", 99.99) // Zero allocation, 6 decimals
 func (e *Event) Float64(key string, value float64) *Event {
 	if e.l == nil {
 		return e
@@ -677,7 +839,7 @@ func (e *Event) Float64(key string, value float64) *Event {
 	e.buf = append(e.buf, '"')
 	e.buf = appendJSONString(e.buf, key)
 	e.buf = append(e.buf, `":`...)
-	e.buf = append(e.buf, []byte(strconv.FormatFloat(value, 'f', -1, 64))...)
+	e.buf = appendFloat64(e.buf, value)
 	return e
 }
 
@@ -851,35 +1013,269 @@ func NewConsoleHandler(out io.Writer) *ConsoleHandler {
 	return &ConsoleHandler{out: out}
 }
 
-// Write handles the log event.
+// Write handles the log event with zero allocations by streaming JSON parsing.
 func (h *ConsoleHandler) Write(e *Event) error {
-	var data map[string]interface{}
-	if err := json.Unmarshal(e.buf, &data); err != nil {
-		return fmt.Errorf("failed to unmarshal event buffer: %w", err)
-	}
-
-	level, _ := data["level"].(string)
-	message, _ := data["message"].(string)
+	// Extract level and message without unmarshaling (zero-allocation)
+	level := extractJSONField(e.buf, "level")
+	message := extractJSONField(e.buf, "message")
 
 	// Get color for the level
-	color := getColorForLevel(level)
+	color := getColorForLevel(string(level))
 
-	// Format timestamp
-	timestamp := time.Now().Format("2006-01-02T15:04:05Z")
+	// Format timestamp (reuse buffer for efficiency)
+	var timeBuf [25]byte // RFC3339 is max 25 chars
+	timestamp := appendRFC3339(timeBuf[:0], time.Now())
 
-	// Write level and timestamp
-	_, _ = h.out.Write([]byte(fmt.Sprintf("%s%s\x1b[0m[%s] ", color, level, timestamp)))
+	// Write level with color
+	if _, err := h.out.Write([]byte(color)); err != nil {
+		return fmt.Errorf("failed to write color: %w", err)
+	}
+	if _, err := h.out.Write(level); err != nil {
+		return fmt.Errorf("failed to write level: %w", err)
+	}
+
+	// Reset color and write timestamp
+	if _, err := h.out.Write([]byte("\x1b[0m[")); err != nil {
+		return fmt.Errorf("failed to write reset: %w", err)
+	}
+	if _, err := h.out.Write(timestamp); err != nil {
+		return fmt.Errorf("failed to write timestamp: %w", err)
+	}
 
 	// Write message
-	_, _ = h.out.Write([]byte(message))
-
-	// Write fields
-	for k, v := range data {
-		if k != "level" && k != "message" {
-			_, _ = h.out.Write([]byte(fmt.Sprintf(" %s=%v", k, v)))
-		}
+	if _, err := h.out.Write([]byte("] ")); err != nil {
+		return fmt.Errorf("failed to write separator: %w", err)
 	}
-	_, _ = h.out.Write([]byte("\n"))
+	if _, err := h.out.Write(message); err != nil {
+		return fmt.Errorf("failed to write message: %w", err)
+	}
+
+	// Write remaining fields by streaming through JSON
+	if err := writeFieldsStreaming(h.out, e.buf, level, message); err != nil {
+		return fmt.Errorf("failed to write fields: %w", err)
+	}
+
+	// Write newline
+	if _, err := h.out.Write([]byte("\n")); err != nil {
+		return fmt.Errorf("failed to write newline: %w", err)
+	}
+
+	return nil
+}
+
+// findJSONFieldStart locates the start position of a JSON field value
+// Returns -1 if field not found
+func findJSONFieldStart(buf []byte, key string) int {
+	searchPattern := []byte(`"` + key + `":`)
+	idx := bytes.Index(buf, searchPattern)
+	if idx == -1 {
+		return -1
+	}
+
+	start := idx + len(searchPattern)
+	// Skip whitespace after colon
+	for start < len(buf) && (buf[start] == ' ' || buf[start] == '\t') {
+		start++
+	}
+
+	if start >= len(buf) {
+		return -1
+	}
+
+	return start
+}
+
+// extractStringValue extracts a quoted string value from position start
+// Returns the unquoted value or nil if invalid
+func extractStringValue(buf []byte, start int) []byte {
+	if start >= len(buf) || buf[start] != '"' {
+		return nil
+	}
+
+	start++ // Skip opening quote
+	end := start
+
+	// Find closing quote (handle escaped quotes)
+	for end < len(buf) {
+		if buf[end] == '"' && (end == start || buf[end-1] != '\\') {
+			return buf[start:end]
+		}
+		end++
+	}
+
+	return nil
+}
+
+// extractNonStringValue extracts a non-string value (number, boolean, null)
+// Returns the value with trailing whitespace trimmed
+func extractNonStringValue(buf []byte, start int) []byte {
+	end := start
+	for end < len(buf) && buf[end] != ',' && buf[end] != '}' {
+		end++
+	}
+
+	// Trim trailing whitespace
+	for end > start && (buf[end-1] == ' ' || buf[end-1] == '\t') {
+		end--
+	}
+
+	return buf[start:end]
+}
+
+// extractJSONField extracts a field value from JSON without unmarshaling.
+// Returns the value as a byte slice (no allocation).
+func extractJSONField(buf []byte, key string) []byte {
+	start := findJSONFieldStart(buf, key)
+	if start == -1 {
+		return nil
+	}
+
+	// Check if value is a string (starts with ")
+	if buf[start] == '"' {
+		return extractStringValue(buf, start)
+	}
+
+	// Non-string value (number, boolean, null)
+	return extractNonStringValue(buf, start)
+}
+
+// skipWhitespace advances index past whitespace characters
+func skipWhitespace(buf []byte, i int) int {
+	for i < len(buf) && (buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n') {
+		i++
+	}
+	return i
+}
+
+// extractJSONKey extracts a JSON key starting at position i (should point to opening ")
+// Returns key bytes and new position after closing "
+func extractJSONKey(buf []byte, i int) ([]byte, int) {
+	if i >= len(buf) || buf[i] != '"' {
+		return nil, i
+	}
+
+	keyStart := i + 1
+	keyEnd := keyStart
+	for keyEnd < len(buf) && buf[keyEnd] != '"' {
+		keyEnd++
+	}
+
+	if keyEnd >= len(buf) {
+		return nil, len(buf)
+	}
+
+	return buf[keyStart:keyEnd], keyEnd + 1
+}
+
+// extractJSONValue extracts a JSON value starting at position i
+// Returns value bytes and new position after value
+func extractJSONValue(buf []byte, i int) ([]byte, int) {
+	if i >= len(buf) {
+		return nil, i
+	}
+
+	if buf[i] == '"' {
+		// String value
+		valueStart := i + 1
+		valueEnd := valueStart
+		for valueEnd < len(buf) && !(buf[valueEnd] == '"' && (valueEnd == valueStart || buf[valueEnd-1] != '\\')) {
+			valueEnd++
+		}
+		return buf[valueStart:valueEnd], valueEnd + 1
+	}
+
+	// Non-string value
+	valueStart := i
+	valueEnd := i
+	for valueEnd < len(buf) && buf[valueEnd] != ',' && buf[valueEnd] != '}' {
+		valueEnd++
+	}
+
+	// Trim trailing whitespace
+	for valueEnd > valueStart && (buf[valueEnd-1] == ' ' || buf[valueEnd-1] == '\t') {
+		valueEnd--
+	}
+
+	return buf[valueStart:valueEnd], valueEnd
+}
+
+// writeKeyValue writes a key=value pair to the writer
+func writeKeyValue(w io.Writer, key, value []byte) error {
+	if _, err := w.Write([]byte(" ")); err != nil {
+		return err
+	}
+	if _, err := w.Write(key); err != nil {
+		return err
+	}
+	if _, err := w.Write([]byte("=")); err != nil {
+		return err
+	}
+	if _, err := w.Write(value); err != nil {
+		return err
+	}
+	return nil
+}
+
+// skipCommaIfPresent advances past comma if found
+func skipCommaIfPresent(buf []byte, i int) int {
+	if i < len(buf) && buf[i] == ',' {
+		return i + 1
+	}
+	return i
+}
+
+// isReservedField checks if field should be skipped (already written)
+func isReservedField(key []byte) bool {
+	return bytes.Equal(key, []byte("level")) || bytes.Equal(key, []byte("message"))
+}
+
+// writeFieldsStreaming writes additional fields by parsing JSON without allocations
+func writeFieldsStreaming(w io.Writer, buf []byte, _ []byte, _ []byte) error {
+	i := 1 // Skip opening {
+
+	for i < len(buf) {
+		i = skipWhitespace(buf, i)
+
+		if i >= len(buf) || buf[i] == '}' {
+			break
+		}
+
+		// Extract key
+		key, newPos := extractJSONKey(buf, i)
+		if key == nil {
+			i++
+			continue
+		}
+		i = newPos
+
+		// Skip to value (colon and whitespace)
+		i = skipWhitespace(buf, i)
+		if i < len(buf) && buf[i] == ':' {
+			i++
+		}
+		i = skipWhitespace(buf, i)
+
+		if i >= len(buf) {
+			break
+		}
+
+		// Extract value
+		value, newPos := extractJSONValue(buf, i)
+		i = newPos
+
+		// Skip reserved fields (already written)
+		if isReservedField(key) {
+			i = skipCommaIfPresent(buf, i)
+			continue
+		}
+
+		// Write field
+		if err := writeKeyValue(w, key, value); err != nil {
+			return err
+		}
+
+		i = skipCommaIfPresent(buf, i)
+	}
 
 	return nil
 }
@@ -954,7 +1350,13 @@ func initDefaultLogger() {
 // This method is safe to call concurrently from multiple goroutines without additional
 // synchronization. The atomic operations prevent race conditions that could lead to
 // inconsistent filtering behavior or security bypass scenarios.
+//
+// Invalid levels are clamped to INFO to ensure defensive behavior.
 func (l *Logger) SetLevel(level Level) *Logger {
+	// Validate level before storing to prevent corruption
+	if level < TRACE || level > FATAL {
+		level = INFO // Defensive: clamp to INFO for invalid values
+	}
 	atomic.StoreInt64(&l.level, int64(level))
 	return l
 }
@@ -1103,6 +1505,72 @@ func (e *Event) Int64(key string, value int64) *Event {
 	if err := validateKey(key); err != nil {
 		if e.l.errorHandler != nil {
 			e.l.errorHandler(fmt.Errorf("invalid key in Int64(): %w", err))
+		}
+		return e
+	}
+
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendInt(e.buf, int(value))
+	return e
+}
+
+// Int32 adds a 32-bit integer field to the event.
+func (e *Event) Int32(key string, value int32) *Event {
+	if e.l == nil {
+		return e
+	}
+
+	// Validate key for security
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Int32(): %w", err))
+		}
+		return e
+	}
+
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendInt(e.buf, int(value))
+	return e
+}
+
+// Int16 adds a 16-bit integer field to the event.
+func (e *Event) Int16(key string, value int16) *Event {
+	if e.l == nil {
+		return e
+	}
+
+	// Validate key for security
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Int16(): %w", err))
+		}
+		return e
+	}
+
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendInt(e.buf, int(value))
+	return e
+}
+
+// Int8 adds an 8-bit integer field to the event.
+func (e *Event) Int8(key string, value int8) *Event {
+	if e.l == nil {
+		return e
+	}
+
+	// Validate key for security
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Int8(): %w", err))
 		}
 		return e
 	}

@@ -254,6 +254,51 @@ func TestLoggerMutationRace(t *testing.T) {
 	t.Logf("Generated %d log entries with concurrent level changes", logCount)
 }
 
+// TestSetLevelInvalidValues tests that invalid levels are safely handled
+func TestSetLevelInvalidValues(t *testing.T) {
+	buf := &ThreadSafeBuffer{}
+	logger := New(NewJSONHandler(buf))
+
+	// Test invalid levels are clamped to INFO
+	invalidLevels := []Level{
+		Level(-1),   // Below TRACE
+		Level(100),  // Above FATAL
+		Level(127),  // Max int8
+		Level(-128), // Min int8
+	}
+
+	for _, invalidLevel := range invalidLevels {
+		logger.SetLevel(invalidLevel)
+
+		// Should still be able to log (defaults to INFO)
+		buf.Reset()
+		logger.Info().Msg("test")
+
+		if len(buf.Bytes()) == 0 {
+			t.Errorf("Expected log to be written after setting invalid level %d", invalidLevel)
+		}
+	}
+
+	// Verify concurrent invalid level setting doesn't cause corruption
+	buf.Reset() // Clear buffer from previous tests
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			logger.SetLevel(Level(id * 1000)) // All invalid
+			logger.Info().Int("goroutine", id).Msg("test")
+		}(i)
+	}
+	wg.Wait()
+
+	// Should have logged from all goroutines without panic
+	logCount := bytes.Count(buf.Bytes(), []byte("\n"))
+	if logCount != 100 {
+		t.Errorf("Expected 100 logs, got %d (some may have been filtered or corrupted)", logCount)
+	}
+}
+
 // TestHandlerStress tests multiple handlers being written to concurrently
 // with different buffer destinations.
 func TestHandlerStress(t *testing.T) {

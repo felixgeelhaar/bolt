@@ -28,13 +28,13 @@ import (
 // Server implements the UserService gRPC server with logging
 type Server struct {
 	pb.UnimplementedUserServiceServer
-	logger bolt.Logger
+	logger *bolt.Logger
 }
 
 // NewServer creates a new gRPC server with logging
 func NewServer() *Server {
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", "grpc-user-service").
 		Str("version", "v1.0.0").

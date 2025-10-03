@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bolt-app-config
+  namespace: production
+  labels:
+    app: bolt-app
+    version: v1.3.0
+data:
+  # Application configuration
+  app.yaml: |
+    server:
+      port: 8080
+      read_timeout: 30s
+      write_timeout: 30s
+      idle_timeout: 120s
+
+    # Logging configuration
+    logging:
+      format: json
+      level: info
+      output: stdout
+
+      # Structured fields included in all logs
+      default_fields:
+        service: bolt-app
+        version: v1.3.0
+        environment: production
+
+      # Performance settings
+      buffer_size: 4096
+      enable_caller: false
+      enable_stacktrace: true
+      stacktrace_level: error
+
+    # OpenTelemetry configuration
+    telemetry:
+      enabled: true
+      endpoint: http://otel-collector:4317
+      service_name: bolt-app
+      service_namespace: production
+      service_version: v1.3.0
+
+      # Sampling configuration
+      sampling:
+        type: probabilistic
+        rate: 0.1  # Sample 10% of traces
+
+      # Resource attributes
+      resource_attributes:
+        deployment.environment: production
+        service.namespace: production
+        cloud.provider: kubernetes
+
+    # Health check configuration
+    health:
+      liveness_path: /health
+      readiness_path: /ready
+      startup_path: /startup
+
+      # Probe timeouts
+      liveness_timeout: 5s
+      readiness_timeout: 3s
+      startup_timeout: 10s
+
+    # Metrics configuration
+    metrics:
+      enabled: true
+      path: /metrics
+      namespace: bolt_app
+
+      # Custom metric labels
+      labels:
+        app: bolt-app
+        version: v1.3.0
+        environment: production
+
+  # Fluent Bit sidecar configuration for log aggregation
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Daemon        off
+        Log_Level     info
+        Parsers_File  parsers.conf
+
+    [INPUT]
+        Name              tail
+        Path              /var/log/app/*.log
+        Parser            json
+        Tag               app.*
+        Refresh_Interval  5
+        Mem_Buf_Limit     5MB
+
+    [FILTER]
+        Name                kubernetes
+        Match               app.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    [OUTPUT]
+        Name  stdout
+        Match *
+        Format json
+
+  parsers.conf: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+        Time_Keep   On

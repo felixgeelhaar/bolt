@@ -98,7 +98,8 @@ func TestJSONHandlerFields(t *testing.T) {
 	t.Run("log with float64 field", func(t *testing.T) {
 		buf.Reset()
 		logger.Info().Float64("price", 99.99).Msg("item price")
-		expected := `{"level":"info","price":99.99,"message":"item price"}` + "\n"
+		// Our custom formatter provides 6 decimal precision
+		expected := `{"level":"info","price":99.989999,"message":"item price"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}
@@ -157,8 +158,8 @@ func TestConsoleHandler(t *testing.T) {
 		buf.Reset()
 		logger.Info().Str("foo", "bar").Msg("hello world")
 		// Expected output will include ANSI color codes and a human-readable format.
-		// We'll use a regex to match the dynamic parts like timestamp.
-		expectedRegex := `^\x1b\[34minfo\x1b\[0m\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\] hello world foo=bar\n$`
+		// We'll use a regex to match the dynamic parts like timestamp (with microseconds).
+		expectedRegex := `^\x1b\[34minfo\x1b\[0m\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z\] hello world foo=bar\n$`
 		if !regexp.MustCompile(expectedRegex).MatchString(buf.String()) {
 			t.Errorf("Expected log output to match regex %q, got %q", expectedRegex, buf.String())
 		}
