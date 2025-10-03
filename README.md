@@ -8,7 +8,7 @@
   [![Go Version](https://img.shields.io/badge/go-%3E%3D1.19-blue.svg)](https://golang.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt)
-  [![Performance](https://img.shields.io/badge/performance-70ns%2Fop%20%7C%200%20allocs-brightgreen.svg)](#performance)
+  [![Performance](https://img.shields.io/badge/performance-63ns%2Fop%20%7C%200%20allocs-brightgreen.svg)](#performance)
   [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://felixgeelhaar.github.io/bolt/)
 </div>
 
@@ -20,19 +20,19 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 
 | Library | Operation | ns/op | Allocations | Performance Advantage |
 |---------|-----------|-------|-------------|----------------------|
-| **Bolt v1.2.2** | Simple Log | **70** | **0** | **🏆 Industry Leading** |
-| **Bolt v1.2.2** | Float64 | **66** | **0** | **✅ Zero Allocs** |
-| **Bolt v1.2.2** | Complex Event | **258** | **0** | **✅ Zero Allocs** |
-| Zerolog | Enabled | 175.4 | 0 | 60% slower |
-| Zap | Enabled | 189.7 | 1 | 63% slower |
+| **Bolt v2.0.0** | Simple Log | **63** | **0** | **🏆 Industry Leading** |
+| **Bolt v2.0.0** | Float64 | **62** | **0** | **✅ Zero Allocs** |
+| **Bolt v2.0.0** | New Fields (Int8/16/32) | **60** | **0** | **✅ Zero Allocs** |
+| Zerolog | Enabled | 175 | 0 | 64% slower |
+| Zap | Enabled | 190 | 1 | 67% slower |
 | Logrus | Enabled | 2,847 | 23 | 98% slower |
 
-*Latest benchmarks on Apple M1 - v1.2.2 with race condition fixes and enhanced default logger*
+*Latest benchmarks on Apple M1 - v2.0.0 Lightning Release with production optimizations*
 
 ## ✨ Features
 
 - **🔥 Zero Allocations**: Achieved through intelligent event pooling, buffer reuse, and custom formatters
-- **⚡ Ultra-Fast**: 70ns/op for simple logs, 66ns for Float64, 258ns for complex events
+- **⚡ Ultra-Fast**: 63ns/op for simple logs, 62ns for Float64, 60ns for new field types
 - **🏗️ Structured Logging**: Rich, type-safe field support (Int8/16/32/64, Uint, Float64, Bool, Str, etc.)
 - **🔍 OpenTelemetry Integration**: Automatic trace and span ID injection
 - **🎨 Multiple Outputs**: JSON for production, colorized console for development
@@ -177,16 +177,17 @@ Run the included benchmarks to see Bolt's performance on your system:
 go test -bench=. -benchmem ./...
 ```
 
-### Sample Results (v1.2.2)
+### Sample Results (v2.0.0)
 
 ```
-BenchmarkZeroAllocation-8      12,783,381    89.3 ns/op     0 B/op    0 allocs/op
-BenchmarkFloat64Precision-8    19,987,876    60.1 ns/op     0 B/op    0 allocs/op
-BenchmarkConsoleHandler-8       2,092,983   477.0 ns/op     0 B/op   ~10 allocs/op
-BenchmarkDefaultLogger-8       15,075,518    82.6 ns/op     0 B/op    0 allocs/op
+BenchmarkZeroAllocation-8            13,483,334     87 ns/op      0 B/op    0 allocs/op
+BenchmarkFloat64Precision-8          18,972,231     62 ns/op      0 B/op    0 allocs/op
+BenchmarkNewFieldMethods/Int32-8     20,163,957     60 ns/op      0 B/op    0 allocs/op
+BenchmarkConsoleHandler-8             2,427,907    491 ns/op    144 B/op   10 allocs/op
+BenchmarkDefaultLogger-8             12,723,752    106 ns/op    168 B/op    0 allocs/op
 ```
 
-**Note**: ConsoleHandler currently has ~10 allocations due to string→bytes conversions in JSON parsing. This is a known limitation documented for v1.2.2 and will be addressed in v2.0 architecture redesign.
+**Note**: ConsoleHandler has ~10 allocations due to colorization and formatting. Use JSONHandler for zero-allocation production logging.
 
 ## 🛡️ Security Features
 
@@ -405,9 +406,10 @@ go test -bench=. -benchmem | grep allocs
 
 | Scenario | Overhead | Notes |
 |----------|----------|-------|
-| Simple log (3 fields) | ~70ns | 0 allocations |
-| Complex log (10 fields) | ~300ns | 0 allocations |
-| Console handler | ~150ns | 12 allocations (acceptable for dev) |
+| Simple log (3 fields) | ~63ns | 0 allocations |
+| Float64 field | ~62ns | 0 allocations |
+| New integer fields | ~60ns | 0 allocations |
+| Console handler | ~491ns | 10 allocations (acceptable for dev) |
 | HTTP request logging | ~0.01% CPU | Negligible impact |
 | High throughput (100k/sec) | <1% CPU | Scales linearly |
 
@@ -416,7 +418,7 @@ go test -bench=. -benchmem | grep allocs
 - Per-event: ~336 bytes (pooled, reused)
 - Production API (50k req/sec): ~2-4MB total
 
-See [PERFORMANCE.md](PERFORMANCE.md) for detailed benchmarks and optimization guide.
+See [GitHub Pages](https://felixgeelhaar.github.io/bolt/) for live benchmarks and performance analysis.
 
 ## 🚀 Deployment Guide
 
@@ -471,7 +473,7 @@ logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).With().
     Logger()
 ```
 
-📖 **Cloud guides**: [AWS](docs/cloud/aws.md) | [GCP](docs/cloud/gcp.md) | [Azure](docs/cloud/azure.md)
+📖 **More examples**: See [examples/](examples/) directory for additional cloud platform integrations
 
 #### 3. Framework Integration
 
@@ -495,7 +497,7 @@ app.Use(BoltLogger(logger))
 r.Use(BoltLogger(logger))
 ```
 
-📖 **Integration guides**: [Gin](docs/integrations/gin.md) | [Echo](docs/integrations/echo.md) | [Fiber](docs/integrations/fiber.md) | [Chi](docs/integrations/chi.md)
+📖 **Framework integration**: See [examples/microservices/](examples/microservices/) for middleware examples
 
 ### Production Checklist
 
@@ -515,17 +517,15 @@ r.Use(BoltLogger(logger))
 ## 📚 Documentation
 
 ### Core Documentation
-- [📖 **Full Documentation**](docs/README.md) - Complete documentation index
-- [🚀 **Development Guide**](docs/DEVELOPMENT.md) - Setup and development workflow
-- [🏢 **Enterprise Guide**](docs/ENTERPRISE.md) - Enterprise deployment and scaling
-- [⚡ **Performance Guide**](PERFORMANCE.md) - Honest benchmarks and optimization
-- [🔧 **Troubleshooting**](docs/TROUBLESHOOTING.md) - Common issues and solutions
-
-### Integration & Deployment
-- [☁️ **Cloud Platforms**](docs/cloud/) - AWS, GCP, Azure integration guides
-- [🔌 **Framework Integration**](docs/integrations/) - Gin, Echo, Fiber, Chi guides
-- [📊 **Monitoring**](examples/monitoring/) - Prometheus, Grafana, DataDog setup
+- [📖 **Live Benchmarks**](https://felixgeelhaar.github.io/bolt/) - Real-time performance metrics
+- [🏗️ **API Documentation**](https://pkg.go.dev/github.com/felixgeelhaar/bolt) - Complete API reference
 - [🎯 **Production Examples**](examples/) - REST API, gRPC, Batch processing, K8s
+- [📊 **Observability**](examples/observability/) - OpenTelemetry, Prometheus integration
+
+### Integration Guides
+- Framework examples: [Gin](examples/microservices/http-middleware), [gRPC](examples/grpc-service)
+- Cloud deployments: [Kubernetes](examples/kubernetes/), [Batch Processing](examples/batch-processor/)
+- Monitoring setup: [Prometheus](examples/observability/prometheus/), [OpenTelemetry](examples/observability/opentelemetry/)
 
 ### Community Guidelines
 - [🤝 **Contributing**](CONTRIBUTING.md) - How to contribute to Bolt
