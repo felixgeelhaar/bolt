@@ -20,7 +20,12 @@ const (
 )
 
 // TestPerformanceRegression ensures core performance metrics don't regress
+// Note: These tests can be flaky in CI due to GC behavior, run benchmarks for accurate results
 func TestPerformanceRegression(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping performance regression tests in short mode")
+	}
+
 	t.Run("Zero Allocations", func(t *testing.T) {
 		var buf bytes.Buffer
 		logger := New(NewJSONHandler(&buf))
