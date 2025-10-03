@@ -273,7 +273,7 @@ func main() {
 		Msg("starting gRPC server")
 
 	// Create server
-	server := &Server{
+	_ = &Server{
 		logger: logger,
 	}
 

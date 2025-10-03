@@ -42,30 +42,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-// ThreadSafeBuffer wraps bytes.Buffer with a mutex for thread-safe operations
-type ThreadSafeBuffer struct {
-	buf bytes.Buffer
-	mu  sync.Mutex
-}
-
-func (tsb *ThreadSafeBuffer) Write(p []byte) (n int, err error) {
-	tsb.mu.Lock()
-	defer tsb.mu.Unlock()
-	return tsb.buf.Write(p)
-}
-
-func (tsb *ThreadSafeBuffer) Bytes() []byte {
-	tsb.mu.Lock()
-	defer tsb.mu.Unlock()
-	return tsb.buf.Bytes()
-}
-
-func (tsb *ThreadSafeBuffer) String() string {
-	tsb.mu.Lock()
-	defer tsb.mu.Unlock()
-	return tsb.buf.String()
-}
-
+// Reset adds a Reset method to ThreadSafeBuffer (used only in race tests)
 func (tsb *ThreadSafeBuffer) Reset() {
 	tsb.mu.Lock()
 	defer tsb.mu.Unlock()

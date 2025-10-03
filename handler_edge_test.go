@@ -125,8 +125,8 @@ func TestJSONHandlerEdgeCases(t *testing.T) {
 	})
 
 	t.Run("Concurrent Handler Access", func(t *testing.T) {
-		var buf bytes.Buffer
-		handler := NewJSONHandler(&buf)
+		buf := &ThreadSafeBuffer{}
+		handler := NewJSONHandler(buf)
 		logger := New(handler)
 
 		var wg sync.WaitGroup
