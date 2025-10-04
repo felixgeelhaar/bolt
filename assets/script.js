@@ -72,14 +72,14 @@ class BoltLandingPage {
         // Use requestAnimationFrame to ensure smooth rendering
         requestAnimationFrame(() => {
             container.innerHTML = `
-                <div class="trend-content" style="height: 100% !important; max-height: 260px !important; position: relative; overflow: hidden !important;">
+                <div class="trend-content" style="height: auto; position: relative; padding-bottom: 20px;">
                     <div class="trend-legend">
                         <div class="legend-item">
                             <div class="legend-color bolt"></div>
                             <span>Bolt Performance Optimization</span>
                         </div>
                     </div>
-                    <svg width="100%" height="200" style="position: relative; max-height: 200px;" viewBox="0 0 480 210" preserveAspectRatio="xMidYMid meet">
+                    <svg width="100%" height="250" style="display: block;" viewBox="0 0 480 220" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <linearGradient id="boltGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
