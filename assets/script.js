@@ -79,7 +79,7 @@ class BoltLandingPage {
                             <span>Bolt Performance Optimization</span>
                         </div>
                     </div>
-                    <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 450 210" preserveAspectRatio="none">
+                    <svg width="100%" height="200" style="position: relative; max-height: 200px;" viewBox="0 0 480 210" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <linearGradient id="boltGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
@@ -90,55 +90,55 @@ class BoltLandingPage {
                         <!-- Grid lines -->
                         <g stroke="#E5E7EB" stroke-width="0.5">
                             <!-- Y-axis grid lines -->
-                            <line x1="40" y1="40" x2="400" y2="40"/>
-                            <line x1="40" y1="80" x2="400" y2="80"/>
-                            <line x1="40" y1="120" x2="400" y2="120"/>
-                            <line x1="40" y1="160" x2="400" y2="160"/>
+                            <line x1="70" y1="40" x2="440" y2="40"/>
+                            <line x1="70" y1="80" x2="440" y2="80"/>
+                            <line x1="70" y1="120" x2="440" y2="120"/>
+                            <line x1="70" y1="160" x2="440" y2="160"/>
 
                             <!-- X-axis grid lines - simplified for realistic timeline -->
-                            <line x1="40" y1="40" x2="40" y2="170"/>
-                            <line x1="220" y1="40" x2="220" y2="170"/>
-                            <line x1="400" y1="40" x2="400" y2="170"/>
+                            <line x1="70" y1="40" x2="70" y2="170"/>
+                            <line x1="255" y1="40" x2="255" y2="170"/>
+                            <line x1="440" y1="40" x2="440" y2="170"/>
                         </g>
 
                         <!-- Y-axis labels (ns/op values) -->
-                        <text x="35" y="45" font-size="9" fill="#6B7280" text-anchor="end">50ns</text>
-                        <text x="35" y="85" font-size="9" fill="#6B7280" text-anchor="end">100ns</text>
-                        <text x="35" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
-                        <text x="35" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
+                        <text x="65" y="45" font-size="9" fill="#6B7280" text-anchor="end">50ns</text>
+                        <text x="65" y="85" font-size="9" fill="#6B7280" text-anchor="end">100ns</text>
+                        <text x="65" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
+                        <text x="65" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
 
                         <!-- X-axis labels (time) - realistic timeline for new library -->
-                        <text x="40" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Yesterday</text>
-                        <text x="220" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Initial Development</text>
-                        <text x="400" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Today</text>
+                        <text x="70" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Yesterday</text>
+                        <text x="255" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Initial Development</text>
+                        <text x="440" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Today</text>
 
                         <!-- Axis lines -->
-                        <line x1="40" y1="40" x2="40" y2="170" stroke="#9CA3AF" stroke-width="1"/>
-                        <line x1="40" y1="170" x2="400" y2="170" stroke="#9CA3AF" stroke-width="1"/>
+                        <line x1="70" y1="40" x2="70" y2="170" stroke="#9CA3AF" stroke-width="1"/>
+                        <line x1="70" y1="170" x2="440" y2="170" stroke="#9CA3AF" stroke-width="1"/>
 
                         <!-- Bolt trend line (realistic 2-day timeline) -->
                         <!-- Yesterday (initial): ~100ns, Today (optimized): ~63ns -->
-                        <path d="M40,120 Q130,100 220,85 T400,75" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M40,120 Q130,100 220,85 T400,75 L400,170 L40,170 Z" fill="url(#boltGradient)"/>
-                        
-                        
+                        <path d="M70,120 Q165,100 255,85 T440,75" stroke="#2563EB" stroke-width="3" fill="none"/>
+                        <path d="M70,120 Q165,100 255,85 T440,75 L440,170 L70,170 Z" fill="url(#boltGradient)"/>
+
+
                         <!-- Data points with values - realistic timeline -->
-                        <circle cx="40" cy="120" r="3" fill="#2563EB"/>
-                        <circle cx="220" cy="85" r="3" fill="#2563EB"/>
-                        <circle cx="400" cy="75" r="3" fill="#2563EB"/>
-                        
+                        <circle cx="70" cy="120" r="3" fill="#2563EB"/>
+                        <circle cx="255" cy="85" r="3" fill="#2563EB"/>
+                        <circle cx="440" cy="75" r="3" fill="#2563EB"/>
+
                         <!-- Value labels on data points - realistic timeline -->
-                        <text x="45" y="115" font-size="8" fill="#2563EB" font-weight="bold">100ns</text>
-                        <text x="225" y="80" font-size="8" fill="#2563EB" font-weight="bold">88ns</text>
-                        <text x="390" y="70" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
-                        
-                        
+                        <text x="75" y="115" font-size="8" fill="#2563EB" font-weight="bold">100ns</text>
+                        <text x="260" y="80" font-size="8" fill="#2563EB" font-weight="bold">88ns</text>
+                        <text x="430" y="70" font-size="8" fill="#2563EB" font-weight="bold">63ns</text>
+
+
                         <!-- Axis labels -->
-                        <text x="220" y="195" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold">Time</text>
-                        <text x="15" y="105" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold" transform="rotate(-90 15 105)">Performance (ns/op)</text>
-                        
+                        <text x="255" y="200" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold">Time</text>
+                        <text x="20" y="105" font-size="9" fill="#4B5563" text-anchor="middle" font-weight="bold" transform="rotate(-90 20 105)">Performance (ns/op)</text>
+
                         <!-- Data source attribution -->
-                        <text x="440" y="205" font-size="7" fill="#9CA3AF" text-anchor="end">Source: GitHub Actions Benchmarks</text>
+                        <text x="470" y="205" font-size="7" fill="#9CA3AF" text-anchor="end">Source: GitHub Actions Benchmarks</text>
                     </svg>
                 </div>
             `;
