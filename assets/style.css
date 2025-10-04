@@ -316,7 +316,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.bar.logma { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+.bar.bolt { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
 .bar.other { background: linear-gradient(135deg, #6B7280, #4B5563); }
 
 .bar-value {
@@ -387,7 +387,7 @@ body {
     border-radius: 2px;
 }
 
-.legend-color.logma { background: #2563EB; }
+.legend-color.bolt { background: #2563EB; }
 .legend-color.zerolog { background: #6B7280; }
 
 /* Chart Containers */
@@ -532,11 +532,11 @@ body {
     background: var(--gray-50);
 }
 
-.logma-row {
+.bolt-row {
     background: var(--primary-50);
 }
 
-.logma-row:hover {
+.bolt-row:hover {
     background: var(--primary-100);
 }
 

@@ -1,7 +1,7 @@
-// Logma Landing Page Interactive Features
+// Bolt Landing Page Interactive Features
 // Performance-focused, zero-dependency JavaScript
 
-class LogmaLandingPage {
+class BoltLandingPage {
     constructor() {
         this.charts = {};
         this.benchmarkData = [];
@@ -22,7 +22,7 @@ class LogmaLandingPage {
         this.initBenchmarkTrendChart();
     }
 
-    initPerformanceChart(logmaValue = 62.96) {
+    initPerformanceChart(boltValue = 63) {
         const container = document.getElementById('performanceChart');
         if (!container) return;
 
@@ -31,7 +31,7 @@ class LogmaLandingPage {
         container.style.minHeight = '260px';
 
         const data = [
-            { label: 'Logma', value: logmaValue, class: 'logma' },
+            { label: 'Bolt', value: boltValue, class: 'bolt' },
             { label: 'Zerolog', value: 175.4, class: 'other' },
             { label: 'Zap', value: 189.7, class: 'other' },
             { label: 'Logrus', value: 2847, class: 'other' }
@@ -44,9 +44,9 @@ class LogmaLandingPage {
         requestAnimationFrame(() => {
             container.innerHTML = data.map(item => {
                 const height = logScale(item.value);
-                const improvement = item.value > logmaValue ? 
-                    ` (${Math.round((item.value - logmaValue) / logmaValue * 100)}% slower)` : '';
-                
+                const improvement = item.value > boltValue ?
+                    ` (${Math.round((item.value - boltValue) / boltValue * 100)}% slower)` : '';
+
                 return `
                     <div class="chart-bar" title="${item.label}: ${item.value}ns/op${improvement}">
                         <div class="bar ${item.class}" style="height: ${height}px; max-height: 220px;">
@@ -75,18 +75,18 @@ class LogmaLandingPage {
                 <div class="trend-content" style="height: 100% !important; max-height: 260px !important; position: relative; overflow: hidden !important;">
                     <div class="trend-legend">
                         <div class="legend-item">
-                            <div class="legend-color logma"></div>
-                            <span>Logma Performance Optimization</span>
+                            <div class="legend-color bolt"></div>
+                            <span>Bolt Performance Optimization</span>
                         </div>
                     </div>
                     <svg width="100%" height="200" style="position: absolute; bottom: 20px; left: 40px; right: 20px; max-height: 200px; overflow: hidden;" viewBox="0 0 450 210" preserveAspectRatio="none">
                         <defs>
-                            <linearGradient id="logmaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient id="boltGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.3" />
                                 <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0" />
                             </linearGradient>
                         </defs>
-                        
+
                         <!-- Grid lines -->
                         <g stroke="#E5E7EB" stroke-width="0.5">
                             <!-- Y-axis grid lines -->
@@ -94,32 +94,32 @@ class LogmaLandingPage {
                             <line x1="40" y1="80" x2="400" y2="80"/>
                             <line x1="40" y1="120" x2="400" y2="120"/>
                             <line x1="40" y1="160" x2="400" y2="160"/>
-                            
+
                             <!-- X-axis grid lines - simplified for realistic timeline -->
                             <line x1="40" y1="40" x2="40" y2="170"/>
                             <line x1="220" y1="40" x2="220" y2="170"/>
                             <line x1="400" y1="40" x2="400" y2="170"/>
                         </g>
-                        
+
                         <!-- Y-axis labels (ns/op values) -->
                         <text x="35" y="45" font-size="9" fill="#6B7280" text-anchor="end">50ns</text>
                         <text x="35" y="85" font-size="9" fill="#6B7280" text-anchor="end">100ns</text>
                         <text x="35" y="125" font-size="9" fill="#6B7280" text-anchor="end">150ns</text>
                         <text x="35" y="165" font-size="9" fill="#6B7280" text-anchor="end">200ns</text>
-                        
+
                         <!-- X-axis labels (time) - realistic timeline for new library -->
                         <text x="40" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Yesterday</text>
                         <text x="220" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Initial Development</text>
                         <text x="400" y="185" font-size="9" fill="#6B7280" text-anchor="middle">Today</text>
-                        
+
                         <!-- Axis lines -->
                         <line x1="40" y1="40" x2="40" y2="170" stroke="#9CA3AF" stroke-width="1"/>
                         <line x1="40" y1="170" x2="400" y2="170" stroke="#9CA3AF" stroke-width="1"/>
-                        
-                        <!-- Logma trend line (realistic 2-day timeline) -->
+
+                        <!-- Bolt trend line (realistic 2-day timeline) -->
                         <!-- Yesterday (initial): ~100ns, Today (optimized): ~63ns -->
                         <path d="M40,120 Q130,100 220,85 T400,75" stroke="#2563EB" stroke-width="3" fill="none"/>
-                        <path d="M40,120 Q130,100 220,85 T400,75 L400,170 L40,170 Z" fill="url(#logmaGradient)"/>
+                        <path d="M40,120 Q130,100 220,85 T400,75 L400,170 L40,170 Z" fill="url(#boltGradient)"/>
                         
                         
                         <!-- Data points with values - realistic timeline -->
@@ -238,7 +238,7 @@ class LogmaLandingPage {
             if (response.ok) {
                 const data = await response.json();
                 this.updateChartsWithLiveData(data);
-                console.log('Loaded live benchmark data:', data.logma_ns_per_op + 'ns/op');
+                console.log('Loaded live benchmark data:', data.bolt_ns_per_op + 'ns/op');
             } else {
                 console.log('Live benchmark data not available, using static values');
             }
@@ -253,8 +253,8 @@ class LogmaLandingPage {
 
     updateChartsWithLiveData(data) {
         // Update performance chart with live data
-        if (data.logma_ns_per_op) {
-            this.initPerformanceChart(data.logma_ns_per_op);
+        if (data.bolt_ns_per_op) {
+            this.initPerformanceChart(data.bolt_ns_per_op);
         }
     }
 
@@ -264,8 +264,8 @@ class LogmaLandingPage {
 
         // In a real implementation, this would come from GitHub API
         const stats = {
-            version: 'v1.0.0',
-            goVersion: 'Go 1.21+',
+            version: 'v2.0.0',
+            goVersion: 'Go 1.19+',
             dependencies: '0 Dependencies',
             lastUpdate: new Date().toLocaleDateString()
         };
@@ -280,7 +280,7 @@ class LogmaLandingPage {
     // Utility method for future GitHub Actions integration
     async fetchBenchmarkData() {
         // This would integrate with GitHub Actions workflow artifacts
-        // Example endpoint: https://api.github.com/repos/felixgeelhaar/logma/actions/artifacts
+        // Example endpoint: https://api.github.com/repos/felixgeelhaar/bolt/actions/artifacts
         // For now, return mock data to prevent hanging
         return new Promise(resolve => {
             setTimeout(() => {
@@ -307,13 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Initialize landing page functionality
-    window.logmaLanding = new LogmaLandingPage();
+    window.boltLanding = new BoltLandingPage();
 });
 
 // Handle window resize for charts
 window.addEventListener('resize', () => {
-    if (window.logmaLanding && window.logmaLanding.charts) {
-        Object.values(window.logmaLanding.charts).forEach(chart => {
+    if (window.boltLanding && window.boltLanding.charts) {
+        Object.values(window.boltLanding.charts).forEach(chart => {
             if (chart && typeof chart.resize === 'function') {
                 chart.resize();
             }
