@@ -339,9 +339,6 @@ body {
 }
 
 .trend-chart {
-    height: 300px !important;
-    min-height: 300px !important;
-    max-height: 300px !important;
     width: 100%;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-radius: 12px;
@@ -351,17 +348,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden !important;
-    contain: layout style size;
+    overflow: visible;
+    min-height: 350px;
 }
 
 .trend-content {
     position: relative;
     width: 100%;
-    height: 100% !important;
-    max-height: 260px !important;
-    overflow: hidden !important;
-    contain: layout style size;
+    overflow: visible;
 }
 
 .trend-legend {
@@ -393,12 +387,9 @@ body {
 /* Chart Containers */
 .benchmark-chart-container {
     margin-top: var(--space-12);
-    height: 360px !important;
-    min-height: 360px !important;
-    max-height: 360px !important;
     position: relative;
-    overflow: hidden !important;
-    contain: layout style size;
+    overflow: visible;
+    min-height: 400px;
 }
 
 .benchmark-chart-container *,
@@ -412,8 +403,8 @@ body {
 
 .benchmark-chart-container .trend-chart,
 .benchmark-chart-container .trend-content {
-    height: 300px !important;
-    max-height: 300px !important;
+    height: auto;
+    overflow: visible;
 }
 
 .chart-title {
