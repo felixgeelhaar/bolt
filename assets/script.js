@@ -63,11 +63,10 @@ class BoltLandingPage {
         const container = document.getElementById('benchmarkChart');
         if (!container) return;
 
-        // Set fixed dimensions immediately to prevent layout shift
-        container.style.height = '300px !important';
-        container.style.minHeight = '300px !important';
-        container.style.maxHeight = '300px !important';
-        container.style.overflow = 'hidden';
+        // Set container to auto-size based on content
+        container.style.height = 'auto';
+        container.style.minHeight = '350px';
+        container.style.overflow = 'visible';
         
         // Use requestAnimationFrame to ensure smooth rendering
         requestAnimationFrame(() => {
