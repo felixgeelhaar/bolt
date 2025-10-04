@@ -723,7 +723,7 @@ body {
 .footer-logo {
     height: 2rem;
     margin-bottom: var(--space-4);
-    filter: brightness(0) invert(1);
+    /* Removed filter for colored PNG logo */
 }
 
 .footer-description {
