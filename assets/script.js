@@ -63,15 +63,25 @@ class BoltLandingPage {
         const container = document.getElementById('benchmarkChart');
         if (!container) return;
 
-        // Set container to auto-size based on content
-        container.style.height = 'auto';
-        container.style.minHeight = '350px';
-        container.style.overflow = 'visible';
+        // Set container to auto-size based on content with !important to override CSS
+        container.style.setProperty('height', 'auto', 'important');
+        container.style.setProperty('min-height', '350px', 'important');
+        container.style.setProperty('max-height', 'none', 'important');
+        container.style.setProperty('overflow', 'visible', 'important');
+
+        // Also fix the parent benchmark-chart-container
+        const parentContainer = container.closest('.benchmark-chart-container');
+        if (parentContainer) {
+            parentContainer.style.setProperty('height', 'auto', 'important');
+            parentContainer.style.setProperty('min-height', '400px', 'important');
+            parentContainer.style.setProperty('max-height', 'none', 'important');
+            parentContainer.style.setProperty('overflow', 'visible', 'important');
+        }
         
         // Use requestAnimationFrame to ensure smooth rendering
         requestAnimationFrame(() => {
             container.innerHTML = `
-                <div class="trend-content" style="height: auto; position: relative; padding-bottom: 20px;">
+                <div class="trend-content" style="height: auto !important; max-height: none !important; overflow: visible !important; position: relative; padding-bottom: 20px;">
                     <div class="trend-legend">
                         <div class="legend-item">
                             <div class="legend-color bolt"></div>
