@@ -171,11 +171,35 @@ func handleRequest(ctx context.Context) {
 
 ## 📊 Benchmarks
 
-Run the included benchmarks to see Bolt's performance on your system:
+### Running Bolt's Internal Benchmarks
+
+Test Bolt's performance on your system:
 
 ```bash
-go test -bench=. -benchmem ./...
+# Run Bolt's internal performance tests
+go test -bench=. -benchmem
+
+# Run specific benchmarks
+go test -bench=BenchmarkZeroAllocation -benchmem
+go test -bench=BenchmarkFloat64 -benchmem
 ```
+
+### Comparing Against Other Libraries
+
+Comparison benchmarks (Bolt vs Zerolog vs Zap vs slog) are maintained in a separate module to avoid adding unnecessary dependencies for users. To run comparison benchmarks:
+
+```bash
+cd benchmarks
+go test -bench=. -benchmem
+
+# Compare specific libraries
+go test -bench=BenchmarkBolt -benchmem
+go test -bench=BenchmarkZerolog -benchmem
+go test -bench=BenchmarkZap -benchmem
+go test -bench=BenchmarkSlog -benchmem
+```
+
+See [benchmarks/README.md](benchmarks/README.md) for detailed instructions.
 
 ### Sample Results (v2.0.0)
 
@@ -551,7 +575,10 @@ We welcome contributions! **Please fork the repository** and submit pull request
 4. **Make your changes** and ensure tests pass:
    ```bash
    go test ./...
-   go test -bench=. -benchmem -tags=bench
+   go test -bench=. -benchmem
+
+   # Optional: Run comparison benchmarks
+   cd benchmarks && go test -bench=. -benchmem
    ```
 5. **Submit a pull request** from your fork
 
