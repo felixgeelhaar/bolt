@@ -1,11 +1,10 @@
-//go:build bench
-
-package bolt
+package benchmarks
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/felixgeelhaar/bolt"
 	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -13,7 +12,7 @@ import (
 )
 
 func BenchmarkBolt(b *testing.B) {
-	logger := New(NewJSONHandler(&bytes.Buffer{}))
+	logger := bolt.New(bolt.NewJSONHandler(&bytes.Buffer{}))
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -22,7 +21,7 @@ func BenchmarkBolt(b *testing.B) {
 }
 
 func BenchmarkBolt5Fields(b *testing.B) {
-	logger := New(NewJSONHandler(&bytes.Buffer{}))
+	logger := bolt.New(bolt.NewJSONHandler(&bytes.Buffer{}))
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -31,7 +30,7 @@ func BenchmarkBolt5Fields(b *testing.B) {
 }
 
 func BenchmarkBoltDisabled(b *testing.B) {
-	logger := New(NewJSONHandler(&bytes.Buffer{})).SetLevel(FATAL) // Set level to FATAL to disable INFO logs
+	logger := bolt.New(bolt.NewJSONHandler(&bytes.Buffer{})).SetLevel(bolt.FATAL) // Set level to FATAL to disable INFO logs
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
