@@ -1,0 +1,20 @@
+{
+  "run_id": "run-9350a3bd862f4480",
+  "state": "planned",
+  "head_sha": "a03867330ef5c9b4061bed2f0034a8613705df7d",
+  "plan_hash": "1117813771c12faf95443e82e20566e0773092cbe6445268315b71cb7e8538d2",
+  "version_next": "3.1.3",
+  "steps": {},
+  "history": [
+    {
+      "At": "2026-01-03T22:41:16.477959+01:00",
+      "From": "draft",
+      "To": "planned",
+      "Event": "PLAN",
+      "Actor": "mcp-agent",
+      "Reason": "Release planned",
+      "Metadata": null
+    }
+  ],
+  "updated_at": "2026-01-03T22:41:16+01:00"
+}
