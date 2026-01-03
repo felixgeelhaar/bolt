@@ -1,0 +1,17 @@
+version: 1
+policy:
+  default:
+    min: 30
+  domains:
+    - name: core
+      match:
+        - github.com/felixgeelhaar/bolt/v3
+      min: 30
+    - name: examples
+      match:
+        - github.com/felixgeelhaar/bolt/v3/examples/...
+      min: 0  # Examples are standalone apps, not tested
+history:
+  enabled: true
+  file: .coverctl-history.json
+  maxEntries: 100

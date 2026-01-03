@@ -1,0 +1,57 @@
+ai:
+  enabled: false
+  provider: openai
+  model: gpt-4
+  tone: professional
+  audience: developers
+  includeemoji: false
+changelog:
+  file: CHANGELOG.md
+  format: keep-a-changelog
+  productname: Bolt
+  groupby: type
+  includecommithash: true
+  includeauthor: false
+  includedate: true
+  linkcommits: true
+  linkissues: true
+  repositoryurl: https://github.com/felixgeelhaar/bolt
+  issueurl: https://github.com/felixgeelhaar/bolt/issues
+  exclude:
+    - chore
+    - ci
+    - style
+  categories:
+    build: Build System
+    docs: Documentation
+    feat: Features
+    fix: Bug Fixes
+    perf: Performance Improvements
+    refactor: Code Refactoring
+    revert: Reverts
+    test: Tests
+output:
+  format: text
+  color: true
+  verbose: false
+plugins:
+  - name: github
+    enabled: true
+    config:
+      draft: false
+versioning:
+  strategy: conventional
+  tagprefix: v
+  gittag: true
+  gitpush: true
+  gitsign: false
+  bumpfrom: tag
+workflow:
+  requireapproval: true
+  allowedbranches:
+    - main
+  requirecleanworkingtree: true
+  requireuptodate: false
+  dryrunbydefault: false
+  autocommitchangelog: true
+  changelogcommitmessage: 'chore(release): update changelog for ${version}'
