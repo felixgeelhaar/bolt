@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v3"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

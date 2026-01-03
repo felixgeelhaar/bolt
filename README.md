@@ -7,7 +7,7 @@
   [![codecov](https://codecov.io/gh/felixgeelhaar/bolt/branch/main/graph/badge.svg)](https://codecov.io/gh/felixgeelhaar/bolt)
   [![Go Version](https://img.shields.io/badge/go-%3E%3D1.19-blue.svg)](https://golang.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt/v3)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt/v3)
   [![Performance](https://img.shields.io/badge/performance-63ns%2Fop%20%7C%200%20allocs-brightgreen.svg)](#performance)
   [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://felixgeelhaar.github.io/bolt/)
 </div>
@@ -44,7 +44,7 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 ## 📦 Installation
 
 ```bash
-go get github.com/felixgeelhaar/bolt
+go get github.com/felixgeelhaar/bolt/v3
 ```
 
 ## 🏃 Quick Start
@@ -56,7 +56,7 @@ package main
 
 import (
     "os"
-    "github.com/felixgeelhaar/bolt"
+    "github.com/felixgeelhaar/bolt/v3"
 )
 
 func main() {
@@ -153,7 +153,7 @@ logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
 import (
     "context"
     "go.opentelemetry.io/otel"
-    "github.com/felixgeelhaar/bolt"
+    "github.com/felixgeelhaar/bolt/v3"
 )
 
 func handleRequest(ctx context.Context) {
@@ -542,7 +542,7 @@ r.Use(BoltLogger(logger))
 
 ### Core Documentation
 - [📖 **Live Benchmarks**](https://felixgeelhaar.github.io/bolt/) - Real-time performance metrics
-- [🏗️ **API Documentation**](https://pkg.go.dev/github.com/felixgeelhaar/bolt) - Complete API reference
+- [🏗️ **API Documentation**](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v3) - Complete API reference
 - [🎯 **Production Examples**](examples/) - REST API, gRPC, Batch processing, K8s
 - [📊 **Observability**](examples/observability/) - OpenTelemetry, Prometheus integration
 

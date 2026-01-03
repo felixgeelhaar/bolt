@@ -29,7 +29,7 @@
 //
 //	import (
 //	    "os"
-//	    "github.com/felixgeelhaar/bolt"
+//	    "github.com/felixgeelhaar/bolt/v3"
 //	)
 //
 //	func main() {

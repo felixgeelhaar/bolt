@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v3"
 	"github.com/google/uuid"
 )
 

@@ -3,7 +3,7 @@ module github.com/felixgeelhaar/bolt/benchmarks
 go 1.23.0
 
 require (
-	github.com/felixgeelhaar/bolt v0.0.0-00010101000000-000000000000
+	github.com/felixgeelhaar/bolt/v3 v3.0.0
 	github.com/rs/zerolog v1.34.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20250711185948-6ae5c78190dc
@@ -20,4 +20,4 @@ require (
 )
 
 // Use local parent module for development
-replace github.com/felixgeelhaar/bolt => ../
+replace github.com/felixgeelhaar/bolt/v3 => ../

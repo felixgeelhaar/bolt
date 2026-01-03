@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"github.com/felixgeelhaar/bolt/v3"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
