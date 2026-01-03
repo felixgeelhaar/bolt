@@ -2,8 +2,7 @@
 // This example shows distributed tracing, metrics collection, and structured logging
 // with full observability stack integration.
 //
-// NOTE: This example includes both Jaeger (deprecated) and OTLP exporters
-// for comparison. New implementations should use OTLP exporters.
+// This example uses OTLP exporters for distributed tracing.
 package main
 
 import (
@@ -18,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric"
@@ -133,17 +131,9 @@ func NewApplication() (*Application, error) {
 
 // initTracing initializes OpenTelemetry tracing
 func initTracing() (*tracesdk.TracerProvider, error) {
-	// Create Jaeger exporter
-	jaegerExporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(
-		getEnv("JAEGER_ENDPOINT", "http://localhost:14268/api/traces"),
-	)))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create Jaeger exporter: %w", err)
-	}
-
-	// Create OTLP exporter (alternative to Jaeger)
+	// Create OTLP exporter
 	otlpExporter, err := otlptracehttp.New(context.Background(),
-		otlptracehttp.WithEndpoint(getEnv("OTLP_ENDPOINT", "http://localhost:4318")),
+		otlptracehttp.WithEndpoint(getEnv("OTLP_ENDPOINT", "localhost:4318")),
 		otlptracehttp.WithInsecure(),
 	)
 	if err != nil {
@@ -167,7 +157,6 @@ func initTracing() (*tracesdk.TracerProvider, error) {
 
 	// Create tracer provider
 	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithBatcher(jaegerExporter),
 		tracesdk.WithBatcher(otlpExporter),
 		tracesdk.WithResource(res),
 		tracesdk.WithSampler(tracesdk.AlwaysSample()),
