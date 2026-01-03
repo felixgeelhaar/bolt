@@ -39,6 +39,9 @@ plugins:
     enabled: true
     config:
       draft: false
+      token: ${GITHUB_TOKEN}
+      owner: felixgeelhaar
+      repo: bolt
 versioning:
   strategy: conventional
   tagprefix: v
