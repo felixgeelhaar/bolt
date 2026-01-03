@@ -62,22 +62,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Warm module proxy
+        continue-on-error: true
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           MAJOR=$(echo $VERSION | cut -d. -f1)
-          
+
           if [ "$MAJOR" = "v0" ] || [ "$MAJOR" = "v1" ]; then
             MODULE="github.com/${{ github.repository }}"
           else
             MODULE="github.com/${{ github.repository }}/$MAJOR"
           fi
-          
-          # Warm up the module proxy
-          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.info"
-          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.mod"
-          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.zip"
-          
-          # Trigger pkg.go.dev indexing
-          curl -sf "https://pkg.go.dev/${MODULE}@${VERSION}" > /dev/null
-          
-          echo "✅ Module proxy warmed for ${MODULE}@${VERSION}"
+
+          # Warm up the module proxy (these are essential)
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.info" || echo "⚠️ Failed to warm .info"
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.mod" || echo "⚠️ Failed to warm .mod"
+          curl -sf "https://proxy.golang.org/${MODULE}/@v/${VERSION}.zip" || echo "⚠️ Failed to warm .zip"
+
+          # Trigger pkg.go.dev indexing (may fail initially, that's ok)
+          curl -s "https://pkg.go.dev/${MODULE}@${VERSION}" > /dev/null || echo "⚠️ pkg.go.dev not yet indexed"
+
+          echo "✅ Module proxy warming complete for ${MODULE}@${VERSION}"
