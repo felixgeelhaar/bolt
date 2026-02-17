@@ -108,6 +108,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"runtime"
 	"strings"
@@ -287,6 +288,41 @@ func appendJSONString(buf []byte, s string) []byte {
 		}
 		i += size
 	}
+	return buf
+}
+
+// appendIP appends an IP address to the buffer without allocations.
+// IPv4 addresses use dotted-decimal notation, IPv6 uses colon-hex notation.
+func appendIP(buf []byte, ip net.IP) []byte {
+	if p4 := ip.To4(); p4 != nil {
+		buf = appendUint(buf, uint64(p4[0]))
+		buf = append(buf, '.')
+		buf = appendUint(buf, uint64(p4[1]))
+		buf = append(buf, '.')
+		buf = appendUint(buf, uint64(p4[2]))
+		buf = append(buf, '.')
+		buf = appendUint(buf, uint64(p4[3]))
+		return buf
+	}
+	if len(ip) == net.IPv6len {
+		for i := 0; i < net.IPv6len; i += 2 {
+			if i > 0 {
+				buf = append(buf, ':')
+			}
+			buf = appendHex16(buf, uint16(ip[i])<<8|uint16(ip[i+1]))
+		}
+		return buf
+	}
+	return buf
+}
+
+// appendHex16 appends a 16-bit value as 4 lowercase hex digits.
+func appendHex16(buf []byte, v uint16) []byte {
+	const lowerHex = "0123456789abcdef"
+	buf = append(buf, lowerHex[(v>>12)&0xf])
+	buf = append(buf, lowerHex[(v>>8)&0xf])
+	buf = append(buf, lowerHex[(v>>4)&0xf])
+	buf = append(buf, lowerHex[v&0xf])
 	return buf
 }
 
@@ -556,12 +592,42 @@ func defaultErrorHandler(err error) {
 	// Silent by default for backward compatibility
 }
 
+// Hook defines an interface for log event interception.
+// Hooks are called during Msg() before the event is written to the handler.
+// Returning false from Run suppresses the log event entirely.
+type Hook interface {
+	Run(level Level, msg string) bool
+}
+
+// SampleHook implements Hook to sample log events at a rate of 1 in every N.
+// It uses atomic operations for thread-safe counting.
+type SampleHook struct {
+	n       uint32
+	counter uint32
+}
+
+// NewSampleHook creates a SampleHook that passes 1 out of every n events.
+// If n is 0 or 1, all events pass through.
+func NewSampleHook(n uint32) *SampleHook {
+	return &SampleHook{n: n}
+}
+
+// Run implements Hook. It returns true for every Nth event.
+func (h *SampleHook) Run(_ Level, _ string) bool {
+	if h.n <= 1 {
+		return true
+	}
+	c := atomic.AddUint32(&h.counter, 1)
+	return c%h.n == 0
+}
+
 // Logger is the main logging interface.
 type Logger struct {
 	handler      Handler
 	level        int64  // Use int64 for atomic operations with Level
 	context      []byte // Pre-formatted context fields for this logger instance.
 	errorHandler ErrorHandler
+	hooks        []Hook
 }
 
 // New creates a new logger with the given handler.
@@ -572,6 +638,14 @@ func New(handler Handler) *Logger {
 // SetErrorHandler sets a custom error handler for the logger
 func (l *Logger) SetErrorHandler(eh ErrorHandler) *Logger {
 	l.errorHandler = eh
+	return l
+}
+
+// AddHook adds a hook to the logger. Hooks are called in order during Msg().
+// AddHook is intended for setup-time configuration and is not safe to call
+// concurrently with logging operations.
+func (l *Logger) AddHook(hook Hook) *Logger {
+	l.hooks = append(l.hooks, hook)
 	return l
 }
 
@@ -612,7 +686,7 @@ func (e *Event) Logger() *Logger {
 		contextBuf = contextBuf[1:]
 	}
 	// Create new logger with atomic level
-	newLogger := &Logger{handler: e.l.handler, context: contextBuf, errorHandler: e.l.errorHandler}
+	newLogger := &Logger{handler: e.l.handler, context: contextBuf, errorHandler: e.l.errorHandler, hooks: e.l.hooks}
 	atomic.StoreInt64(&newLogger.level, atomic.LoadInt64(&e.l.level))
 	return newLogger
 }
@@ -752,6 +826,28 @@ func (e *Event) Str(key, value string) *Event {
 	e.buf = appendJSONString(e.buf, value)
 	e.buf = append(e.buf, '"')
 	return e
+}
+
+// Stringer adds a field whose value is obtained by calling the String method of
+// a [fmt.Stringer]. If val is nil, the field value is JSON null.
+func (e *Event) Stringer(key string, val fmt.Stringer) *Event {
+	if e.l == nil {
+		return e
+	}
+	if val == nil {
+		if err := validateKey(key); err != nil {
+			if e.l.errorHandler != nil {
+				e.l.errorHandler(fmt.Errorf("invalid key in Stringer(): %w", err))
+			}
+			return e
+		}
+		e.buf = append(e.buf, ',')
+		e.buf = append(e.buf, '"')
+		e.buf = appendJSONString(e.buf, key)
+		e.buf = append(e.buf, `":null`...)
+		return e
+	}
+	return e.Str(key, val.String())
 }
 
 // Int adds an integer field to the event using fast conversion.
@@ -959,6 +1055,16 @@ func (e *Event) Msg(message string) {
 		return
 	}
 
+	// Run hooks - if any returns false, suppress the event
+	for _, hook := range e.l.hooks {
+		if !hook.Run(e.level, message) {
+			e.buf = e.buf[:0]
+			e.l = nil
+			eventPool.Put(e)
+			return
+		}
+	}
+
 	// Check buffer size before finalizing
 	if err := checkBufferSize(e.buf); err != nil {
 		if e.l.errorHandler != nil {
@@ -1061,6 +1167,31 @@ func (h *ConsoleHandler) Write(e *Event) error {
 	}
 
 	return nil
+}
+
+// multiHandler is a Handler that writes to multiple handlers.
+type multiHandler struct {
+	handlers []Handler
+}
+
+// MultiHandler returns a Handler that writes to all provided handlers.
+// The handlers slice is copied at construction, so the original slice can be
+// safely modified afterward. Write returns the first error encountered.
+func MultiHandler(handlers ...Handler) Handler {
+	h := make([]Handler, len(handlers))
+	copy(h, handlers)
+	return &multiHandler{handlers: h}
+}
+
+// Write sends the event to all handlers, returning the first error encountered.
+func (m *multiHandler) Write(e *Event) error {
+	var firstErr error
+	for _, h := range m.handlers {
+		if err := h.Write(e); err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+	return firstErr
 }
 
 // findJSONFieldStart locates the start position of a JSON field value
@@ -1439,6 +1570,35 @@ func (e *Event) Base64(key string, value []byte) *Event {
 	return e
 }
 
+// IPAddr adds a net.IP address field to the event. IPv4 addresses are formatted
+// as dotted-decimal (e.g. "192.168.1.1"), IPv6 as colon-hex notation.
+// If ip is nil, the field value is JSON null. This method is zero-allocation.
+func (e *Event) IPAddr(key string, ip net.IP) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in IPAddr(): %w", err))
+		}
+		return e
+	}
+	if ip == nil {
+		e.buf = append(e.buf, ',')
+		e.buf = append(e.buf, '"')
+		e.buf = appendJSONString(e.buf, key)
+		e.buf = append(e.buf, `":null`...)
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":"`...)
+	e.buf = appendIP(e.buf, ip)
+	e.buf = append(e.buf, '"')
+	return e
+}
+
 // Bytes adds a byte array field as a string to the event.
 func (e *Event) Bytes(key string, value []byte) *Event {
 	if e.l == nil {
@@ -1473,6 +1633,23 @@ func (e *Event) Caller() *Event {
 	return e.Str("caller", fmt.Sprintf("%s:%d", file, line))
 }
 
+// CallerSkip adds caller information (file:line) to the event, skipping the
+// specified number of additional stack frames. This is useful when Bolt is
+// wrapped in helper functions and you need the caller of the wrapper.
+func (e *Event) CallerSkip(skip int) *Event {
+	if e.l == nil {
+		return e
+	}
+	_, file, line, ok := runtime.Caller(1 + skip)
+	if !ok {
+		return e.Str("caller", "unknown")
+	}
+	if idx := strings.LastIndex(file, "/"); idx >= 0 {
+		file = file[idx+1:]
+	}
+	return e.Str("caller", fmt.Sprintf("%s:%d", file, line))
+}
+
 // RandID adds a random ID field to the event for request tracing.
 func (e *Event) RandID(key string) *Event {
 	if e.l == nil {
@@ -1492,6 +1669,94 @@ func (e *Event) Fields(fields map[string]interface{}) *Event {
 	for k, v := range fields {
 		e.Any(k, v)
 	}
+	return e
+}
+
+// Ints adds an integer slice field to the event as a JSON array.
+// This method is zero-allocation.
+func (e *Event) Ints(key string, values []int) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Ints(): %w", err))
+		}
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":[`...)
+	for i, v := range values {
+		if i > 0 {
+			e.buf = append(e.buf, ',')
+		}
+		e.buf = appendInt(e.buf, v)
+	}
+	e.buf = append(e.buf, ']')
+	return e
+}
+
+// Strs adds a string slice field to the event as a JSON array.
+// This method is zero-allocation.
+func (e *Event) Strs(key string, values []string) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Strs(): %w", err))
+		}
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":[`...)
+	for i, v := range values {
+		if i > 0 {
+			e.buf = append(e.buf, ',')
+		}
+		e.buf = append(e.buf, '"')
+		e.buf = appendJSONString(e.buf, v)
+		e.buf = append(e.buf, '"')
+	}
+	e.buf = append(e.buf, ']')
+	return e
+}
+
+// Dict adds a sub-object field to the event. The provided function is called
+// with a temporary Event that collects the sub-object's fields. The fields
+// are then embedded as a JSON object under the given key.
+func (e *Event) Dict(key string, fn func(d *Event)) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Dict(): %w", err))
+		}
+		return e
+	}
+	sub := eventPool.Get().(*Event)
+	sub.buf = sub.buf[:0]
+	sub.level = e.level
+	sub.l = e.l
+	fn(sub)
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":{`...)
+	subBuf := sub.buf
+	if len(subBuf) > 0 && subBuf[0] == ',' {
+		subBuf = subBuf[1:]
+	}
+	e.buf = append(e.buf, subBuf...)
+	e.buf = append(e.buf, '}')
+	sub.buf = sub.buf[:0]
+	sub.l = nil
+	eventPool.Put(sub)
 	return e
 }
 
@@ -1605,6 +1870,63 @@ func (e *Event) Uint64(key string, value uint64) *Event {
 	return e
 }
 
+// Uint32 adds a 32-bit unsigned integer field to the event.
+func (e *Event) Uint32(key string, value uint32) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Uint32(): %w", err))
+		}
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendUint(e.buf, uint64(value))
+	return e
+}
+
+// Uint16 adds a 16-bit unsigned integer field to the event.
+func (e *Event) Uint16(key string, value uint16) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Uint16(): %w", err))
+		}
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendUint(e.buf, uint64(value))
+	return e
+}
+
+// Uint8 adds an 8-bit unsigned integer field to the event.
+func (e *Event) Uint8(key string, value uint8) *Event {
+	if e.l == nil {
+		return e
+	}
+	if err := validateKey(key); err != nil {
+		if e.l.errorHandler != nil {
+			e.l.errorHandler(fmt.Errorf("invalid key in Uint8(): %w", err))
+		}
+		return e
+	}
+	e.buf = append(e.buf, ',')
+	e.buf = append(e.buf, '"')
+	e.buf = appendJSONString(e.buf, key)
+	e.buf = append(e.buf, `":`...)
+	e.buf = appendUint(e.buf, uint64(value))
+	return e
+}
+
 // Counter adds an atomic counter value to the event.
 func (e *Event) Counter(key string, counter *int64) *Event {
 	if e.l == nil {
@@ -1647,4 +1969,33 @@ func (e *Event) Printf(format string, args ...interface{}) {
 // Send is an alias for Msg for consistency with other logging libraries.
 func (e *Event) Send() {
 	e.Msg("")
+}
+
+// levelWriter adapts a Logger to the io.Writer interface.
+type levelWriter struct {
+	logger *Logger
+	level  Level
+}
+
+// NewLevelWriter returns an io.Writer that logs each Write call as a message
+// at the given level. Trailing newlines are trimmed. This is useful for bridging
+// libraries that expect an io.Writer (such as the standard log package) into Bolt.
+//
+// The string(p) conversion allocates, which is acceptable since this is a
+// compatibility bridge rather than a hot-path logging method.
+func NewLevelWriter(logger *Logger, level Level) io.Writer {
+	return &levelWriter{logger: logger, level: level}
+}
+
+func (w *levelWriter) Write(p []byte) (int, error) {
+	n := len(p)
+	msg := string(p)
+	if len(msg) > 0 && msg[len(msg)-1] == '\n' {
+		msg = msg[:len(msg)-1]
+	}
+	e := w.logger.log(w.level)
+	if e != nil {
+		e.Msg(msg)
+	}
+	return n, nil
 }

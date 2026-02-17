@@ -6,6 +6,7 @@ package bolt
 
 import (
 	"bytes"
+	"net"
 	"testing"
 	"time"
 )
@@ -121,6 +122,10 @@ func TestPerformanceRegression(t *testing.T) {
 		var buf bytes.Buffer
 		logger := New(NewJSONHandler(&buf))
 
+		ipv4 := net.IPv4(192, 168, 1, 1)
+		ints := []int{1, 2, 3}
+		strs := []string{"a", "b"}
+
 		// Test each field type for zero allocations
 		fieldTypes := map[string]func(){
 			"Int":     func() { logger.Info().Int("key", 42).Msg("test") },
@@ -129,11 +134,20 @@ func TestPerformanceRegression(t *testing.T) {
 			"Int32":   func() { logger.Info().Int32("key", 42).Msg("test") },
 			"Int64":   func() { logger.Info().Int64("key", 42).Msg("test") },
 			"Uint":    func() { logger.Info().Uint("key", 42).Msg("test") },
+			"Uint8":   func() { logger.Info().Uint8("key", 42).Msg("test") },
+			"Uint16":  func() { logger.Info().Uint16("key", 42).Msg("test") },
+			"Uint32":  func() { logger.Info().Uint32("key", 42).Msg("test") },
 			"Uint64":  func() { logger.Info().Uint64("key", 42).Msg("test") },
 			"Bool":    func() { logger.Info().Bool("key", true).Msg("test") },
 			"Float64": func() { logger.Info().Float64("key", 3.14).Msg("test") },
 			"Str":     func() { logger.Info().Str("key", "value").Msg("test") },
 			"Dur":     func() { logger.Info().Dur("key", time.Second).Msg("test") },
+			"Ints":    func() { logger.Info().Ints("key", ints).Msg("test") },
+			"Strs":    func() { logger.Info().Strs("key", strs).Msg("test") },
+			"IPAddr":  func() { logger.Info().IPAddr("key", ipv4).Msg("test") },
+			"Dict": func() {
+				logger.Info().Dict("key", func(d *Event) { d.Str("a", "b") }).Msg("test")
+			},
 		}
 
 		for name, fn := range fieldTypes {
@@ -257,7 +271,81 @@ func BenchmarkNewFieldMethods(b *testing.B) {
 			logger.Info().Int8("value", 42).Msg("test")
 		}
 	})
+
+	b.Run("Uint8", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Uint8("value", 42).Msg("test")
+		}
+	})
+
+	b.Run("Uint16", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Uint16("value", 42).Msg("test")
+		}
+	})
+
+	b.Run("Uint32", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Uint32("value", 42).Msg("test")
+		}
+	})
+
+	b.Run("Ints", func(b *testing.B) {
+		vals := []int{1, 2, 3, 4, 5}
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Ints("values", vals).Msg("test")
+		}
+	})
+
+	b.Run("Strs", func(b *testing.B) {
+		vals := []string{"alpha", "beta", "gamma"}
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Strs("values", vals).Msg("test")
+		}
+	})
+
+	b.Run("IPAddr_IPv4", func(b *testing.B) {
+		ip := net.IPv4(192, 168, 1, 1)
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().IPAddr("ip", ip).Msg("test")
+		}
+	})
+
+	b.Run("Dict", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Dict("obj", func(d *Event) {
+				d.Str("name", "alice").Int("age", 30)
+			}).Msg("test")
+		}
+	})
+
+	b.Run("Stringer", func(b *testing.B) {
+		s := &benchStringer{val: "hello"}
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			buf.Reset()
+			logger.Info().Stringer("val", s).Msg("test")
+		}
+	})
 }
+
+type benchStringer struct{ val string }
+
+func (s *benchStringer) String() string { return s.val }
 
 // BenchmarkEdgeCases benchmarks performance with edge case inputs
 func BenchmarkEdgeCases(b *testing.B) {

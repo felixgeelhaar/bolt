@@ -832,6 +832,128 @@ func TestLibraryThreadSafety(t *testing.T) {
 	t.Logf("Successfully completed %d concurrent logging operations without race conditions", actualOps)
 }
 
+// TestDictPoolRace tests Dict's pool usage under concurrent access.
+func TestDictPoolRace(t *testing.T) {
+	const (
+		numGoroutines  = 100
+		logsPerRoutine = 100
+	)
+
+	buf := &ThreadSafeBuffer{}
+	logger := New(NewJSONHandler(buf))
+
+	var wg sync.WaitGroup
+	for i := 0; i < numGoroutines; i++ {
+		wg.Add(1)
+		go func(routineID int) {
+			defer wg.Done()
+			for j := 0; j < logsPerRoutine; j++ {
+				logger.Info().Dict("data", func(d *Event) {
+					d.Int("routine", routineID).Int("iter", j).Str("status", "ok")
+				}).Msg("dict race test")
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	expectedLogs := numGoroutines * logsPerRoutine
+	actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
+	if actualLogs != expectedLogs {
+		t.Errorf("Expected %d logs, got %d", expectedLogs, actualLogs)
+	}
+}
+
+// TestMultiHandlerRace tests MultiHandler under concurrent access.
+func TestMultiHandlerRace(t *testing.T) {
+	const (
+		numGoroutines  = 50
+		logsPerRoutine = 100
+	)
+
+	buf1 := &ThreadSafeBuffer{}
+	buf2 := &ThreadSafeBuffer{}
+	h := MultiHandler(NewJSONHandler(buf1), NewJSONHandler(buf2))
+	logger := New(h)
+
+	var wg sync.WaitGroup
+	for i := 0; i < numGoroutines; i++ {
+		wg.Add(1)
+		go func(routineID int) {
+			defer wg.Done()
+			for j := 0; j < logsPerRoutine; j++ {
+				logger.Info().Int("id", routineID).Int("j", j).Msg("multi race")
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	expectedLogs := numGoroutines * logsPerRoutine
+	for name, buf := range map[string]*ThreadSafeBuffer{"buf1": buf1, "buf2": buf2} {
+		actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
+		if actualLogs != expectedLogs {
+			t.Errorf("%s: expected %d logs, got %d", name, expectedLogs, actualLogs)
+		}
+	}
+}
+
+// TestHookRace tests hooks under concurrent logging.
+func TestHookRace(t *testing.T) {
+	const (
+		numGoroutines  = 100
+		logsPerRoutine = 100
+	)
+
+	buf := &ThreadSafeBuffer{}
+	hook := NewSampleHook(2) // 50% sampling
+	logger := New(NewJSONHandler(buf)).AddHook(hook)
+
+	var wg sync.WaitGroup
+	for i := 0; i < numGoroutines; i++ {
+		wg.Add(1)
+		go func(routineID int) {
+			defer wg.Done()
+			for j := 0; j < logsPerRoutine; j++ {
+				logger.Info().Int("id", routineID).Msg("hook race")
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	totalEvents := numGoroutines * logsPerRoutine
+	actualLogs := bytes.Count(buf.Bytes(), []byte("\n"))
+	expectedSampled := totalEvents / 2
+	if actualLogs != expectedSampled {
+		t.Errorf("Expected %d sampled logs, got %d", expectedSampled, actualLogs)
+	}
+}
+
+// TestSampleHookRace tests SampleHook's atomic counter under heavy contention.
+func TestSampleHookRace(t *testing.T) {
+	hook := NewSampleHook(10)
+	var passed int64
+	var wg sync.WaitGroup
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				if hook.Run(INFO, "test") {
+					atomic.AddInt64(&passed, 1)
+				}
+			}
+		}()
+	}
+	wg.Wait()
+
+	total := int64(100 * 1000)
+	expected := total / 10
+	actual := atomic.LoadInt64(&passed)
+	if actual != expected {
+		t.Errorf("Expected %d passed events (1 in 10 of %d), got %d", expected, total, actual)
+	}
+}
+
 // TestUnsafeBufferRaceDetection explicitly demonstrates race condition detection
 // when using an unsafe shared buffer. This test should FAIL when run with -race.
 // It serves as a control to verify that our race detection setup is working.

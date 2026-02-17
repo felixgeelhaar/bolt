@@ -1,7 +1,10 @@
 package bolt_test
 
 import (
+	"fmt"
+	"log"
 	"log/slog"
+	"net"
 	"os"
 
 	"github.com/felixgeelhaar/bolt/v3"
@@ -118,4 +121,144 @@ func ExampleEvent_Err() {
 		Err(err).
 		Str("path", "/tmp/missing.txt").
 		Msg("file not found")
+}
+
+// --- Feature 1: Uint8/Uint16/Uint32 ---
+
+func ExampleEvent_Uint8() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Uint8("ttl", 64).Msg("packet info")
+	// Output: {"level":"info","ttl":64,"message":"packet info"}
+}
+
+func ExampleEvent_Uint16() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Uint16("port", 8080).Msg("listening")
+	// Output: {"level":"info","port":8080,"message":"listening"}
+}
+
+func ExampleEvent_Uint32() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Uint32("sequence", 4294967295).Msg("max seq")
+	// Output: {"level":"info","sequence":4294967295,"message":"max seq"}
+}
+
+// --- Feature 2: CallerSkip ---
+
+func ExampleEvent_CallerSkip() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+
+	// In a wrapper function, use CallerSkip(1) to report the caller of the wrapper
+	logWrapper := func(msg string) {
+		logger.Info().CallerSkip(1).Msg(msg)
+	}
+	_ = logWrapper // demonstrates usage pattern
+}
+
+// --- Feature 3: Stringer ---
+
+func ExampleEvent_Stringer() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Stringer("addr", net.IPv4(127, 0, 0, 1)).Msg("connected")
+	// Output: {"level":"info","addr":"127.0.0.1","message":"connected"}
+}
+
+func ExampleEvent_Stringer_nil() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Stringer("val", nil).Msg("no value")
+	// Output: {"level":"info","val":null,"message":"no value"}
+}
+
+// --- Feature 4: Ints / Strs ---
+
+func ExampleEvent_Ints() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Ints("ids", []int{10, 20, 30}).Msg("batch")
+	// Output: {"level":"info","ids":[10,20,30],"message":"batch"}
+}
+
+func ExampleEvent_Strs() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Strs("tags", []string{"go", "fast", "bolt"}).Msg("tagged")
+	// Output: {"level":"info","tags":["go","fast","bolt"],"message":"tagged"}
+}
+
+// --- Feature 5: IPAddr ---
+
+func ExampleEvent_IPAddr() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().IPAddr("client", net.IPv4(192, 168, 1, 100)).Msg("request")
+	// Output: {"level":"info","client":"192.168.1.100","message":"request"}
+}
+
+// --- Feature 6: Dict ---
+
+func ExampleEvent_Dict() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	logger.Info().Dict("user", func(d *bolt.Event) {
+		d.Str("name", "alice").Int("age", 30)
+	}).Msg("profile")
+	// Output: {"level":"info","user":{"name":"alice","age":30},"message":"profile"}
+}
+
+// --- Feature 7: MultiHandler ---
+
+func ExampleMultiHandler() {
+	// Write logs to both stdout and a file (or any other writer)
+	h := bolt.MultiHandler(
+		bolt.NewJSONHandler(os.Stdout),
+		bolt.NewJSONHandler(os.Stderr),
+	)
+	logger := bolt.New(h)
+	_ = logger // demonstrates construction
+}
+
+// --- Feature 8: Hook / AddHook ---
+
+// counterHook counts the number of log events processed.
+type counterHook struct{ count int }
+
+func (h *counterHook) Run(_ bolt.Level, _ string) bool {
+	h.count++
+	return true
+}
+
+func ExampleLogger_AddHook() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+
+	hook := &counterHook{}
+	logger.AddHook(hook)
+
+	logger.Info().Msg("first")
+	logger.Info().Msg("second")
+	fmt.Println("events:", hook.count)
+	// Output:
+	// {"level":"info","message":"first"}
+	// {"level":"info","message":"second"}
+	// events: 2
+}
+
+// --- Feature 9: SampleHook ---
+
+func ExampleNewSampleHook() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+
+	// Log only 1 out of every 100 events
+	logger.AddHook(bolt.NewSampleHook(100))
+
+	for i := 0; i < 200; i++ {
+		logger.Info().Int("i", i).Msg("sampled")
+	}
+}
+
+// --- Feature 10: NewLevelWriter ---
+
+func ExampleNewLevelWriter() {
+	logger := bolt.New(bolt.NewJSONHandler(os.Stdout))
+	w := bolt.NewLevelWriter(logger, bolt.ERROR)
+
+	// Use with the standard log package
+	stdlog := log.New(w, "", 0)
+	stdlog.Print("something failed")
+	// Output: {"level":"error","message":"something failed"}
 }
