@@ -5,6 +5,7 @@ scan:
     - "examples/"
     - ".relicta/"
     - ".cover/"
+    - "findings.json"
 
   rules:
     disable: []

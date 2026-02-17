@@ -1,0 +1,194 @@
+{
+  "schema_version": "1.0.0",
+  "entries": [
+    {
+      "fingerprint": "cad33711430d2aca3b0182309c41b14d0c125c73a0709c786e8e5d13ebec5745",
+      "rule_id": "AI-006",
+      "file_path": "README.md",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "174f8a8008ed757d652616d450f768d255fb264060aab541d57ff7c9353d5bea",
+      "rule_id": "DATA-001",
+      "file_path": "SECURITY.md",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "c657b59254e20d3b1fc71cf4103f8e30a9563e734dca0127954129a54546b17c",
+      "rule_id": "IAC-013",
+      "file_path": ".github/workflows/nox.yml",
+      "severity": "high",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "62f789cb38ada5345d9e3128053b034c93cec7784a2c3afdf3a88f9a7cce2169",
+      "rule_id": "IAC-018",
+      "file_path": ".github/workflows/release-goreleaser.yml",
+      "severity": "low",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "0141a66109af567ed21e49571f626895cb8c4c6d4f7f58914492dc2bb6a1a559",
+      "rule_id": "IAC-157",
+      "file_path": ".github/workflows/nox.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "c5e6c9b80bbb6ef9caac8be52dad857af18ca854554bb857877e58e297339d7c",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "78f974dc91de88f6d7a13b9554c45322762b95a40d6e1383e0e2cfccf2aafce9",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "low",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "eb2da5517bb978f2c36d8139fa2a546b9def1df365a14c281630b6b3f6d0d229",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/fuzz.yml",
+      "severity": "low",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "f2a2d9be194e9a21813e7c16a046ca0922c20712a53d1dcfc3795b6e93a62b01",
+      "rule_id": "IAC-310",
+      "file_path": ".github/workflows/release-goreleaser.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "f7ea99f1be1619a5f38ba693ec6d2b01c6efa02d52c5b3a5343639e74028bca6",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/release-goreleaser.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "e69e961bc3ef0f4756a61f46ed4f02d64346fa08bf320f479d2a0ba62cda8260",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "7d21b219fe13a0a64811bd032519037d07cf9ea27e49d752f76e40e67c284991",
+      "rule_id": "IAC-315",
+      "file_path": ".github/workflows/release-goreleaser.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "5cc3e619c3411870d4770e51ff846e19fddc482b039f92cd7c24b43ea4abc7a9",
+      "rule_id": "IAC-315",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "e048bbcd0b7a35028a9c7aad7f1654fc9256c89a7157a2054481d6fba1751251",
+      "rule_id": "IAC-351",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "critical",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "fb19289c765df5c31161ac5b4cd0a5d897bece6945cd4e07b4f61d19d478f91e",
+      "rule_id": "SEC-161",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "95f7cc4f8b90f8e427d5cb227e26d700cb9320112512d21d4ed171221f2e110d",
+      "rule_id": "SEC-161",
+      "file_path": "Makefile",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "b5cbf2b94ebfe706fa29679cba137f07b591c8ce8e39087966fdd66e470cfbca",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "c0a5854f90a5b7a8b3f55f40d5df532766991178667decb87986255836c285c9",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "84f7df4f3f2f47f1556e1223096d7827997340081a41c075993f069c492ddc21",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "f8e950e92cf68ac29c09bcc89052b6b52cfc09cf460bc57c807bfc95bb78d3e4",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "8d696e761e122b7a121c9fcd9cb973b4b423ad3d2ae6656fd7861b3907280753",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "e53ee950be20e8f3c098cbcb99505181ce3d17c62e835df70949b658b217b6fa",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "201aa8a2ef1a200ce6d0fa0db270670a27da78e0616c7dc1ecbb8c7c408dbe0f",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "effb1824e84df5532573f863b28b7781ef31eb3bf9ba71c1aa3175a462f4ff47",
+      "rule_id": "SEC-163",
+      "file_path": "error_test.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "b5342778c6cde19ebef0d7a32656d14cf5374fa5b159b45c9660492973726cc3",
+      "rule_id": "SEC-163",
+      "file_path": "integration_test.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "8738db49a3f29a29ae351f2e0a36d602de2e0c34da2ac9ad041a5c5795aeeecb",
+      "rule_id": "SEC-163",
+      "file_path": "performance_test.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    },
+    {
+      "fingerprint": "c75ea02fb7436fb002cc8ca8c69e48c8bb03f41c17b03aabc4efa0d8b85aa26d",
+      "rule_id": "SEC-163",
+      "file_path": "security_test.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T11:51:14.732133Z"
+    }
+  ]
+}

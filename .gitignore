@@ -11,6 +11,7 @@ CLAUDE.md
 *.prof
 coverage.out
 results.sarif
+findings.json
 *.swp
 *.swo
 *~
