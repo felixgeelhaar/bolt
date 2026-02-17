@@ -961,9 +961,11 @@ func TestUnsafeBufferRaceDetection(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping unsafe buffer race test in short mode")
 	}
+	if raceDetectorEnabled {
+		t.Skip("Skipping intentional race test under -race detector")
+	}
 
-	t.Log("This test should detect races when run with -race flag")
-	t.Log("It demonstrates that the shared bytes.Buffer is the source of races, not the logging library")
+	t.Log("This test demonstrates that the shared bytes.Buffer is the source of races, not the logging library")
 
 	// INTENTIONALLY use unsafe buffer to demonstrate race detection
 	var unsafeBuf bytes.Buffer
