@@ -22,23 +22,28 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 
 | Library | Operation | ns/op | Allocations | Performance Advantage |
 |---------|-----------|-------|-------------|----------------------|
-| **Bolt v3** | Simple Log | **63** | **0** | **🏆 Industry Leading** |
-| **Bolt v3** | Float64 | **62** | **0** | **✅ Zero Allocs** |
-| **Bolt v3** | New Fields (Int8/16/32) | **60** | **0** | **✅ Zero Allocs** |
+| **Bolt** | Simple Log | **63** | **0** | **🏆 Industry Leading** |
+| **Bolt** | Float64 | **62** | **0** | **✅ Zero Allocs** |
+| **Bolt** | Uint/Int Fields | **60–75** | **0** | **✅ Zero Allocs** |
+| **Bolt** | Ints/Strs Arrays | **102–132** | **0** | **✅ Zero Allocs** |
+| **Bolt** | IPAddr (IPv4) | **100** | **0** | **✅ Zero Allocs** |
+| **Bolt** | Dict (nested object) | **170** | **0** | **✅ Zero Allocs** |
+| **Bolt** | Stringer | **91** | **0** | **✅ Zero Allocs** |
 | Zerolog | Enabled | 175 | 0 | 64% slower |
 | Zap | Enabled | 190 | 1 | 67% slower |
 | Logrus | Enabled | 2,847 | 23 | 98% slower |
 
-*Latest benchmarks on Apple M1 - v3 with production optimizations*
+*Latest benchmarks on Apple M1 with production optimizations*
 
 ## ✨ Features
 
 - **🔥 Zero Allocations**: Achieved through intelligent event pooling, buffer reuse, and custom formatters
-- **⚡ Ultra-Fast**: 63ns/op for simple logs, 62ns for Float64, 60ns for new field types
-- **🏗️ Structured Logging**: Rich, type-safe field support (Int8/16/32/64, Uint, Float64, Bool, Str, etc.)
+- **⚡ Ultra-Fast**: 63ns/op for simple logs, 62ns for Float64, 60–170ns for all field types
+- **🏗️ Structured Logging**: Rich, type-safe field support (Int8/16/32/64, Uint8/16/32/64, Float64, Bool, Str, Ints, Strs, IPAddr, Dict, Stringer, etc.)
 - **🔍 OpenTelemetry Integration**: Automatic trace and span ID injection
-- **🎨 Multiple Outputs**: JSON for production, colorized console for development
-- **🧩 Extensible**: Custom handlers and formatters
+- **🎨 Multiple Outputs**: JSON for production, colorized console for development, `MultiHandler` for fan-out
+- **🪝 Hook System**: Event interception with `Hook` interface and built-in `SampleHook` for log sampling
+- **🧩 Extensible**: Custom handlers, hooks, and `NewLevelWriter` for stdlib `log` bridging
 - **🔌 slog Compatible**: Drop-in `slog.Handler` for standard library integration
 - **📦 Minimal Dependencies**: Lightweight core with optional OpenTelemetry
 - **🛡️ Type Safe**: Strongly typed field methods prevent runtime errors
@@ -105,6 +110,75 @@ userLogger := logger.With().
 userLogger.Info().Msg("User action logged") // Always includes user_id and session_id
 ```
 
+### Array Fields, Nested Objects & IP Addresses
+
+```go
+// Integer and string arrays (zero-allocation)
+logger.Info().
+    Ints("user_ids", []int{101, 202, 303}).
+    Strs("roles", []string{"admin", "editor"}).
+    Msg("Batch operation")
+// {"level":"info","user_ids":[101,202,303],"roles":["admin","editor"],"message":"Batch operation"}
+
+// Nested JSON objects with Dict
+logger.Info().Dict("request", func(d *bolt.Event) {
+    d.Str("method", "POST").
+        Int("status", 201).
+        Dict("headers", func(h *bolt.Event) {
+            h.Str("content-type", "application/json")
+        })
+}).Msg("API call")
+// {"level":"info","request":{"method":"POST","status":201,"headers":{"content-type":"application/json"}},"message":"API call"}
+
+// Zero-allocation IP address formatting
+logger.Info().
+    IPAddr("client", net.IPv4(192, 168, 1, 100)).
+    IPAddr("server", net.IPv6loopback).
+    Msg("Connection established")
+
+// fmt.Stringer support (nil-safe)
+logger.Info().Stringer("addr", myNetAddr).Msg("Listening")
+```
+
+### Hooks & Log Sampling
+
+```go
+// Add hooks for event interception
+type MetricsHook struct{}
+
+func (h *MetricsHook) Run(level bolt.Level, msg string) bool {
+    metrics.IncrementLogCounter(level.String())
+    return true // return false to suppress the event
+}
+
+logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
+    AddHook(&MetricsHook{})
+
+// Built-in sampling: log only 1 out of every 100 events
+logger = bolt.New(bolt.NewJSONHandler(os.Stdout)).
+    AddHook(bolt.NewSampleHook(100))
+```
+
+### Multi-Output & stdlib Bridging
+
+```go
+// Fan-out to multiple destinations
+logger := bolt.New(bolt.MultiHandler(
+    bolt.NewJSONHandler(logFile),       // Structured logs to file
+    bolt.NewConsoleHandler(os.Stderr),  // Human-readable to terminal
+))
+
+// Bridge stdlib log package into Bolt
+w := bolt.NewLevelWriter(logger, bolt.ERROR)
+stdlog := log.New(w, "", 0)
+stdlog.Print("stdlib error message") // Logged as Bolt ERROR level
+
+// CallerSkip for wrapper functions
+func myLogWrapper(logger *bolt.Logger, msg string) {
+    logger.Info().CallerSkip(1).Msg(msg) // Reports caller of myLogWrapper
+}
+```
+
 ### Console Output for Development
 
 ```go
@@ -159,6 +233,7 @@ func main() {
 | **JSONHandler** | Production logging | 0 allocs/op | High-throughput services, log aggregation |
 | **ConsoleHandler** | Development | ~10 allocs/op | Local development, debugging |
 | **SlogHandler** | stdlib compatibility | 2 allocs/op | Teams using `log/slog`, gradual migration |
+| **MultiHandler** | Fan-out to multiple destinations | 0 allocs/op | Writing to file + console, log aggregation pipelines |
 
 **Recommendation**: Use `JSONHandler` directly for maximum performance. Use `SlogHandler` when you need compatibility with the `log/slog` ecosystem or are migrating from another `slog.Handler` implementation.
 
@@ -247,7 +322,7 @@ go test -bench=BenchmarkSlog -benchmem
 
 See [benchmarks/README.md](benchmarks/README.md) for detailed instructions.
 
-### Sample Results (v3)
+### Sample Results
 
 ```
 BenchmarkZeroAllocation-8            13,483,334     87 ns/op      0 B/op    0 allocs/op
@@ -479,7 +554,11 @@ go test -bench=. -benchmem | grep allocs
 |----------|----------|-------|
 | Simple log (3 fields) | ~63ns | 0 allocations |
 | Float64 field | ~62ns | 0 allocations |
-| New integer fields | ~60ns | 0 allocations |
+| Uint/Int fields | ~60ns | 0 allocations |
+| Ints/Strs arrays | ~102–132ns | 0 allocations |
+| IPAddr (IPv4) | ~100ns | 0 allocations |
+| Dict (nested object) | ~170ns | 0 allocations |
+| Stringer | ~91ns | 0 allocations |
 | Console handler | ~491ns | 10 allocations (acceptable for dev) |
 | HTTP request logging | ~0.01% CPU | Negligible impact |
 | High throughput (100k/sec) | <1% CPU | Scales linearly |
