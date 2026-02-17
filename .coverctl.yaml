@@ -1,12 +1,12 @@
 version: 1
 policy:
   default:
-    min: 30
+    min: 70
   domains:
     - name: core
       match:
         - github.com/felixgeelhaar/bolt/v3
-      min: 30
+      min: 70
     - name: examples
       match:
         - github.com/felixgeelhaar/bolt/v3/examples/...

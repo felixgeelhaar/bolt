@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Validate PR title
       uses: amannn/action-semantic-pull-request@v5
       env:
@@ -50,37 +50,35 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
-    
+        go-version: '1.23'
+
+    - name: Install benchstat
+      run: go install golang.org/x/perf/cmd/benchstat@latest
+
     - name: Checkout base branch
       run: |
         git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
         git checkout ${{ github.base_ref }}
-    
+
     - name: Run baseline benchmarks
       run: go test -bench=. -benchmem -count=5 -tags=bench > baseline.txt || true
-    
+
     - name: Checkout PR branch
       run: git checkout ${{ github.head_ref }}
-    
+
     - name: Run PR benchmarks
       run: go test -bench=. -benchmem -count=5 -tags=bench > pr.txt || true
-    
+
     - name: Compare benchmarks
       run: |
         if [ -f baseline.txt ] && [ -f pr.txt ]; then
           echo "## Benchmark Comparison" >> $GITHUB_STEP_SUMMARY
-          echo "### Baseline (main branch):" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat baseline.txt >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "### PR Changes:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat pr.txt >> $GITHUB_STEP_SUMMARY
+          benchstat baseline.txt pr.txt >> $GITHUB_STEP_SUMMARY 2>&1 || true
           echo '```' >> $GITHUB_STEP_SUMMARY
         else
           echo "⚠️ Could not run benchmark comparison" >> $GITHUB_STEP_SUMMARY
@@ -90,16 +88,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
-    
+        go-version: '1.23'
+
     - name: Check zero allocations
       run: |
         echo "🔍 Checking for zero allocations in core paths..."
-        
+
         # Run benchmarks and check for allocations
         if RESULT=$(go test -bench=BenchmarkZeroAllocation -benchmem 2>&1); then
           echo "$RESULT"

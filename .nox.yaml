@@ -1,0 +1,20 @@
+scan:
+  exclude:
+    - "vendor/"
+    - "benchmarks/"
+    - "examples/"
+    - ".relicta/"
+    - ".cover/"
+
+  rules:
+    disable: []
+
+    severity_override: {}
+
+output:
+  format: json
+  directory: .
+
+policy:
+  fail_on: high
+  warn_on: medium

@@ -4,10 +4,12 @@
   <img src="assets/bolt_logo.png" alt="Bolt Logo" width="300"/>
   
   [![Build Status](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml)
+  [![Nox Security](https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml)
   [![codecov](https://codecov.io/gh/felixgeelhaar/bolt/branch/main/graph/badge.svg)](https://codecov.io/gh/felixgeelhaar/bolt)
-  [![Go Version](https://img.shields.io/badge/go-%3E%3D1.19-blue.svg)](https://golang.org/)
+  [![Go Version](https://img.shields.io/badge/go-%3E%3D1.23-blue.svg)](https://golang.org/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt/v3)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt/v3)
+  [![Go Reference](https://pkg.go.dev/badge/github.com/felixgeelhaar/bolt/v3.svg)](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v3)
   [![Performance](https://img.shields.io/badge/performance-63ns%2Fop%20%7C%200%20allocs-brightgreen.svg)](#performance)
   [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://felixgeelhaar.github.io/bolt/)
 </div>
@@ -20,14 +22,14 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 
 | Library | Operation | ns/op | Allocations | Performance Advantage |
 |---------|-----------|-------|-------------|----------------------|
-| **Bolt v2.0.0** | Simple Log | **63** | **0** | **🏆 Industry Leading** |
-| **Bolt v2.0.0** | Float64 | **62** | **0** | **✅ Zero Allocs** |
-| **Bolt v2.0.0** | New Fields (Int8/16/32) | **60** | **0** | **✅ Zero Allocs** |
+| **Bolt v3** | Simple Log | **63** | **0** | **🏆 Industry Leading** |
+| **Bolt v3** | Float64 | **62** | **0** | **✅ Zero Allocs** |
+| **Bolt v3** | New Fields (Int8/16/32) | **60** | **0** | **✅ Zero Allocs** |
 | Zerolog | Enabled | 175 | 0 | 64% slower |
 | Zap | Enabled | 190 | 1 | 67% slower |
 | Logrus | Enabled | 2,847 | 23 | 98% slower |
 
-*Latest benchmarks on Apple M1 - v2.0.0 Lightning Release with production optimizations*
+*Latest benchmarks on Apple M1 - v3 with production optimizations*
 
 ## ✨ Features
 
@@ -201,7 +203,7 @@ go test -bench=BenchmarkSlog -benchmem
 
 See [benchmarks/README.md](benchmarks/README.md) for detailed instructions.
 
-### Sample Results (v2.0.0)
+### Sample Results (v3)
 
 ```
 BenchmarkZeroAllocation-8            13,483,334     87 ns/op      0 B/op    0 allocs/op

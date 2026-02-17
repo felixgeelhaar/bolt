@@ -1,0 +1,38 @@
+name: Fuzz Testing
+
+on:
+  schedule:
+    - cron: '0 3 * * 1' # Weekly on Monday at 03:00 UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        fuzz-target:
+          - FuzzJSONHandler
+          - FuzzInputValidation
+          - FuzzConcurrentLogging
+          - FuzzBufferManagement
+          - FuzzMessageEscaping
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run fuzz test (${{ matrix.fuzz-target }})
+      run: go test -fuzz=${{ matrix.fuzz-target }} -fuzztime=120s ./...
+
+    - name: Upload fuzz corpus
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: fuzz-corpus-${{ matrix.fuzz-target }}
+        path: testdata/fuzz/
+        retention-days: 90
+        if-no-files-found: ignore

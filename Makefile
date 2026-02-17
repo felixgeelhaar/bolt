@@ -41,6 +41,13 @@ install-tools: ## Install development tools (golangci-lint, goimports, etc.)
 	else \
 		echo "✅ govulncheck already installed"; \
 	fi
+	@# Install benchstat
+	@if ! command -v benchstat >/dev/null 2>&1; then \
+		echo "Installing benchstat..."; \
+		go install golang.org/x/perf/cmd/benchstat@latest; \
+	else \
+		echo "✅ benchstat already installed"; \
+	fi
 	@echo "✅ All development tools installed"
 
 setup-hooks: ## Set up Git hooks for automated code quality checks
@@ -60,6 +67,7 @@ check-tools: ## Check if required tools are installed
 	@command -v golangci-lint >/dev/null 2>&1 || { echo "⚠️  golangci-lint not found (run 'make install-tools')"; }
 	@command -v goimports >/dev/null 2>&1 || { echo "⚠️  goimports not found (run 'make install-tools')"; }
 	@command -v govulncheck >/dev/null 2>&1 || { echo "⚠️  govulncheck not found (run 'make install-tools')"; }
+	@command -v benchstat >/dev/null 2>&1 || { echo "⚠️  benchstat not found (run 'make install-tools')"; }
 
 ##@ Code Quality
 
@@ -145,11 +153,11 @@ benchmark-zero: ## Run zero-allocation benchmarks specifically
 benchmark-compare: ## Run benchmarks and compare with previous results
 	@echo "⚡ Running benchmark comparison..."
 	@if [ -f benchmarks.txt ]; then \
-		go test -bench=. -benchmem ./... > benchmarks.new.txt; \
-		benchcmp benchmarks.txt benchmarks.new.txt; \
+		go test -bench=. -benchmem -count=5 ./... > benchmarks.new.txt; \
+		benchstat benchmarks.txt benchmarks.new.txt; \
 		mv benchmarks.new.txt benchmarks.txt; \
 	else \
-		go test -bench=. -benchmem ./... > benchmarks.txt; \
+		go test -bench=. -benchmem -count=5 ./... > benchmarks.txt; \
 		echo "✅ Baseline benchmarks saved to benchmarks.txt"; \
 	fi
 

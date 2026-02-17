@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.21', '1.22', '1.23']
-    
+        go-version: ['1.23', '1.24']
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
-    
+
     - name: Cache Go modules
       uses: actions/cache@v4
       with:
@@ -30,22 +30,22 @@ jobs:
         key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-${{ matrix.go-version }}-
-    
+
     - name: Download dependencies
       run: go mod download
-    
+
     - name: Verify dependencies
       run: go mod verify
-    
+
     - name: Run tests
       run: go test -v -race -short -coverprofile=coverage.out ./...
-    
+
     - name: Run tests with count flag (detect flaky tests)
       run: go test -v -short -count=5 ./...
-    
+
     - name: Upload coverage to Codecov
-      if: matrix.go-version == '1.21'
-      uses: codecov/codecov-action@v4
+      if: matrix.go-version == '1.23'
+      uses: codecov/codecov-action@v5
       with:
         file: ./coverage.out
         flags: unittests
@@ -59,10 +59,10 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.23'
 
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v4
+      uses: golangci/golangci-lint-action@v6
       with:
         version: latest
         args: --timeout=5m
@@ -75,7 +75,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.23'
 
     - name: Download dependencies
       run: go mod download
@@ -109,15 +109,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
-    
+        go-version: '1.23'
+
     - name: Download dependencies
       run: go mod download
-    
+
     - name: Run benchmarks
       run: |
         # Run benchmarks with build tags and capture output
@@ -129,7 +129,7 @@ jobs:
           go test -bench=. -benchmem -count=3 > benchmark.txt 2>&1 || true
           cat benchmark.txt
         fi
-    
+
     - name: Upload benchmark results
       if: hashFiles('benchmark.txt') != ''
       uses: actions/upload-artifact@v4
@@ -143,19 +143,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        go-version: ['1.21']
-    
+        go-version: ['1.23']
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
-    
+
     - name: Run tests
       run: go test -v -short ./...
-    
+
     - name: Build
       run: go build -v ./...
 
@@ -167,28 +167,25 @@ jobs:
       security-events: write
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
-    
+        go-version: '1.23'
+
     - name: Install gosec
       run: go install github.com/securego/gosec/v2/cmd/gosec@latest
-    
+
     - name: Run Gosec Security Scanner
       run: |
-        # Scan production code only - examples/benchmarks/migrations are not production
-        # Create empty SARIF if gosec fails
         gosec -fmt sarif -out results.sarif \
           -exclude-dir=examples \
           -exclude-dir=benchmark \
           -exclude-dir=migrate \
           -exclude-dir=infrastructure \
           -exclude-dir=vendor \
-          ./... || echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"gosec"}},"results":[]}]}' > results.sarif
-      continue-on-error: true
-    
+          ./...
+
     - name: Upload SARIF file
       if: always() && hashFiles('results.sarif') != ''
       uses: github/codeql-action/upload-sarif@v3
