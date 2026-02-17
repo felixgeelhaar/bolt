@@ -1,4 +1,4 @@
-module github.com/felixgeelhaar/bolt/v3
+module github.com/felixgeelhaar/bolt
 
 go 1.23.0
 

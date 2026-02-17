@@ -256,7 +256,7 @@ Bolt automatically propagates trace context from OpenTelemetry:
 
 ```go
 import (
-    "github.com/felixgeelhaar/bolt/v3"
+    "github.com/felixgeelhaar/bolt"
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/trace"
 )
@@ -306,7 +306,7 @@ Expose application metrics in your code:
 
 ```go
 import (
-    "github.com/felixgeelhaar/bolt/v3"
+    "github.com/felixgeelhaar/bolt"
     "github.com/prometheus/client_golang/prometheus"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 )

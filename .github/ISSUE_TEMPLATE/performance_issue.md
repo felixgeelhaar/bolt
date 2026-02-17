@@ -92,7 +92,7 @@ Minimal code that demonstrates the performance issue:
 package main
 
 import (
-    "github.com/felixgeelhaar/bolt/v3"
+    "github.com/felixgeelhaar/bolt"
     "testing"
 )
 

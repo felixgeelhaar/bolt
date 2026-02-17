@@ -361,7 +361,7 @@ Open a GitHub issue with:
    ```go
    package main
 
-   import "github.com/felixgeelhaar/bolt/v3"
+   import "github.com/felixgeelhaar/bolt"
 
    func main() {
        // Minimal code to reproduce

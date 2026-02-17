@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.24.6
 
 require (
-	github.com/felixgeelhaar/bolt/v3 v3.0.0
+	github.com/felixgeelhaar/bolt v1.2.1
 	github.com/google/uuid v1.6.0
 )
 
@@ -17,4 +17,4 @@ require (
 )
 
 // Local development - replace with actual module path in production
-replace github.com/felixgeelhaar/bolt/v3 => ../../..
+replace github.com/felixgeelhaar/bolt => ../../..

@@ -25,7 +25,7 @@ Please provide a minimal code example that reproduces the issue:
 package main
 
 import (
-    "github.com/felixgeelhaar/bolt/v3"
+    "github.com/felixgeelhaar/bolt"
 )
 
 func main() {

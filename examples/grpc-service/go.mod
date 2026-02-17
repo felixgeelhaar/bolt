@@ -3,12 +3,12 @@ module github.com/felixgeelhaar/bolt/examples/grpc-service
 go 1.24.6
 
 require (
-	github.com/felixgeelhaar/bolt/v3 v3.0.0
+	github.com/felixgeelhaar/bolt v1.2.1
 	go.opentelemetry.io/otel/trace v1.38.0
 	google.golang.org/grpc v1.75.1
 )
 
-replace github.com/felixgeelhaar/bolt/v3 => ../../
+replace github.com/felixgeelhaar/bolt => ../../
 
 require (
 	go.opentelemetry.io/otel v1.38.0 // indirect

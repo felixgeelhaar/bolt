@@ -3,7 +3,7 @@ module github.com/felixgeelhaar/bolt/examples/observability/opentelemetry
 go 1.24.0
 
 require (
-	github.com/felixgeelhaar/bolt/v3 v3.0.0
+	github.com/felixgeelhaar/bolt v1.2.1
 	github.com/google/uuid v1.6.0
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.37.0
@@ -40,4 +40,4 @@ require (
 )
 
 // Local development - replace with actual module path in production
-replace github.com/felixgeelhaar/bolt/v3 => ../../..
+replace github.com/felixgeelhaar/bolt => ../../..

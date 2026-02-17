@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v3"
+	"github.com/felixgeelhaar/bolt"
 	"github.com/google/uuid"
 )
 

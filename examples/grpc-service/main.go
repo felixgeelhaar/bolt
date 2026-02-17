@@ -17,7 +17,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v3"
+	"github.com/felixgeelhaar/bolt"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

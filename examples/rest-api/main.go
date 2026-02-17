@@ -18,7 +18,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt/v3"
+	"github.com/felixgeelhaar/bolt"
 	"go.opentelemetry.io/otel/trace"
 )
 
