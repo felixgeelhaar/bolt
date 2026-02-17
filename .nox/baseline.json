@@ -2,13 +2,6 @@
   "schema_version": "1.0.0",
   "entries": [
     {
-      "fingerprint": "b8a1fa70f1b913302711cbb0b0010eb57b9a79df26dd7e810ea99e1dbbe95d96",
-      "rule_id": "AI-006",
-      "file_path": "README.md",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
       "fingerprint": "174f8a8008ed757d652616d450f768d255fb264060aab541d57ff7c9353d5bea",
       "rule_id": "DATA-001",
       "file_path": "SECURITY.md",
@@ -114,55 +107,6 @@
       "created_at": "2026-02-17T20:38:33.121234Z"
     },
     {
-      "fingerprint": "b5cbf2b94ebfe706fa29679cba137f07b591c8ce8e39087966fdd66e470cfbca",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "c0a5854f90a5b7a8b3f55f40d5df532766991178667decb87986255836c285c9",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "84f7df4f3f2f47f1556e1223096d7827997340081a41c075993f069c492ddc21",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "f8e950e92cf68ac29c09bcc89052b6b52cfc09cf460bc57c807bfc95bb78d3e4",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "8d696e761e122b7a121c9fcd9cb973b4b423ad3d2ae6656fd7861b3907280753",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "e53ee950be20e8f3c098cbcb99505181ce3d17c62e835df70949b658b217b6fa",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
-      "fingerprint": "201aa8a2ef1a200ce6d0fa0db270670a27da78e0616c7dc1ecbb8c7c408dbe0f",
-      "rule_id": "SEC-163",
-      "file_path": "bolt.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
       "fingerprint": "effb1824e84df5532573f863b28b7781ef31eb3bf9ba71c1aa3175a462f4ff47",
       "rule_id": "SEC-163",
       "file_path": "error_test.go",
@@ -177,18 +121,95 @@
       "created_at": "2026-02-17T20:38:33.121234Z"
     },
     {
-      "fingerprint": "8738db49a3f29a29ae351f2e0a36d602de2e0c34da2ac9ad041a5c5795aeeecb",
-      "rule_id": "SEC-163",
-      "file_path": "performance_test.go",
-      "severity": "medium",
-      "created_at": "2026-02-17T20:38:33.121234Z"
-    },
-    {
       "fingerprint": "c75ea02fb7436fb002cc8ca8c69e48c8bb03f41c17b03aabc4efa0d8b85aa26d",
       "rule_id": "SEC-163",
       "file_path": "security_test.go",
       "severity": "medium",
       "created_at": "2026-02-17T20:38:33.121234Z"
+    },
+    {
+      "fingerprint": "39e010d3890529a042da4f99f9bafb98da8870853c221a226a70e6eb7f2274e8",
+      "rule_id": "AI-006",
+      "file_path": "README.md",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "a7d36ffdb6e1b40dfdfbb37fd5f2a6c0749b9b0292d4269cfc344cf089d3ab24",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "61866dc8e167ce26735e0e2be3390a3b6c43ff8f0310dabe7c9c0e9e0f09f70f",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "2e96a6b9886b205fe4a6ff59abe5663343b6f03db59d062b8cfd02edb4059266",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "3054aa62de0c102e7e9692370499b68aabb237085ca5f42df4b6a29b499618de",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "48035bbae3e3ad32833ca9f348fcb3f5f96ab3ce7cfeab134228ccd0355d1ac5",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "5a738f913216cf0b71900030d00b58fedcfcc49f4abd396aaf405c91eb161ab2",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "76ac9403e628146b7d1df471661099a0446a1cb159ec9b746b1f457432abfa69",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "2474e84d78b249a0d7e627e6bb55bb75c657387646c22aacec2b2bc2d6b85bdd",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "967e9f923f8978c85e3754c669ccc0b90cbaac4bf70a38e750735c121f44dd0d",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "d341025d6e2a9c55e1783286c28d9c2cc9f12361f88712ad439e16b554352040",
+      "rule_id": "SEC-163",
+      "file_path": "bolt.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "11adcaf7fc943047ffb452bbcacb489f3cf6fb3c89bcf5f2894a06561487830b",
+      "rule_id": "SEC-163",
+      "file_path": "performance_test.go",
+      "severity": "medium",
+      "created_at": "2026-02-17T21:33:06.166553Z"
     }
   ]
 }
