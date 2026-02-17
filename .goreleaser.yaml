@@ -56,7 +56,9 @@ release:
     ## Documentation
     
     📚 [pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}](https://pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }})
-    
+    📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
+    🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
+
     ---
     **Full Changelog**: https://github.com/felixgeelhaar/bolt/compare/{{ .PreviousTag }}...{{ .Tag }}
 

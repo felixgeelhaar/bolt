@@ -21,7 +21,7 @@ Thank you for your interest in contributing to Bolt! This document provides guid
 
 ### Prerequisites
 
-- Go 1.19 or later
+- Go 1.23 or later
 - Git
 - (Optional) golangci-lint for code quality checks
 

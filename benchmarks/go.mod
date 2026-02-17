@@ -6,7 +6,6 @@ require (
 	github.com/felixgeelhaar/bolt/v3 v3.0.0
 	github.com/rs/zerolog v1.34.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/exp v0.0.0-20250711185948-6ae5c78190dc
 )
 
 require (

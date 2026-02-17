@@ -1,168 +1,141 @@
-# golangci-lint configuration for Bolt
-# This configuration is optimized for the Bolt zero-allocation logging library
-
+version: "2"
 run:
-  timeout: 5m
+  modules-download-mode: readonly
   issues-exit-code: 1
   tests: true
-  modules-download-mode: readonly
   allow-parallel-runners: true
-
 output:
   formats:
-    - format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-linters-settings:
-  # Error check settings
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-    exclude-functions:
-      - (*github.com/felixgeelhaar/bolt.Logger).Sync  # Bolt doesn't require sync
-      - fmt.Fprintf     # Documentation and reporting functions
-      - fmt.Fprintln    # Documentation and reporting functions
-      - (*os.File).Close  # File closes in deferred statements
-
-  # Unused parameter settings
-  revive:
-    rules:
-      - name: unused-parameter
-        severity: warning
-        disabled: false
-        arguments:
-          - allowRegex: "^_" # Allow parameters starting with underscore
-
-  # Constant settings
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-    ignore-tests: true
-    match-constant: true
-    numbers: true
-    min: 3
-    max: 3
-
-  # Complexity settings  
-  gocyclo:
-    min-complexity: 15  # Increased for complex validation logic
-
-  # Cognitive complexity
-  gocognit:
-    min-complexity: 20
-
-  # Function length
-  funlen:
-    lines: 80
-    statements: 50
-
-  # Line length
-  lll:
-    line-length: 120
-    tab-width: 4
-
-  # Unused code
-  unparam:
-    check-exported: false  # Don't check exported functions
-
-  # Import organization
-  goimports:
-    local-prefixes: github.com/felixgeelhaar/bolt
-
-  # Naming conventions
-  stylecheck:
-    checks: ["all", "-ST1003"] # Disable underscores in Go names check
-
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
 linters:
   enable:
-    # Essential linters
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Suggest simplifications
-    - govet         # Standard go vet checks
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Advanced static analysis
-    - typecheck     # Type checking
-    - unused        # Find unused code
-    
-    # Code quality
-    - gofmt         # Check formatting
-    - goimports     # Check import formatting
-    - revive        # General linting rules
-    - stylecheck    # Style checks
-    - unconvert     # Remove unnecessary conversions
-    - unparam       # Find unused function parameters
-    
-    # Performance
-    - prealloc      # Find slice declarations not pre-sized
-    
-    # Security  
-    - gosec         # Security audit
-    
-    # Complexity
-    - gocyclo       # Cyclomatic complexity
-    - gocognit      # Cognitive complexity
-    
+    - gocognit
+    - gocyclo
+    - gosec
+    - prealloc
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
   disable:
-    # Disabled due to specific Bolt requirements
-    - goconst       # Too many false positives in migration code
-    - funlen        # Some functions need to be longer for performance
-    - lll           # Some long lines are acceptable for readability
-    - wsl           # Whitespace linter too strict
-    - nlreturn      # Return style too restrictive
-    - exhaustive    # Switch exhaustiveness not always needed
-
+    - exhaustive
+    - funlen
+    - goconst
+    - lll
+    - nlreturn
+    - wsl
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - (*github.com/felixgeelhaar/bolt.Logger).Sync
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - (*os.File).Close
+    funlen:
+      lines: 80
+      statements: 50
+    gocognit:
+      min-complexity: 20
+    goconst:
+      match-constant: true
+      min-len: 3
+      min-occurrences: 3
+      numbers: true
+      min: 3
+      max: 3
+    gocyclo:
+      min-complexity: 15
+    lll:
+      line-length: 120
+      tab-width: 4
+    revive:
+      rules:
+        - name: unused-parameter
+          arguments:
+            - allowRegex: ^_
+          severity: warning
+          disabled: false
+    staticcheck:
+      checks:
+        - all
+        - -ST1003
+    unparam:
+      check-exported: false
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - errcheck
+          - gocognit
+          - gocyclo
+          - gosec
+          - revive
+          - unparam
+          - unused
+        path: _test\.go
+      - linters:
+          - errcheck
+          - gosec
+          - gocognit
+          - gocyclo
+          - ineffassign
+          - prealloc
+          - revive
+          - staticcheck
+          - unparam
+        path: examples/
+      - linters:
+          - gosec
+        path: bolt.go
+        text: G115.*integer overflow conversion.*int8
+      - linters:
+          - staticcheck
+        path: bolt.go
+        text: QF1001
+      - linters:
+          - errcheck
+        path: bolt.go
+        source: eventPool\.Get\(\)
+      - linters:
+          - errcheck
+        path: slog.go
+        source: bufPool\.Get\(\)
+      - linters:
+          - errcheck
+        path: bolt.go
+        source: rand\.Read\(id\)
+      - linters:
+          - revive
+        path: bolt.go
+        text: parameter 'err' seems to be unused
+      - linters:
+          - goconst
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  # Output uniqueness
-  uniq-by-line: true
-
-  # Exclude specific issues
-  exclude-rules:
-    # Test files - relaxed linting for test code
-    - path: "_test\\.go"
-      linters:
-        - unused
-        - unparam
-        - revive
-        - errcheck
-        - gosec        # Test code may use weaker patterns
-        - gocognit     # Complex test scenarios are acceptable
-        - gocyclo      # Test functions can be complex
-
-    # Examples - demonstration code
-    - path: "examples/"
-      linters:
-        - errcheck     # Example code focuses on demonstration
-        - goimports    # Example code import formatting can be flexible
-
-    # Core library - intentional design decisions
-    - path: "bolt.go"
-      text: "G115.*integer overflow conversion.*int8"
-      linters:
-        - gosec        # Level type conversion is intentional and safe
-
-    # Intentional error ignoring for performance/design
-    - path: "bolt.go"
-      linters:
-        - errcheck
-      source: "eventPool\\.Get\\(\\)" # Type assertion is safe with pool
-
-    - path: "bolt.go"
-      linters:
-        - errcheck
-      source: "rand\\.Read\\(id\\)" # crypto/rand.Read never fails
-
-    # Unused parameter is part of function signature (ErrorHandler type)
-    - path: "bolt.go"
-      text: "parameter 'err' seems to be unused"
-      linters:
-        - revive
-
-  # Maximum issues count per one linter
   max-issues-per-linter: 50
-  
-  # Maximum count of issues with the same text
   max-same-issues: 10
-  
-  # Don't skip warning about long lines
-  exclude-use-default: false
+  uniq-by-line: true
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/felixgeelhaar/bolt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - examples/

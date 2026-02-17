@@ -39,6 +39,7 @@ Bolt is a high-performance, zero-allocation structured logging library for Go th
 - **🔍 OpenTelemetry Integration**: Automatic trace and span ID injection
 - **🎨 Multiple Outputs**: JSON for production, colorized console for development
 - **🧩 Extensible**: Custom handlers and formatters
+- **🔌 slog Compatible**: Drop-in `slog.Handler` for standard library integration
 - **📦 Minimal Dependencies**: Lightweight core with optional OpenTelemetry
 - **🛡️ Type Safe**: Strongly typed field methods prevent runtime errors
 - **🔒 Security**: Input validation, JSON injection prevention, buffer limits
@@ -117,6 +118,49 @@ logger.Info().
 
 // Output: [2024-01-15T10:30:45Z] INFO Application initialized env=development workers=4
 ```
+
+### Standard Library slog Integration
+
+Use Bolt as a backend for Go's standard `log/slog` package:
+
+```go
+import (
+    "log/slog"
+    "os"
+    "github.com/felixgeelhaar/bolt/v3"
+)
+
+func main() {
+    // Create a Bolt-powered slog handler
+    handler := bolt.NewSlogHandler(os.Stdout, nil)
+    logger := slog.New(handler)
+
+    logger.Info("request handled",
+        "method", "GET",
+        "status", 200,
+        "path", "/api/users",
+    )
+    // Output: {"time":"...","level":"INFO","msg":"request handled","method":"GET","status":200,"path":"/api/users"}
+
+    // With level filtering
+    handler = bolt.NewSlogHandler(os.Stdout, &bolt.SlogHandlerOptions{
+        Level: slog.LevelWarn,
+    })
+    warnLogger := slog.New(handler)
+    warnLogger.Info("filtered out") // suppressed
+    warnLogger.Warn("visible")     // appears
+}
+```
+
+### Choosing a Handler
+
+| Handler | Use Case | Allocations | Best For |
+|---------|----------|-------------|----------|
+| **JSONHandler** | Production logging | 0 allocs/op | High-throughput services, log aggregation |
+| **ConsoleHandler** | Development | ~10 allocs/op | Local development, debugging |
+| **SlogHandler** | stdlib compatibility | 2 allocs/op | Teams using `log/slog`, gradual migration |
+
+**Recommendation**: Use `JSONHandler` directly for maximum performance. Use `SlogHandler` when you need compatibility with the `log/slog` ecosystem or are migrating from another `slog.Handler` implementation.
 
 ## 🏗️ Architecture Insights
 
@@ -211,9 +255,10 @@ BenchmarkFloat64Precision-8          18,972,231     62 ns/op      0 B/op    0 al
 BenchmarkNewFieldMethods/Int32-8     20,163,957     60 ns/op      0 B/op    0 allocs/op
 BenchmarkConsoleHandler-8             2,427,907    491 ns/op    144 B/op   10 allocs/op
 BenchmarkDefaultLogger-8             12,723,752    106 ns/op    168 B/op    0 allocs/op
+BenchmarkSlogHandler-8                  822,313  1,458 ns/op    384 B/op    2 allocs/op
 ```
 
-**Note**: ConsoleHandler has ~10 allocations due to colorization and formatting. Use JSONHandler for zero-allocation production logging.
+**Note**: ConsoleHandler has ~10 allocations due to colorization. SlogHandler's 2 allocations come from slog's own `Record` creation. Use JSONHandler for zero-allocation production logging.
 
 ## 🛡️ Security Features
 

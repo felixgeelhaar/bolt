@@ -89,13 +89,20 @@ jobs:
           go get github.com/felixgeelhaar/bolt${{ steps.version.outputs.major != 'v1' && steps.version.outputs.major != 'v0' && format('/{0}', steps.version.outputs.major) || '' }}@${{ steps.version.outputs.version }}
           ```
           
+          ## Documentation
+
+          - 📖 [API Reference](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v3)
+          - 📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
+          - 🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
+
           ## Verification
-          
+
           This release has been automatically tested with:
           - ✅ All unit tests passing with race detection
           - ✅ Module validation (go mod verify)
           - ✅ Performance benchmarks
           - ✅ Cross-platform compatibility
+          - ✅ Nox security scan
         draft: false
         prerelease: ${{ contains(github.ref, '-') }}
         generate_release_notes: true

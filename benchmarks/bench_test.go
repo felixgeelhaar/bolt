@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"testing"
 
+	"log/slog"
+
 	"github.com/felixgeelhaar/bolt/v3"
 	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"golang.org/x/exp/slog"
 )
 
 func BenchmarkBolt(b *testing.B) {
