@@ -5,6 +5,37 @@ All notable changes to Bolt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- refactor!: remove /v3 module suffix for cleaner imports
+- fix: skip performance regression tests under -race detector
+- fix: relax complex event latency threshold to 500ns
+- fix: skip intentional race test under -race detector
+- chore: update nox baseline for new features
+- docs: update README with new features and remove incorrect v3 branding
+- feat: add 10 new features for production parity with zerolog/zap
+- fix: disable gosec G115 analyzer to work around upstream panic
+- chore: update nox baseline for README AI-006 false positive
+- feat: add slog.Handler, testable examples, and documentation improvements
+- chore: add nox security baseline for known false positives
+- fix: pin all GitHub Actions to commit SHAs for supply chain security
+- chore: add nox security scanning, update CI toolchain, and fix version references
+- chore: track relicta release state directory
+- chore: add github token config to relicta plugin
+- chore: add coverctl and relicta configuration
+- fix: make module proxy warming step non-blocking
+- fix: resolve CI failures and security vulnerabilities
+- feat: add /v3 suffix to module path for Go semantic import versioning
+- docs: update README with separate benchmarks module instructions
+- refactor: move benchmarks to separate module to remove zerolog/zap dependencies
+- docs: update README with accurate v2.0.0 benchmarks and fix broken links
+- fix: add +incompatible suffix to v2.0.0 in http-middleware example
+- fix: skip performance regression tests in CI
+- fix: resolve CI test failures and example build issues
+- feat: v2.0.0 - Go best practices & repository cleanup
+- docs: reorganize documentation following GitHub best practices
+- chore: improve .gitignore for test directories and temp files
+- chore: clean up unnecessary test directories and files
+
+
 ## [1.2.2] - 2025-10-03
 
 ### 🔧 Fixed

@@ -1,0 +1,422 @@
+{
+  "id": "run-e16f87a3a55e58f7",
+  "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
+  "repo_id": "https://github.com/felixgeelhaar/bolt.git",
+  "repo_root": "/Users/felixgeelhaar/Developer/projects/open_source/bolt",
+  "base_ref": "v1.2.1",
+  "head_sha": "0c7c0b26b61bdf8e1dde6452a7f483e1a587db02",
+  "commits": [
+    "0c7c0b26b61bdf8e1dde6452a7f483e1a587db02",
+    "21bd97e2a381122b9f2304cdf68b3e1fdb7adae8",
+    "2ba993427c80e717ce4b57f9587f00f1574da18f",
+    "679ae55e236edf098644d55a621c359b968c37e6",
+    "d0b3c6ff6cfa1c312dbef2b81f1ee8a8798971ea",
+    "3c78f2c9313ba1213d561377e2f20af39e915019",
+    "4a8079ac6ffc952edd3d20e5b70befdc6989963d",
+    "49fa26522ca19e572a545ae4816cb0340651114b",
+    "ce03bd43fe0b8f70ada15c75c6aad1655a716ab2",
+    "d99010b5f83d2e93a52960729086b3358224e66c",
+    "17fa89d194a5679f370d12ef0fe76e7289f07c6e",
+    "847919b354da6ffe3aedc82ff112c59f8f7e923d",
+    "94024973e5012bdf5754dd94b58e0fa04fcfe524",
+    "0efb4e5e21cb33024b3e8232944caaf76fcee1ae",
+    "a03867330ef5c9b4061bed2f0034a8613705df7d",
+    "bc0e318bdb1c38f85741449536df0e31cbbd3872",
+    "9778844de8c54bafd83efd344795c8b70ce5cccb",
+    "b6c14b3cfb4722259b12478ad81e858e0d77a6b8",
+    "868e0dc0a717a8f3bfe1e801bc8e5a94f49b7a3d",
+    "af325d5350a8d3a603fd99b3fa6f394d9dc7f80b",
+    "597f3d6f83e1091190367a80a405b6d3ae86dbbe",
+    "edb53e4291a9ea181a9c79439d480ab0b32804c7",
+    "90e0dd999853af68532a9f0d2bf0860b0bd2cad3",
+    "1a88af9dce3455c039758ece67ebdf768335f421",
+    "e880a7272fa6e31d2e763aebc52e2797ae0467bf",
+    "335f018ea7685acb0f2fd9b70e9d84df04da81a0",
+    "9d7fbe5b86b32eea82ba5d3e74c10e1789c37a4b",
+    "5314974f5de1bc94a15090b69ccb62e8717e46cd",
+    "e00cceaeab105c4eb237407f90467c216a562e1b"
+  ],
+  "config_hash": "",
+  "plugin_plan_hash": "",
+  "version_current": "1.2.1",
+  "version_next": "1.3.0",
+  "bump_kind": "major",
+  "confidence": 0,
+  "risk_score": 0,
+  "reasons": null,
+  "actor_type": "user",
+  "actor_id": "cli",
+  "thresholds": {
+    "auto_approve_risk_threshold": 0,
+    "require_approval_above": 0,
+    "block_release_above": 0
+  },
+  "tag_name": "v1.3.0",
+  "notes": {
+    "text": "- refactor!: remove /v3 module suffix for cleaner imports\n- fix: skip performance regression tests under -race detector\n- fix: relax complex event latency threshold to 500ns\n- fix: skip intentional race test under -race detector\n- chore: update nox baseline for new features\n- docs: update README with new features and remove incorrect v3 branding\n- feat: add 10 new features for production parity with zerolog/zap\n- fix: disable gosec G115 analyzer to work around upstream panic\n- chore: update nox baseline for README AI-006 false positive\n- feat: add slog.Handler, testable examples, and documentation improvements\n- chore: add nox security baseline for known false positives\n- fix: pin all GitHub Actions to commit SHAs for supply chain security\n- chore: add nox security scanning, update CI toolchain, and fix version references\n- chore: track relicta release state directory\n- chore: add github token config to relicta plugin\n- chore: add coverctl and relicta configuration\n- fix: make module proxy warming step non-blocking\n- fix: resolve CI failures and security vulnerabilities\n- feat: add /v3 suffix to module path for Go semantic import versioning\n- docs: update README with separate benchmarks module instructions\n- refactor: move benchmarks to separate module to remove zerolog/zap dependencies\n- docs: update README with accurate v2.0.0 benchmarks and fix broken links\n- fix: add +incompatible suffix to v2.0.0 in http-middleware example\n- fix: skip performance regression tests in CI\n- fix: resolve CI test failures and example build issues\n- feat: v2.0.0 - Go best practices \u0026 repository cleanup\n- docs: reorganize documentation following GitHub best practices\n- chore: improve .gitignore for test directories and temp files\n- chore: clean up unnecessary test directories and files\n",
+    "audience_preset": "",
+    "tone_preset": "",
+    "provider": "basic",
+    "model": "",
+    "generated_at": "2026-02-17T22:59:54.504721+01:00"
+  },
+  "approval": {
+    "approved_by": "felixgeelhaar",
+    "approved_at": "2026-02-17T23:00:04.202713+01:00",
+    "auto_approved": false,
+    "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
+    "risk_score": 0,
+    "approver_type": "user"
+  },
+  "steps": [
+    {
+      "name": "create-tag",
+      "type": "tag",
+      "config_hash": "",
+      "idempotency_key": ""
+    }
+  ],
+  "step_status": {
+    "create-tag": {
+      "state": "done",
+      "attempts": 1,
+      "started_at": "2026-02-17T23:01:34.299155+01:00",
+      "completed_at": "2026-02-17T23:01:35.446873+01:00",
+      "output": "Created and pushed tag v1.3.0"
+    }
+  },
+  "state": "published",
+  "history": [
+    {
+      "at": "2026-02-17T22:59:23.50626+01:00",
+      "from": "draft",
+      "to": "planned",
+      "event": "PLAN",
+      "actor": "cli",
+      "reason": "Release planned"
+    },
+    {
+      "at": "2026-02-17T22:59:47.726255+01:00",
+      "from": "planned",
+      "to": "versioned",
+      "event": "BUMP",
+      "actor": "cli",
+      "reason": "Version applied",
+      "metadata": {
+        "tag_name": "v1.3.0",
+        "version": "1.3.0"
+      }
+    },
+    {
+      "at": "2026-02-17T22:59:54.504728+01:00",
+      "from": "versioned",
+      "to": "notes_ready",
+      "event": "GENERATE_NOTES",
+      "actor": "cli",
+      "reason": "Notes generated"
+    },
+    {
+      "at": "2026-02-17T23:00:04.202722+01:00",
+      "from": "notes_ready",
+      "to": "approved",
+      "event": "APPROVE",
+      "actor": "felixgeelhaar",
+      "reason": "Release approved",
+      "metadata": {
+        "auto_approved": "false",
+        "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
+        "risk_score": "0.00"
+      }
+    },
+    {
+      "at": "2026-02-17T23:01:34.298518+01:00",
+      "from": "approved",
+      "to": "publishing",
+      "event": "START_PUBLISH",
+      "actor": "cli",
+      "reason": "Publishing started"
+    },
+    {
+      "at": "2026-02-17T23:01:35.447835+01:00",
+      "from": "publishing",
+      "to": "published",
+      "event": "PUBLISH_COMPLETE",
+      "actor": "cli",
+      "reason": "Release published"
+    }
+  ],
+  "changeset_id": "cs-1771365563201833000",
+  "changeset": {
+    "id": "cs-1771365563201833000",
+    "from_ref": "v1.2.1",
+    "to_ref": "HEAD",
+    "commits": [
+      {
+        "hash": "0c7c0b26b61bdf8e1dde6452a7f483e1a587db02",
+        "type": "refactor",
+        "subject": "refactor!: remove /v3 module suffix for cleaner imports",
+        "breaking": true,
+        "breaking_msg": "breaking change",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:57:33+01:00",
+        "raw_message": "refactor!: remove /v3 module suffix for cleaner imports\n\nBREAKING CHANGE: Module path changed from github.com/felixgeelhaar/bolt/v3\nto github.com/felixgeelhaar/bolt. All import paths must be updated.\n\n- Replace github.com/felixgeelhaar/bolt/v3 with github.com/felixgeelhaar/bolt\n  across all Go source files, go.mod files, and documentation\n- Update version references from v3.0.0 to v1.2.1 in example/benchmark modules\n- Run go mod tidy on all modules\n"
+      },
+      {
+        "hash": "21bd97e2a381122b9f2304cdf68b3e1fdb7adae8",
+        "type": "fix",
+        "subject": "fix: skip performance regression tests under -race detector",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:42:29+01:00",
+        "raw_message": "fix: skip performance regression tests under -race detector\n\nThe race detector adds ~20x overhead to timing measurements, making\nlatency thresholds meaningless. Skip performance regression tests\nwhen -race is active; use benchmarks for accurate performance data.\n"
+      },
+      {
+        "hash": "2ba993427c80e717ce4b57f9587f00f1574da18f",
+        "type": "fix",
+        "subject": "fix: relax complex event latency threshold to 500ns",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:39:52+01:00",
+        "raw_message": "fix: relax complex event latency threshold to 500ns\n\nThe 350ns threshold was too tight and caused flaky failures under\nsystem load variance. Typical runs complete in ~280ns, so 500ns\nprovides sufficient margin while still catching real regressions.\n"
+      },
+      {
+        "hash": "679ae55e236edf098644d55a621c359b968c37e6",
+        "type": "fix",
+        "subject": "fix: skip intentional race test under -race detector",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:37:27+01:00",
+        "raw_message": "fix: skip intentional race test under -race detector\n\nTestUnsafeBufferRaceDetection intentionally races on a shared\nbytes.Buffer to demonstrate that races originate from unsafe writers,\nnot the logging library. Skip it when the race detector is active\nto prevent false test failures.\n"
+      },
+      {
+        "hash": "d0b3c6ff6cfa1c312dbef2b81f1ee8a8798971ea",
+        "type": "chore",
+        "subject": "chore: update nox baseline for new features",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:33:17+01:00",
+        "raw_message": "chore: update nox baseline for new features\n"
+      },
+      {
+        "hash": "3c78f2c9313ba1213d561377e2f20af39e915019",
+        "type": "docs",
+        "subject": "docs: update README with new features and remove incorrect v3 branding",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:31:32+01:00",
+        "raw_message": "docs: update README with new features and remove incorrect v3 branding\n\nDocument all 10 new features (Uint8/16/32, CallerSkip, Stringer, Ints/Strs,\nIPAddr, Dict, MultiHandler, Hook/SampleHook, NewLevelWriter) with code\nexamples and performance data. Remove \"Bolt v3\" product branding per\nproject convention while keeping Go module import paths unchanged.\n"
+      },
+      {
+        "hash": "4a8079ac6ffc952edd3d20e5b70befdc6989963d",
+        "type": "feat",
+        "subject": "feat: add 10 new features for production parity with zerolog/zap",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:31:20+01:00",
+        "raw_message": "feat: add 10 new features for production parity with zerolog/zap\n\nAdd Uint8/Uint16/Uint32 field methods, CallerSkip for wrapper functions,\nfmt.Stringer support, Ints/Strs array fields, zero-alloc IPAddr formatting,\nDict nested objects, MultiHandler fan-out, Hook/SampleHook event interception,\nand NewLevelWriter io.Writer adapter. All new field methods maintain the\nzero-allocation guarantee (0 allocs/op verified via benchmarks). Includes\ncomprehensive unit tests, race tests, performance regression tests, and\ntestable examples for all features.\n"
+      },
+      {
+        "hash": "49fa26522ca19e572a545ae4816cb0340651114b",
+        "type": "fix",
+        "subject": "fix: disable gosec G115 analyzer to work around upstream panic",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T22:31:15+01:00",
+        "raw_message": "fix: disable gosec G115 analyzer to work around upstream panic\n\nThe gosec v2.23.0 conversion_overflow analyzer (G115) panics on\nconstant expressions like `1024 * 1024` with error \"1e+06 not an Int\".\nDisable until the upstream fix is released.\n"
+      },
+      {
+        "hash": "ce03bd43fe0b8f70ada15c75c6aad1655a716ab2",
+        "type": "chore",
+        "subject": "chore: update nox baseline for README AI-006 false positive",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T21:38:43+01:00",
+        "raw_message": "chore: update nox baseline for README AI-006 false positive\n"
+      },
+      {
+        "hash": "d99010b5f83d2e93a52960729086b3358224e66c",
+        "type": "feat",
+        "subject": "feat: add slog.Handler, testable examples, and documentation improvements",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T14:29:26+01:00",
+        "raw_message": "feat: add slog.Handler, testable examples, and documentation improvements\n\n- Implement slog.Handler adapter (slog.go) backed by Bolt's zero-allocation\n  serialization, supporting WithAttrs, WithGroup, and level filtering\n- Add comprehensive slog.Handler tests (slog_test.go) with race detection\n- Add 13 testable examples (example_test.go) for pkg.go.dev rendering\n- Migrate benchmarks from golang.org/x/exp/slog to stdlib log/slog\n- Fix deploy-pages.yml Go version from 1.21 to 1.23\n- Update CONTRIBUTING.md Go version from 1.19 to 1.23\n- Add documentation links to release workflow and goreleaser config\n- Update README with slog integration docs and handler comparison guide\n- Migrate golangci-lint config to v2 format\n"
+      },
+      {
+        "hash": "17fa89d194a5679f370d12ef0fe76e7289f07c6e",
+        "type": "chore",
+        "subject": "chore: add nox security baseline for known false positives",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T12:51:31+01:00",
+        "raw_message": "chore: add nox security baseline for known false positives\n\nBaseline 27 findings that are false positives or expected patterns:\n- SEC-163: test UUIDs/trace IDs in bolt.go and test files\n- IAC-314/315: contents/packages write permissions in release workflows\n- IAC-306: OIDC token write for GitHub Pages deployment\n- IAC-351: id-token permission misidentified as hardcoded secret\n- SEC-161: awk format string and sed pattern in deploy/Makefile\n- AI-006: logger output in README code example\n- DATA-001: intentional security contact email in SECURITY.md\n- IAC-013/157: felixgeelhaar/nox@v1 pending release tag\n- IAC-308/310/018: intentional workflow_dispatch and continue-on-error\n\nAlso excludes findings.json from scans and version control.\n"
+      },
+      {
+        "hash": "847919b354da6ffe3aedc82ff112c59f8f7e923d",
+        "type": "fix",
+        "subject": "fix: pin all GitHub Actions to commit SHAs for supply chain security",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T11:43:45+01:00",
+        "raw_message": "fix: pin all GitHub Actions to commit SHAs for supply chain security\n\nPin 13 actions across 7 workflows to immutable commit SHAs:\n- actions/checkout@v4 (34e1148)\n- actions/setup-go@v5 (40f1582)\n- actions/cache@v4 (0057852)\n- codecov/codecov-action@v5 (671740a)\n- golangci/golangci-lint-action@v6 (55c2c14)\n- actions/upload-artifact@v4 (ea165f8)\n- github/codeql-action/upload-sarif@v3 (f5c2471)\n- goreleaser/goreleaser-action@v6 (e435ccd)\n- actions/configure-pages@v4 (1f0c5cd)\n- actions/upload-pages-artifact@v3 (56afc60)\n- actions/deploy-pages@v4 (d6db901)\n- amannn/action-semantic-pull-request@v5 (e32d7e6)\n- softprops/action-gh-release@v2 (a06a81a)\n\nResolves 39 high-severity IAC-013 findings from nox security scan.\n"
+      },
+      {
+        "hash": "94024973e5012bdf5754dd94b58e0fa04fcfe524",
+        "type": "chore",
+        "subject": "chore: add nox security scanning, update CI toolchain, and fix version references",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-02-17T11:31:45+01:00",
+        "raw_message": "chore: add nox security scanning, update CI toolchain, and fix version references\n\n- Add nox security scanning workflow with SARIF upload and badge\n- Add weekly fuzz testing workflow targeting 5 fuzz functions\n- Add dependabot for Go modules and GitHub Actions updates\n- Update Go test matrix from 1.21/1.22/1.23 to 1.23/1.24\n- Bump golangci-lint-action v4 to v6, codecov-action v4 to v5\n- Replace deprecated benchcmp with benchstat for benchmark comparison\n- Raise coverage threshold from 30% to 70%\n- Fix README version references from v2.0.0 to v3\n- Fix Go version badge from \u003e=1.19 to \u003e=1.23\n- Add pkg.go.dev Go Reference badge\n- Remove continue-on-error from gosec security job\n"
+      },
+      {
+        "hash": "0efb4e5e21cb33024b3e8232944caaf76fcee1ae",
+        "type": "chore",
+        "subject": "chore: track relicta release state directory",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T22:41:25+01:00",
+        "raw_message": "chore: track relicta release state directory\n"
+      },
+      {
+        "hash": "a03867330ef5c9b4061bed2f0034a8613705df7d",
+        "type": "chore",
+        "subject": "chore: add github token config to relicta plugin",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T22:31:29+01:00",
+        "raw_message": "chore: add github token config to relicta plugin\n"
+      },
+      {
+        "hash": "bc0e318bdb1c38f85741449536df0e31cbbd3872",
+        "type": "chore",
+        "subject": "chore: add coverctl and relicta configuration",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T22:15:46+01:00",
+        "raw_message": "chore: add coverctl and relicta configuration\n\n- coverctl: domain-based coverage policies (core: 30%, examples: 0%)\n- relicta: conventional commit versioning with GitHub release plugin\n"
+      },
+      {
+        "hash": "9778844de8c54bafd83efd344795c8b70ce5cccb",
+        "type": "fix",
+        "subject": "fix: make module proxy warming step non-blocking",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T20:16:54+01:00",
+        "raw_message": "fix: make module proxy warming step non-blocking\n\nThe pkg.go.dev indexing may fail initially for new releases since\nit takes time to index. Added continue-on-error: true and individual\nerror handling to prevent release workflow failures due to this\nnon-critical post-release step.\n"
+      },
+      {
+        "hash": "b6c14b3cfb4722259b12478ad81e858e0d77a6b8",
+        "type": "fix",
+        "subject": "fix: resolve CI failures and security vulnerabilities",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T20:11:49+01:00",
+        "raw_message": "fix: resolve CI failures and security vulnerabilities\n\n- Fix GoReleaser workflow by removing coverage.txt before release\n- Remove deprecated Jaeger exporter from opentelemetry example (use OTLP)\n- Update golang.org/x/net to v0.48.0 to fix CVE vulnerabilities\n- Update grpc-interceptors dependencies\n"
+      },
+      {
+        "hash": "868e0dc0a717a8f3bfe1e801bc8e5a94f49b7a3d",
+        "type": "feat",
+        "subject": "feat: add /v3 suffix to module path for Go semantic import versioning",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2026-01-03T20:00:34+01:00",
+        "raw_message": "feat: add /v3 suffix to module path for Go semantic import versioning\n\nUpdates the module path from github.com/felixgeelhaar/bolt to\ngithub.com/felixgeelhaar/bolt/v3 to comply with Go's semantic import\nversioning requirement for modules v2+.\n\nChanges include:\n- Update root go.mod module declaration\n- Update all submodule go.mod require and replace directives\n- Update all import statements in Go source files\n- Update installation instructions and code examples in documentation\n- Update badge URLs to use v3 path\n\nThis enables users to properly import the module using:\n  go get github.com/felixgeelhaar/bolt/v3\n\nCloses #5\n"
+      },
+      {
+        "hash": "af325d5350a8d3a603fd99b3fa6f394d9dc7f80b",
+        "type": "docs",
+        "subject": "docs: update README with separate benchmarks module instructions",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-17T16:08:01+02:00",
+        "raw_message": "docs: update README with separate benchmarks module instructions\n\nUpdated documentation to reflect benchmarks moved to separate module in v3.0.0. Clarified how to run comparison benchmarks and removed obsolete -tags=bench flag.\n"
+      },
+      {
+        "hash": "597f3d6f83e1091190367a80a405b6d3ae86dbbe",
+        "type": "refactor",
+        "subject": "refactor: move benchmarks to separate module to remove zerolog/zap dependencies",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-17T15:26:32+02:00",
+        "raw_message": "refactor: move benchmarks to separate module to remove zerolog/zap dependencies\n\nCreated separate benchmarks module with its own go.mod to avoid forcing users to download zerolog and zap dependencies. Benchmark comparisons remain available in the benchmarks/ directory.\n"
+      },
+      {
+        "hash": "edb53e4291a9ea181a9c79439d480ab0b32804c7",
+        "type": "docs",
+        "subject": "docs: update README with accurate v2.0.0 benchmarks and fix broken links",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-03T20:02:30+02:00",
+        "raw_message": "docs: update README with accurate v2.0.0 benchmarks and fix broken links\n\nUpdates:\n- Version references: v1.2.2 → v2.0.0\n- Performance badge: 70ns → 63ns (actual benchmark)\n- Benchmark table: Updated with real v2.0.0 numbers\n- Sample results: Corrected to actual test output\n- Performance characteristics: Updated timings\n\nFixes:\n- Removed broken documentation links (docs/ deleted)\n- Updated to point to GitHub Pages for live benchmarks\n- Fixed cloud platform integration links\n- Updated framework integration references to examples/\n\nAccuracy improvements:\n- Simple log: 63ns/op (was 70ns)\n- Float64: 62ns/op (was 66ns)\n- New fields: 60ns/op (Int8/16/32)\n- Console handler: 491ns with 10 allocs (was inaccurate)\n- All numbers verified with go test -bench\n"
+      },
+      {
+        "hash": "90e0dd999853af68532a9f0d2bf0860b0bd2cad3",
+        "type": "fix",
+        "subject": "fix: add +incompatible suffix to v2.0.0 in http-middleware example",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-03T19:32:14+02:00",
+        "raw_message": "fix: add +incompatible suffix to v2.0.0 in http-middleware example\n"
+      },
+      {
+        "hash": "1a88af9dce3455c039758ece67ebdf768335f421",
+        "type": "fix",
+        "subject": "fix: skip performance regression tests in CI",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-03T19:27:33+02:00",
+        "raw_message": "fix: skip performance regression tests in CI\n\nPerformance regression tests use testing.Benchmark which can report\nfalse positive allocations in CI environments due to GC behavior.\nThese tests are now skipped in short mode to prevent flaky test failures.\n\nFor accurate performance validation, use: go test -bench=. -benchmem\n\nChanges:\n- performance_test.go: Add testing.Short() check to skip in CI\n- .github/workflows/ci.yml: Add -short flag to count=5 test run\n"
+      },
+      {
+        "hash": "e880a7272fa6e31d2e763aebc52e2797ae0467bf",
+        "type": "fix",
+        "subject": "fix: resolve CI test failures and example build issues",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-03T19:22:23+02:00",
+        "raw_message": "fix: resolve CI test failures and example build issues\n\n- Fix flaky concurrent handler test by using ThreadSafeBuffer\n- Move ThreadSafeBuffer to shared test_helpers.go\n- Add go.mod files to examples (rest-api, batch-processor)\n- Update grpc-service go.mod with proper dependencies\n- Fix unused variable in grpc-service example\n- Use replace directive to reference local bolt v2.0.0\n\nChanges:\n- test_helpers.go: Shared ThreadSafeBuffer for concurrent tests\n- handler_edge_test.go: Use ThreadSafeBuffer for concurrent access test\n- race_test.go: Remove duplicate ThreadSafeBuffer, keep Reset method\n- examples/*/go.mod: Add module files with replace directives\n"
+      },
+      {
+        "hash": "335f018ea7685acb0f2fd9b70e9d84df04da81a0",
+        "type": "feat",
+        "subject": "feat: v2.0.0 - Go best practices \u0026 repository cleanup",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-10-03T15:55:09+02:00",
+        "raw_message": "feat: v2.0.0 - Go best practices \u0026 repository cleanup\n\nBREAKING CHANGES:\n- Removed enterprise infrastructure directories\n- Simplified repository to focus on core library\n- Removed migration tools and documentation\n\nCode Quality:\n- Reduced complexity (55→15, 17→5)\n- Fixed staticcheck violations\n- Go Report Card: A+ rating\n\nModule Best Practices:\n- Cleaned unused dependencies\n- Modernized golangci-lint config\n- Upgraded staticcheck to latest\n\nRepository Cleanup:\n- Removed 63 files (9,013 lines)\n- Consolidated documentation\n- Fixed flaky concurrent test\n\nPerformance Maintained:\n- 62.96ns/op, 0 B/op, 0 allocs/op\n- 85% test coverage\n- All tests passing\n"
+      },
+      {
+        "hash": "9d7fbe5b86b32eea82ba5d3e74c10e1789c37a4b",
+        "type": "docs",
+        "subject": "docs: reorganize documentation following GitHub best practices",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-08-08T22:07:10+02:00",
+        "raw_message": "docs: reorganize documentation following GitHub best practices\n\nOrganizational Changes:\n- Moved detailed docs to docs/ folder: DEVELOPMENT.md, ENTERPRISE.md, PERFORMANCE.md, TROUBLESHOOTING.md\n- Kept GitHub-recognized files in root: README.md, SECURITY.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md, CLAUDE.md\n- Added comprehensive docs/README.md with navigation and links\n- Updated main README.md with clear documentation section\n\nBenefits:\n- Cleaner root directory\n- Better documentation discoverability\n- Follows GitHub community standards\n- Maintains automated GitHub features for community files\n"
+      },
+      {
+        "hash": "5314974f5de1bc94a15090b69ccb62e8717e46cd",
+        "type": "chore",
+        "subject": "chore: improve .gitignore for test directories and temp files",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-08-08T20:11:28+02:00",
+        "raw_message": "chore: improve .gitignore for test directories and temp files\n\n- Added comprehensive patterns for test directories\n- Ensures test-bolt-tmp and similar directories are ignored\n- Prevents accidental commits of test/demo directories\n"
+      },
+      {
+        "hash": "e00cceaeab105c4eb237407f90467c216a562e1b",
+        "type": "chore",
+        "subject": "chore: clean up unnecessary test directories and files",
+        "author": "Felix Geelhaar",
+        "author_email": "felix@felixgeelhaar.de",
+        "date": "2025-08-08T19:32:27+02:00",
+        "raw_message": "chore: clean up unnecessary test directories and files\n\n- Removed test-bolt/ directory\n- Removed test-v1-2-0-final/ directory\n- Removed demo/ directory\n- Removed test benchmark binary\n- Keep repository clean and focused on production code\n"
+      }
+    ]
+  },
+  "created_at": "2026-02-17T22:59:23.506243+01:00",
+  "updated_at": "2026-02-17T23:01:35.447836+01:00",
+  "published_at": "2026-02-17T23:01:35.447824+01:00"
+}

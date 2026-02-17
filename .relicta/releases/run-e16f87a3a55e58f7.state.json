@@ -1,0 +1,81 @@
+{
+  "run_id": "run-e16f87a3a55e58f7",
+  "state": "published",
+  "head_sha": "0c7c0b26b61bdf8e1dde6452a7f483e1a587db02",
+  "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
+  "version_next": "1.3.0",
+  "steps": {
+    "create-tag": {
+      "State": "done",
+      "Attempts": 1,
+      "LastError": "",
+      "StartedAt": "2026-02-17T23:01:34.299155+01:00",
+      "CompletedAt": "2026-02-17T23:01:35.446873+01:00",
+      "Output": "Created and pushed tag v1.3.0"
+    }
+  },
+  "history": [
+    {
+      "At": "2026-02-17T22:59:23.50626+01:00",
+      "From": "draft",
+      "To": "planned",
+      "Event": "PLAN",
+      "Actor": "cli",
+      "Reason": "Release planned",
+      "Metadata": null
+    },
+    {
+      "At": "2026-02-17T22:59:47.726255+01:00",
+      "From": "planned",
+      "To": "versioned",
+      "Event": "BUMP",
+      "Actor": "cli",
+      "Reason": "Version applied",
+      "Metadata": {
+        "tag_name": "v1.3.0",
+        "version": "1.3.0"
+      }
+    },
+    {
+      "At": "2026-02-17T22:59:54.504728+01:00",
+      "From": "versioned",
+      "To": "notes_ready",
+      "Event": "GENERATE_NOTES",
+      "Actor": "cli",
+      "Reason": "Notes generated",
+      "Metadata": null
+    },
+    {
+      "At": "2026-02-17T23:00:04.202722+01:00",
+      "From": "notes_ready",
+      "To": "approved",
+      "Event": "APPROVE",
+      "Actor": "felixgeelhaar",
+      "Reason": "Release approved",
+      "Metadata": {
+        "auto_approved": "false",
+        "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
+        "risk_score": "0.00"
+      }
+    },
+    {
+      "At": "2026-02-17T23:01:34.298518+01:00",
+      "From": "approved",
+      "To": "publishing",
+      "Event": "START_PUBLISH",
+      "Actor": "cli",
+      "Reason": "Publishing started",
+      "Metadata": null
+    },
+    {
+      "At": "2026-02-17T23:01:35.447835+01:00",
+      "From": "publishing",
+      "To": "published",
+      "Event": "PUBLISH_COMPLETE",
+      "Actor": "cli",
+      "Reason": "Release published",
+      "Metadata": null
+    }
+  ],
+  "updated_at": "2026-02-17T23:01:35+01:00"
+}
