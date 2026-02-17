@@ -36,6 +36,9 @@ linters:
         - fmt.Fprintf
         - fmt.Fprintln
         - (*os.File).Close
+    gosec:
+      excludes:
+        - G115 # Disabled: upstream panic in gosec v2.23.0 conversion_overflow analyzer
     funlen:
       lines: 80
       statements: 50
