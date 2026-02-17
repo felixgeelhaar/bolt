@@ -292,6 +292,9 @@ func TestEndToEndPerformance(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping performance test in short mode")
 	}
+	if raceDetectorEnabled {
+		t.Skip("Skipping performance test under -race (adds ~20x overhead)")
+	}
 
 	t.Run("High Throughput Scenario", func(t *testing.T) {
 		var buf bytes.Buffer

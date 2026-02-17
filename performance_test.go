@@ -26,6 +26,9 @@ func TestPerformanceRegression(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping performance regression tests in short mode")
 	}
+	if raceDetectorEnabled {
+		t.Skip("Skipping performance regression tests under -race (adds ~20x overhead)")
+	}
 
 	t.Run("Zero Allocations", func(t *testing.T) {
 		var buf bytes.Buffer
