@@ -180,6 +180,8 @@ jobs:
 
     - name: Install gosec
       run: go install github.com/securego/gosec/v2/cmd/gosec@v2.22.11
+      env:
+        GOTOOLCHAIN: auto
 
     - name: Run Gosec Security Scanner
       run: |
