@@ -91,7 +91,7 @@ jobs:
           
           ## Documentation
 
-          - 📖 [API Reference](https://pkg.go.dev/github.com/felixgeelhaar/bolt/v3)
+          - 📖 [API Reference](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
           - 📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
           - 🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
 
@@ -102,7 +102,6 @@ jobs:
           - ✅ Module validation (go mod verify)
           - ✅ Performance benchmarks
           - ✅ Cross-platform compatibility
-          - ✅ Nox security scan
         draft: false
         prerelease: ${{ contains(github.ref, '-') }}
         generate_release_notes: true

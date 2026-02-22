@@ -24,6 +24,8 @@ jobs:
           perf
           test
           chore
+          ci
+          build
         requireScope: false
         subjectPattern: ^(?![A-Z]).+$
         subjectPatternError: |
@@ -32,6 +34,7 @@ jobs:
           doesn't start with an uppercase character.
 
   check-fork:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
     - name: Check if PR is from fork

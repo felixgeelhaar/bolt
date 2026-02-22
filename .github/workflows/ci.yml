@@ -85,8 +85,13 @@ jobs:
         echo "Compiling examples..."
         for example in $(find examples -name "main.go" -type f); do
           dir=$(dirname "$example")
+          # Skip grpc-interceptors (requires proto generation)
+          if echo "$dir" | grep -q "grpc-interceptors"; then
+            echo "Skipping $dir (requires proto generation)"
+            continue
+          fi
           echo "Building $dir..."
-          (cd "$dir" && go build -v .) || echo "Failed to build $dir (may have external dependencies)"
+          (cd "$dir" && go mod tidy && go build -v .) || echo "Failed to build $dir (may have external dependencies)"
         done
 
     - name: Test example compilation (strict)
@@ -98,7 +103,7 @@ jobs:
         failed=0
         for example in "${examples_to_test[@]}"; do
           echo "Testing $example..."
-          if ! (cd "$example" && go build -v .); then
+          if ! (cd "$example" && go mod tidy && go build -v .); then
             echo "ERROR: $example failed to compile"
             failed=1
           fi
