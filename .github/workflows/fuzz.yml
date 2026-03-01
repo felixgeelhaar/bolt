@@ -9,6 +9,7 @@ jobs:
   fuzz:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         fuzz-target:
           - FuzzJSONHandler
@@ -30,7 +31,7 @@ jobs:
         go-version: '1.24'
 
     - name: Run fuzz test (${{ matrix.fuzz-target }})
-      run: go test -fuzz=${{ matrix.fuzz-target }} -fuzztime=120s .
+      run: go test -run=^$ -fuzz=${{ matrix.fuzz-target }} -fuzztime=120s .
 
     - name: Upload fuzz corpus
       if: always()
