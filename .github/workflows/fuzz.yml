@@ -13,9 +13,13 @@ jobs:
         fuzz-target:
           - FuzzJSONHandler
           - FuzzInputValidation
-          - FuzzConcurrentLogging
+          - FuzzFloatFormatting
           - FuzzBufferManagement
+          - FuzzConcurrentLogging
+          - FuzzKeyValidation
+          - FuzzUnicodeHandling
           - FuzzMessageEscaping
+          - FuzzLevelValidation
 
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -26,7 +30,7 @@ jobs:
         go-version: '1.24'
 
     - name: Run fuzz test (${{ matrix.fuzz-target }})
-      run: go test -fuzz=${{ matrix.fuzz-target }} -fuzztime=120s ./...
+      run: go test -fuzz=${{ matrix.fuzz-target }} -fuzztime=120s .
 
     - name: Upload fuzz corpus
       if: always()
