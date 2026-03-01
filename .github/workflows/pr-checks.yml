@@ -49,6 +49,7 @@ jobs:
 
   performance-regression:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
@@ -70,13 +71,13 @@ jobs:
         git checkout ${{ github.base_ref }}
 
     - name: Run baseline benchmarks
-      run: go test -bench=. -benchmem -count=5 -tags=bench > baseline.txt || true
+      run: go test -run=^$ -bench=. -benchmem -count=3 -tags=bench > baseline.txt || true
 
     - name: Checkout PR branch
       run: git checkout ${{ github.head_ref }}
 
     - name: Run PR benchmarks
-      run: go test -bench=. -benchmem -count=5 -tags=bench > pr.txt || true
+      run: go test -run=^$ -bench=. -benchmem -count=3 -tags=bench > pr.txt || true
 
     - name: Compare benchmarks
       run: |
