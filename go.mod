@@ -1,16 +1,14 @@
 module github.com/felixgeelhaar/bolt
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.25.0
 
 require (
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.23.2
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/trace v1.40.0
-	golang.org/x/sys v0.41.0
-	golang.org/x/term v0.40.0
+	golang.org/x/sys v0.42.0
+	golang.org/x/term v0.41.0
 )
 
 require (
