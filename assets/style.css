@@ -537,13 +537,20 @@ pre code { background: transparent; padding: 0; border-radius: 0; font-size: 0.8
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .diff-pane-after figcaption { color: var(--accent); }
-.diff-pane pre {
-  padding: var(--s-4);
+.diff-pane pre,
+.diff-pane pre code {
+  padding: 0;
   font-family: var(--font-mono);
   font-size: 0.82rem;
   line-height: 1.6;
+}
+.diff-pane pre {
+  padding: var(--s-4);
   overflow-x: auto;
   white-space: pre;
+  /* Reserve consistent height across both panes so the diff lines
+     stay aligned even when bolt's example has fewer real lines. */
+  min-height: 14rem;
 }
 .diff-foot {
   font-size: 0.92rem;
@@ -579,11 +586,14 @@ pre code { background: transparent; padding: 0; border-radius: 0; font-size: 0.8
   color: var(--fg-faint);
 }
 .code-block h3 code { background: transparent; color: var(--accent); padding: 0; }
-.code-block pre {
-  padding: var(--s-4);
+.code-block pre,
+.code-block pre code {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   line-height: 1.65;
+}
+.code-block pre {
+  padding: var(--s-4);
   overflow-x: auto;
   white-space: pre;
 }
