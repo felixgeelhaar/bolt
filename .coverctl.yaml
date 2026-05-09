@@ -1,16 +1,20 @@
 version: 1
+# Coverage policy for the bolt root module. The bolt/genai sub-module
+# has its own go.mod and is measured separately by its own CI; if you
+# want a combined report locally, run coverctl against the genai dir
+# with that module's own .coverctl.yaml.
+#
+# Examples are standalone apps under their own go.mod files and are
+# excluded from coverage gates by virtue of not being on the import
+# path of the root module.
 policy:
   default:
     min: 70
   domains:
     - name: core
       match:
-        - github.com/felixgeelhaar/bolt/v3
-      min: 70
-    - name: examples
-      match:
-        - github.com/felixgeelhaar/bolt/v3/examples/...
-      min: 0  # Examples are standalone apps, not tested
+        - github.com/felixgeelhaar/bolt
+      min: 80
 history:
   enabled: true
   file: .coverctl-history.json

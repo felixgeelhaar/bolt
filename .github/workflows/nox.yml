@@ -86,3 +86,17 @@ jobs:
           name: nox-findings
           path: findings.json
           retention-days: 90
+
+      - name: Refresh nox grade badge (push to main)
+        if: github.event_name == 'push' && hashFiles('findings.json') != ''
+        run: |
+          nox badge -input findings.json -output assets/badge-nox.svg
+          if ! git diff --quiet assets/badge-nox.svg; then
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git add assets/badge-nox.svg
+            git commit -m "ci(badge): refresh nox grade badge [skip ci]"
+            # Push directly only if branch protection allows admin/bot pushes;
+            # otherwise this errors and the artifact is the source of truth.
+            git push origin HEAD:main || echo "::warning::badge push blocked by branch protection — see findings artifact"
+          fi
