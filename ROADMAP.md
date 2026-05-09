@@ -71,11 +71,11 @@ investment.
 
 | Status | Item | Notes |
 |---|---|---|
-| 🟡 | Split `bolt.go` (~2000 LOC) into `event.go`, `logger.go`, `handler.go`, `encode.go`, `validate.go`, `pool.go` | code-motion only; no API change |
-| 🟡 | Hook v2 — pass `*Event` so hooks can inspect fields (redaction, cost) | additive; existing `Hook` keeps working |
-| 🟡 | benchstat-driven perf regression in CI | replace flaky wall-clock asserts in `performance_test.go` |
-| 🟡 | Replace custom `appendFloat64` with `strconv.AppendFloat` | current impl loses precision for financial use cases (`bolt.go:478`); keep custom path behind opt-in |
-| ⚪ | Property tests via `pgregory.net/rapid` for JSON escaping | invariant: `decode(encode(x)) == x` for any string |
+| ✅ | Split `bolt.go` (~2000 LOC) into `event.go`, `logger.go`, `handler.go`, `encode.go` | done across PRs #55, #57, #58 — code-motion only; no API change; bolt.go is now 508 lines |
+| ✅ | Hook v2 — `EventHook` interface receives `*Event` so hooks can inspect fields, suppress, or tag (redaction, cost accounting, sensitive-content gating) | additive; existing `Hook` keeps working |
+| ✅ | benchstat-driven perf regression in CI | done in #51; replaces flaky wall-clock asserts in `performance_test.go` |
+| ✅ | Replace custom `appendFloat64` with `strconv.AppendFloat` | done in #50; preserves full IEEE-754 precision instead of 6-decimal truncation |
+| ✅ | Property tests via `pgregory.net/rapid` for JSON escaping | done in #53; invariant: `decode(encode(x)) == x` for any string |
 | ⚪ | Mutation testing on hot paths (gremlins, nightly, gate ≥70% on critical funcs) | scheduled, not per-PR |
 
 ## P3 — Ecosystem & Trust

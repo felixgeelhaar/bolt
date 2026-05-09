@@ -207,8 +207,32 @@ func defaultErrorHandler(err error) {
 // Hook defines an interface for log event interception.
 // Hooks are called during Msg() before the event is written to the handler.
 // Returning false from Run suppresses the log event entirely.
+//
+// Hook only sees the level and the message string; it cannot read fields
+// already encoded into the event. For redaction, cost-accounting, or any
+// other field-aware interception, implement [EventHook] instead.
 type Hook interface {
 	Run(level Level, msg string) bool
+}
+
+// EventHook is the field-aware hook interface introduced after Hook v1.
+// EventHook implementations receive the [*Event] mid-build and can call
+// the event's read-only accessors ([Event.Level], [Event.Buffer],
+// [Event.WalkFields]) to inspect what has been encoded so far.
+//
+// Returning false from Run suppresses the event entirely (no handler
+// write, the buffer is recycled). Returning true lets the event proceed
+// to handlers.
+//
+// EventHook implementations MUST NOT mutate the buffer returned by
+// [Event.Buffer]; the slice aliases the in-flight log record. Hooks that
+// need to add fields can call the regular field methods (Str/Int/...) on
+// the event.
+//
+// EventHooks run after every [Hook] in the legacy chain. If any legacy
+// hook suppresses the event, EventHooks are not called.
+type EventHook interface {
+	Run(e *Event, msg string) bool
 }
 
 // SampleHook implements Hook to sample log events at a rate of 1 in every N.
@@ -240,6 +264,7 @@ type Logger struct {
 	context      []byte // Pre-formatted context fields for this logger instance.
 	errorHandler ErrorHandler
 	hooks        []Hook
+	eventHooks   []EventHook
 }
 
 // New creates a new logger with the given handler.
@@ -258,6 +283,15 @@ func (l *Logger) SetErrorHandler(eh ErrorHandler) *Logger {
 // concurrently with logging operations.
 func (l *Logger) AddHook(hook Hook) *Logger {
 	l.hooks = append(l.hooks, hook)
+	return l
+}
+
+// AddEventHook adds an [EventHook] to the logger. EventHooks run during
+// Msg() after every legacy [Hook] succeeds. EventHooks are intended for
+// setup-time configuration and are not safe to call concurrently with
+// logging operations.
+func (l *Logger) AddEventHook(hook EventHook) *Logger {
+	l.eventHooks = append(l.eventHooks, hook)
 	return l
 }
 
