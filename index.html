@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bolt — Zero-allocation slog.Handler for Go</title>
+  <meta name="description" content="Zero-allocation slog.Handler for Go with first-class OpenTelemetry trace/span injection. Passes testing/slogtest.TestHandler conformance.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-brand">
+        <img src="assets/bolt_logo.png" alt="Bolt" width="36" height="36">
+        <span>Bolt</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#why">Why bolt</a></li>
+        <li><a href="#performance">Benchmarks</a></li>
+        <li><a href="#quickstart">Quick start</a></li>
+        <li><a href="https://github.com/felixgeelhaar/bolt/tree/main/docs">Docs</a></li>
+        <li><a href="https://pkg.go.dev/github.com/felixgeelhaar/bolt">API</a></li>
+        <li><a href="https://github.com/felixgeelhaar/bolt" class="cta">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-container">
+      <h1>Zero-allocation <code>slog.Handler</code> for Go</h1>
+      <p class="hero-tagline">
+        Drop-in <code>log/slog</code> backend with first-class OpenTelemetry
+        trace/span injection. Passes <code>testing/slogtest.TestHandler</code>
+        conformance. SLSA-3 signed releases.
+      </p>
+
+      <div class="hero-badges">
+        <a href="https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml">
+          <img src="https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml/badge.svg" alt="CI">
+        </a>
+        <a href="https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml">
+          <img src="https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml/badge.svg" alt="Nox Security">
+        </a>
+        <a href="https://codecov.io/gh/felixgeelhaar/bolt">
+          <img src="https://codecov.io/gh/felixgeelhaar/bolt/branch/main/graph/badge.svg" alt="codecov">
+        </a>
+        <a href="https://pkg.go.dev/github.com/felixgeelhaar/bolt">
+          <img src="https://pkg.go.dev/badge/github.com/felixgeelhaar/bolt.svg" alt="Go Reference">
+        </a>
+        <a href="https://opensource.org/licenses/MIT">
+          <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+        </a>
+      </div>
+
+      <div class="hero-cta">
+        <code class="install">go get github.com/felixgeelhaar/bolt</code>
+        <a class="button-primary" href="https://github.com/felixgeelhaar/bolt#quick-start">Quick start →</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="why" class="why">
+    <div class="container">
+      <h2>Why bolt vs slog / zerolog / zap</h2>
+      <p class="section-tagline">A focused decision tree, not a feature shootout.</p>
+
+      <table class="decision-table">
+        <thead>
+          <tr><th>You want…</th><th>Pick</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The standard library API, no third-party dependency, no perf budget.</td>
+            <td><code>log/slog</code> (stdlib)</td>
+          </tr>
+          <tr class="pick-bolt">
+            <td>Zero-alloc speed, slog ergonomics, <strong>and</strong> first-class OTel trace/span injection.</td>
+            <td><strong>bolt</strong></td>
+          </tr>
+          <tr class="pick-bolt">
+            <td>The <code>zerolog</code>-style chained API with the smallest production diff and a clear migration path.</td>
+            <td><strong>bolt</strong> + <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/how-to/migrate-from-zerolog.md">migration guide</a></td>
+          </tr>
+          <tr>
+            <td><code>zap</code>'s typed-constructor API.</td>
+            <td>bolt's chained API; see <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/how-to/migrate-from-zap.md">migration guide</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="why-honest">
+        Bolt is <strong>not</strong> trying to win a single-digit-nanosecond benchmark
+        shootout. It's the slog handler you can ship into a production Go service without
+        giving up structured perf, OTel correlation, or the slog ergonomics other teams
+        already learned.
+      </p>
+    </div>
+  </section>
+
+  <section id="performance" class="performance">
+    <div class="container">
+      <h2>Performance</h2>
+      <p class="section-tagline">
+        Zero allocations on the hot path; latency varies by hardware. CI gate
+        <code>BenchmarkZeroAllocation</code> requires <code>0 allocs/op</code>; the
+        <a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/pr-checks.yml"><code>benchstat</code> regression workflow</a>
+        catches statistically significant deltas (Mann–Whitney U-test, α=0.05).
+      </p>
+
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+      </div>
+
+      <table class="bench-table">
+        <thead>
+          <tr><th>Library</th><th>ns/op</th><th>Allocations</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Bolt</strong></td><td><strong>127.1</strong></td><td><strong>0</strong></td></tr>
+          <tr><td>Zerolog</td><td>175.4</td><td>0</td></tr>
+          <tr><td>Zap</td><td>189.7</td><td>1</td></tr>
+          <tr><td>Logrus</td><td>2847</td><td>23</td></tr>
+        </tbody>
+      </table>
+      <p class="bench-caveat">
+        Numbers from a representative recent CI run. Reproduce locally with
+        <code>go test -bench=. -benchmem -run=^$</code>.
+      </p>
+    </div>
+  </section>
+
+  <section id="quickstart" class="quickstart">
+    <div class="container">
+      <h2>Quick start</h2>
+
+      <div class="code-grid">
+        <div class="code-block">
+          <h3>As a <code>slog.Handler</code> (recommended)</h3>
+          <pre><code>package main
+
+import (
+    "log/slog"
+    "os"
+
+    "github.com/felixgeelhaar/bolt"
+)
+
+func main() {
+    logger := slog.New(bolt.NewSlogHandler(os.Stdout, nil))
+    slog.SetDefault(logger)
+    slog.Info("server starting", "service", "api", "port", 8080)
+}</code></pre>
+        </div>
+
+        <div class="code-block">
+          <h3>Chained-builder API (hot paths)</h3>
+          <pre><code>package main
+
+import (
+    "os"
+
+    "github.com/felixgeelhaar/bolt"
+)
+
+func main() {
+    log := bolt.New(bolt.NewJSONHandler(os.Stdout))
+    log.Info().
+        Str("service", "api").
+        Int("port", 8080).
+        Msg("server starting")
+}</code></pre>
+        </div>
+      </div>
+
+      <p class="quickstart-next">
+        Next: <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/tutorial/quickstart.md">five-minute tutorial</a>
+        · <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/how-to">migration guides</a>
+        · <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/reference">API reference</a>
+        · <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/explanation">design rationale</a>
+      </p>
+    </div>
+  </section>
+
+  <section id="security" class="security">
+    <div class="container">
+      <h2>Supply-chain hardness</h2>
+      <p class="section-tagline">
+        A logging library is imported by every service, so signed artefacts and
+        provenance are not optional.
+      </p>
+
+      <div class="security-grid">
+        <div class="security-item">
+          <h3>Per-PR security scan</h3>
+          <p>
+            <a href="https://github.com/nox-hq/nox"><code>nox</code></a> runs
+            on every PR — OSV-aware vulnerability + secret scan, baseline-tracked
+            false positives. Replaces dependabot for security-driven gomod
+            upgrades via the
+            <a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/nox-remediate.yml"><code>nox-remediate</code></a>
+            scheduled workflow.
+          </p>
+        </div>
+        <div class="security-item">
+          <h3>Signed releases</h3>
+          <p>
+            Source archive + SBOM + checksums signed with cosign keyless OIDC
+            (Sigstore). SLSA-3 provenance attestation via
+            <a href="https://github.com/slsa-framework/slsa-github-generator">slsa-github-generator</a>.
+            Verification commands in
+            <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md#-verifying-release-artefacts">SECURITY.md</a>.
+          </p>
+        </div>
+        <div class="security-item">
+          <h3>Continuous fuzzing</h3>
+          <p>
+            9 <code>Fuzz*</code> targets in <code>fuzz_test.go</code> exercised
+            by the hourly <a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/fuzz.yml">fuzz workflow</a>
+            and a nightly <a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/mutation.yml">gremlins mutation-testing run</a>.
+            OSS-Fuzz onboarding scaffolding in
+            <a href="https://github.com/felixgeelhaar/bolt/tree/main/oss-fuzz"><code>oss-fuzz/</code></a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        Bolt is MIT-licensed and maintained by
+        <a href="https://github.com/felixgeelhaar">Felix Geelhaar</a>.
+        Roadmap and governance disclosure in
+        <a href="https://github.com/felixgeelhaar/bolt/blob/main/ROADMAP.md">ROADMAP.md</a>
+        and <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md">SECURITY.md</a>.
+      </p>
+      <p>
+        Issues, discussions, and PRs welcome on
+        <a href="https://github.com/felixgeelhaar/bolt">GitHub</a>.
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/script.js" defer></script>
+</body>
+</html>

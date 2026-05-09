@@ -299,14 +299,18 @@ The core Bolt library (in the root directory) maintains:
 
 ## 🔍 Regular Security Audits
 
-We run automated security scanning on every commit using:
-- `gosec` for Go security analysis
-- GitHub Security Advisories
-- Dependency vulnerability scanning
-- CodeQL analysis
-- Fuzzing tests for input validation
+Automated scanning per commit and on a schedule:
 
-Production code maintains a clean security report with zero vulnerabilities.
+| Tool | When | What |
+|---|---|---|
+| [`nox`](https://github.com/nox-hq/nox) | per PR + push to main (`.github/workflows/nox.yml`) | OSV-aware vulnerability + secret scan; baseline-tracked false positives in `.nox/baseline.json` |
+| `nox-remediate` | weekday cron (`.github/workflows/nox-remediate.yml`) | Computes OSV upgrade plan via `nox fix`; opens a labelled PR per finding. Replaces dependabot for security-driven `gomod` upgrades. |
+| `gosec` | per PR + push (`.github/workflows/ci.yml`) | Go-specific code-pattern security checks (G101, G104, …) |
+| Go-native fuzzing | hourly in CI (`.github/workflows/fuzz.yml`) + scheduled mutation testing (`.github/workflows/mutation.yml`) | 9 `Fuzz*` targets in `fuzz_test.go`; OSS-Fuzz onboarding planned |
+| Dependabot | weekly (`.github/dependabot.yml`) | GitHub Actions version pins only; gomod is owned by `nox-remediate` |
+
+`fail_on: high` policy in `.nox.yaml` means the PR-time `nox` job
+fails on any new high-severity finding outside the baseline.
 
 ## 🔗 Additional Resources
 
