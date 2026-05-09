@@ -102,8 +102,9 @@ func TestJSONHandlerFields(t *testing.T) {
 	t.Run("log with float64 field", func(t *testing.T) {
 		buf.Reset()
 		logger.Info().Float64("price", 99.99).Msg("item price")
-		// Our custom formatter provides 6 decimal precision
-		expected := `{"level":"info","price":99.989999,"message":"item price"}` + "\n"
+		// strconv.AppendFloat('g', -1) emits the shortest IEEE-754
+		// round-trip representation, matching encoding/json.
+		expected := `{"level":"info","price":99.99,"message":"item price"}` + "\n"
 		if buf.String() != expected {
 			t.Errorf("Expected log output %q, got %q", expected, buf.String())
 		}

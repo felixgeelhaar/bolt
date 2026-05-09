@@ -108,9 +108,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -442,114 +444,29 @@ func appendNanoDigits(buf []byte, nano int) []byte {
 }
 
 // appendFloat64 appends a float64 to the buffer without allocations.
-// This implementation uses a fixed-point approach for common float values,
-// providing reasonable precision while maintaining zero allocations.
+//
+// Encoding rules:
+//   - NaN, +Inf, -Inf are emitted as JSON strings ("NaN"/"+Inf"/"-Inf")
+//     because RFC 8259 has no representation for them.
+//   - All other values are encoded via strconv.AppendFloat with the
+//     shortest-round-trip ('g', -1) verb, matching encoding/json. This
+//     preserves the full IEEE-754 precision of the input — there is no
+//     6-decimal truncation. Callers that previously logged values like
+//     transaction amounts or scientific measurements will now see the
+//     correct digits in their JSON output.
+//
+// strconv.AppendFloat writes into a small stack buffer before copying
+// into buf, so this remains 0 allocs/op on the hot path.
 func appendFloat64(buf []byte, f float64) []byte {
-	// Handle special cases
-	if f != f { // NaN
+	switch {
+	case math.IsNaN(f):
 		return append(buf, `"NaN"`...)
-	}
-	if f > 1e308 { // +Inf
+	case math.IsInf(f, 1):
 		return append(buf, `"+Inf"`...)
-	}
-	if f < -1e308 { // -Inf
+	case math.IsInf(f, -1):
 		return append(buf, `"-Inf"`...)
 	}
-
-	// Handle negative numbers
-	if f < 0 {
-		buf = append(buf, '-')
-		f = -f
-	}
-
-	// Handle zero
-	if f == 0 {
-		return append(buf, '0')
-	}
-
-	// For very large or very small numbers, use scientific notation
-	if f >= 1e15 || (f > 0 && f < 1e-6) {
-		return appendFloatScientific(buf, f)
-	}
-
-	// Split into integer and fractional parts
-	intPart := int64(f)
-	fracPart := f - float64(intPart)
-
-	// Append integer part
-	buf = appendInt(buf, int(intPart))
-
-	// Append fractional part if non-zero (up to 6 decimal places for precision)
-	if fracPart > 0 {
-		buf = append(buf, '.')
-		// Multiply by 1000000 to get 6 decimal places
-		fracInt := int64(fracPart * 1000000)
-
-		// Format fractional part with leading zeros
-		fracBuf := [6]byte{}
-		for i := 5; i >= 0; i-- {
-			fracBuf[i] = byte(fracInt%10) + '0'
-			fracInt /= 10
-		}
-
-		// Append fractional digits, trimming trailing zeros
-		trimmed := fracBuf[:]
-		for len(trimmed) > 1 && trimmed[len(trimmed)-1] == '0' {
-			trimmed = trimmed[:len(trimmed)-1]
-		}
-		buf = append(buf, trimmed...)
-	}
-
-	return buf
-}
-
-// appendFloatScientific appends a float in scientific notation without allocations
-func appendFloatScientific(buf []byte, f float64) []byte {
-	// Calculate exponent
-	exp := 0
-	absF := f
-	if absF >= 10 {
-		for absF >= 10 {
-			absF /= 10
-			exp++
-		}
-	} else if absF < 1 && absF > 0 {
-		for absF < 1 {
-			absF *= 10
-			exp--
-		}
-	}
-
-	// Append mantissa (1 digit before decimal, 6 after)
-	intPart := int(absF)
-	buf = appendInt(buf, intPart)
-
-	fracPart := absF - float64(intPart)
-	if fracPart > 0 {
-		buf = append(buf, '.')
-		fracInt := int64(fracPart * 1000000)
-		fracBuf := [6]byte{}
-		for i := 5; i >= 0; i-- {
-			fracBuf[i] = byte(fracInt%10) + '0'
-			fracInt /= 10
-		}
-
-		// Trim trailing zeros
-		trimmed := fracBuf[:]
-		for len(trimmed) > 1 && trimmed[len(trimmed)-1] == '0' {
-			trimmed = trimmed[:len(trimmed)-1]
-		}
-		buf = append(buf, trimmed...)
-	}
-
-	// Append exponent
-	buf = append(buf, 'e')
-	if exp >= 0 {
-		buf = append(buf, '+')
-	}
-	buf = appendInt(buf, exp)
-
-	return buf
+	return strconv.AppendFloat(buf, f, 'g', -1, 64)
 }
 
 // Level defines the logging level.
