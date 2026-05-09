@@ -46,6 +46,6 @@ the traces do, so a log shipper like Loki + Grafana can jump from a log
 line to the trace it belongs to (or back) without bespoke glue.
 
 For the API mapping if you're migrating from a different logger, see
-[`docs/migrate-from-zerolog.md`](../../../docs/migrate-from-zerolog.md),
-[`docs/migrate-from-zap.md`](../../../docs/migrate-from-zap.md), or
-[`docs/migrate-from-slog.md`](../../../docs/migrate-from-slog.md).
+[`docs/how-to/migrate-from-zerolog.md`](../../../docs/how-to/migrate-from-zerolog.md),
+[`docs/how-to/migrate-from-zap.md`](../../../docs/how-to/migrate-from-zap.md), or
+[`docs/how-to/migrate-from-slog.md`](../../../docs/how-to/migrate-from-slog.md).
