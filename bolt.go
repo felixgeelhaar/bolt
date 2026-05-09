@@ -585,6 +585,19 @@ const (
 	FATAL
 )
 
+// slog-style level aliases. Prefer these in new code — they match the naming
+// used by the standard library's [log/slog] package and most of the Go
+// ecosystem. The SCREAMING_CASE constants above are retained for backward
+// compatibility and remain functionally identical.
+const (
+	LevelTrace = TRACE
+	LevelDebug = DEBUG
+	LevelInfo  = INFO
+	LevelWarn  = WARN
+	LevelError = ERROR
+	LevelFatal = FATAL
+)
+
 // Handler processes a log event and writes it to an output.
 type Handler interface {
 	// Write handles the log event, writing it to its destination.
