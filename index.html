@@ -23,7 +23,7 @@
   <header class="navbar" role="banner">
     <div class="container nav-row">
       <a class="brand" href="#" aria-label="Bolt home">
-        <img src="assets/bolt_logo.png" alt="" width="32" height="32">
+        <img src="assets/bolt_mark.png" alt="" width="28" height="32">
         <span class="brand-text">bolt</span>
       </a>
       <nav class="nav-links" aria-label="Primary">
@@ -216,27 +216,27 @@
         <div class="diff-grid">
           <figure class="diff-pane">
             <figcaption>stdlib slog</figcaption>
-            <pre><code><span class="tk-kw">import</span> <span class="tk-str">"log/slog"</span>
+<pre><code><span class="tk-kw">import</span> <span class="tk-str">"log/slog"</span>
 
 logger := slog.<span class="tk-fn">New</span>(slog.<span class="tk-fn">NewJSONHandler</span>(os.Stdout, <span class="tk-kw">nil</span>))
 
-<span class="tk-cm">// Trace context? You write the extraction yourself.</span>
+<span class="tk-cm">// You extract trace context yourself, every call site.</span>
 sp := trace.<span class="tk-fn">SpanFromContext</span>(ctx).<span class="tk-fn">SpanContext</span>()
 logger.<span class="tk-fn">InfoContext</span>(ctx, <span class="tk-str">"order placed"</span>,
     <span class="tk-str">"trace_id"</span>, sp.<span class="tk-fn">TraceID</span>().<span class="tk-fn">String</span>(),
-    <span class="tk-str">"span_id"</span>,  sp.<span class="tk-fn">SpanID</span>().<span class="tk-fn">String</span>(),
-)</code></pre>
+    <span class="tk-str">"span_id"</span>, sp.<span class="tk-fn">SpanID</span>().<span class="tk-fn">String</span>())</code></pre>
           </figure>
 
           <figure class="diff-pane diff-pane-after">
             <figcaption>bolt</figcaption>
-            <pre><code><span class="tk-kw">import</span> <span class="tk-str">"github.com/felixgeelhaar/bolt"</span>
+<pre><code><span class="tk-kw">import</span> <span class="tk-str">"github.com/felixgeelhaar/bolt"</span>
 
 logger := bolt.<span class="tk-fn">New</span>(bolt.<span class="tk-fn">NewJSONHandler</span>(os.Stdout))
 
-<span class="tk-cm">// Ctx(ctx) does the extraction once, for everything that follows.</span>
-logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().
-    <span class="tk-fn">Msg</span>(<span class="tk-str">"order placed"</span>)</code></pre>
+<span class="tk-cm">// Ctx(ctx) does it once, for everything that follows.</span>
+
+
+logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<span class="tk-fn">Msg</span>(<span class="tk-str">"order placed"</span>)</code></pre>
           </figure>
         </div>
 
@@ -384,7 +384,7 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().
   <footer class="site-footer">
     <div class="container footer-row">
       <div class="footer-brand">
-        <img src="assets/bolt_logo.png" alt="" width="24" height="24">
+        <img src="assets/bolt_mark.png" alt="" width="20" height="24">
         <span>bolt — maintained by <a href="https://github.com/felixgeelhaar">Felix Geelhaar</a></span>
       </div>
       <nav class="footer-links" aria-label="Footer">
