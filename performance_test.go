@@ -11,18 +11,19 @@ import (
 	"time"
 )
 
-// Performance thresholds for regression detection
-// These thresholds are set for CI shared runners (~2-3x slower than local hardware).
-// Local performance is typically ~80-100ns basic, ~200ns float64, ~350ns complex.
+// Allocation regression budget. Latency thresholds are NOT asserted here:
+// wall-clock numbers are too noisy on shared CI runners and produce false
+// positives. The benchstat-driven `performance-regression` workflow in
+// .github/workflows/pr-checks.yml does the statistical comparison
+// (Mann–Whitney U-test, alpha=0.05) instead.
 const (
-	MaxLatencyNs      = 500 // Maximum acceptable latency in nanoseconds (CI runners: ~300-360ns observed)
-	MaxAllocsPerOp    = 0   // Maximum allocations per operation (zero-allocation guarantee)
-	MaxBytesPerOp     = 200 // Maximum bytes per operation (buffer overhead)
-	Float64MaxLatency = 600 // Float64 latency threshold (CI runners: ~280-320ns observed)
+	MaxAllocsPerOp = 0   // Zero-allocation guarantee
+	MaxBytesPerOp  = 200 // Per-op buffer overhead ceiling
 )
 
-// TestPerformanceRegression ensures core performance metrics don't regress
-// Note: These tests can be flaky in CI due to GC behavior, run benchmarks for accurate results
+// TestPerformanceRegression asserts the allocation budget. Latency drift is
+// measured by the benchstat workflow, not by this test, because shared CI
+// runners produce wall-clock noise on the order of ±50%.
 func TestPerformanceRegression(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping performance regression tests in short mode")
@@ -46,11 +47,6 @@ func TestPerformanceRegression(t *testing.T) {
 		if result.AllocsPerOp() > MaxAllocsPerOp {
 			t.Errorf("Allocation regression detected: got %d allocs/op, want <= %d",
 				result.AllocsPerOp(), MaxAllocsPerOp)
-		}
-
-		if result.NsPerOp() > MaxLatencyNs {
-			t.Errorf("Latency regression detected: got %d ns/op, want <= %d",
-				result.NsPerOp(), MaxLatencyNs)
 		}
 
 		if result.AllocedBytesPerOp() > MaxBytesPerOp {
@@ -79,11 +75,6 @@ func TestPerformanceRegression(t *testing.T) {
 				result.AllocsPerOp(), MaxAllocsPerOp)
 		}
 
-		if result.NsPerOp() > Float64MaxLatency {
-			t.Errorf("Float64 latency regression detected: got %d ns/op, want <= %d",
-				result.NsPerOp(), Float64MaxLatency)
-		}
-
 		t.Logf("Float64 Performance: %d ns/op, %d B/op, %d allocs/op",
 			result.NsPerOp(), result.AllocedBytesPerOp(), result.AllocsPerOp())
 	})
@@ -109,13 +100,6 @@ func TestPerformanceRegression(t *testing.T) {
 		if result.AllocsPerOp() > MaxAllocsPerOp {
 			t.Errorf("Complex event allocation regression: got %d allocs/op, want <= %d",
 				result.AllocsPerOp(), MaxAllocsPerOp)
-		}
-
-		// Complex events may be slightly slower but still under threshold
-		maxComplexLatency := int64(2000) // Allow up to 2μs for complex events (CI runners: ~1350-1575ns observed)
-		if result.NsPerOp() > maxComplexLatency {
-			t.Errorf("Complex event latency regression: got %d ns/op, want <= %d",
-				result.NsPerOp(), maxComplexLatency)
 		}
 
 		t.Logf("Complex Event Performance: %d ns/op, %d B/op, %d allocs/op",

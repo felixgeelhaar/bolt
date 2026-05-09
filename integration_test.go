@@ -287,47 +287,38 @@ func TestEndToEndEnvironmentConfiguration(t *testing.T) {
 	})
 }
 
-// TestEndToEndPerformance tests real-world performance scenarios
-func TestEndToEndPerformance(t *testing.T) {
+// TestEndToEndHighThroughput verifies that a long run of logging operations
+// completes successfully and writes the expected number of records. The
+// previous version of this test asserted a wall-clock latency budget
+// (2.5 μs/op) which produced false positives on shared CI; latency drift
+// is now measured by the benchstat workflow with statistical significance.
+func TestEndToEndHighThroughput(t *testing.T) {
 	if testing.Short() {
-		t.Skip("Skipping performance test in short mode")
-	}
-	if raceDetectorEnabled {
-		t.Skip("Skipping performance test under -race (adds ~20x overhead)")
+		t.Skip("Skipping high-throughput test in short mode")
 	}
 
-	t.Run("High Throughput Scenario", func(t *testing.T) {
-		var buf bytes.Buffer
-		logger := New(NewJSONHandler(&buf))
+	var buf bytes.Buffer
+	logger := New(NewJSONHandler(&buf))
 
-		start := time.Now()
-		iterations := 10000
+	const iterations = 10000
+	start := time.Now()
+	for i := 0; i < iterations; i++ {
+		logger.Info().
+			Str("request_id", "req-12345").
+			Int("iteration", i).
+			Int64("timestamp", time.Now().Unix()).
+			Bool("success", true).
+			Msg("request processed")
+	}
+	duration := time.Since(start)
 
-		for i := 0; i < iterations; i++ {
-			logger.Info().
-				Str("request_id", "req-12345").
-				Int("iteration", i).
-				Int64("timestamp", time.Now().Unix()).
-				Bool("success", true).
-				Msg("request processed")
-		}
+	t.Logf("High throughput: %d iterations in %v (avg: %d ns/op)",
+		iterations, duration, duration.Nanoseconds()/int64(iterations))
 
-		duration := time.Since(start)
-		avgLatency := duration.Nanoseconds() / int64(iterations)
-
-		if avgLatency > 2500 { // 2.5μs per log (CI runners: ~1400-1540ns observed)
-			t.Errorf("Average latency too high: %d ns/op", avgLatency)
-		}
-
-		t.Logf("High throughput: %d iterations in %v (avg: %d ns/op)",
-			iterations, duration, avgLatency)
-
-		// Verify all logs were written
-		lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
-		if len(lines) != iterations {
-			t.Errorf("Expected %d log lines, got %d", iterations, len(lines))
-		}
-	})
+	lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	if len(lines) != iterations {
+		t.Errorf("Expected %d log lines, got %d", iterations, len(lines))
+	}
 }
 
 // TestEndToEndAllFieldTypes tests all field types in realistic scenario

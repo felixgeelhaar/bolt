@@ -52,7 +52,10 @@ jobs:
 
   performance-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
@@ -68,30 +71,52 @@ jobs:
       env:
         GOTOOLCHAIN: auto
 
-    - name: Checkout base branch
+    - name: Run baseline benchmarks (base branch)
       run: |
-        git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+        git fetch origin ${{ github.base_ref }}
         git checkout ${{ github.base_ref }}
-
-    - name: Run baseline benchmarks
-      run: go test -run=^$ -bench=. -benchmem -count=3 -tags=bench > baseline.txt || true
-
-    - name: Checkout PR branch
-      run: git checkout ${{ github.head_ref }}
+        # 6 iterations gives benchstat enough samples for the U-test to
+        # produce meaningful p-values without blowing the CI budget.
+        go test -run=^$ -bench=. -benchmem -count=6 -tags=bench \
+          -benchtime=1s > baseline.txt 2>&1 || (cat baseline.txt; exit 1)
 
     - name: Run PR benchmarks
-      run: go test -run=^$ -bench=. -benchmem -count=3 -tags=bench > pr.txt || true
-
-    - name: Compare benchmarks
       run: |
-        if [ -f baseline.txt ] && [ -f pr.txt ]; then
-          echo "## Benchmark Comparison" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          benchstat baseline.txt pr.txt >> $GITHUB_STEP_SUMMARY 2>&1 || true
-          echo '```' >> $GITHUB_STEP_SUMMARY
-        else
-          echo "⚠️ Could not run benchmark comparison" >> $GITHUB_STEP_SUMMARY
+        git checkout ${{ github.head_ref }}
+        go test -run=^$ -bench=. -benchmem -count=6 -tags=bench \
+          -benchtime=1s > pr.txt 2>&1 || (cat pr.txt; exit 1)
+
+    - name: Compare with benchstat (Mann–Whitney U-test, alpha=0.05)
+      id: compare
+      run: |
+        # -delta-test=utest: statistical significance test instead of raw means.
+        # Output goes to BOTH the step summary (always) and a file we post as a
+        # PR comment so reviewers don't have to dig through the Actions UI.
+        benchstat -delta-test=utest baseline.txt pr.txt > delta.txt 2>&1 || true
+        echo "## Benchmark comparison (benchstat, U-test)" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat delta.txt >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+
+    - name: Post benchstat comment on PR
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@d2ad0de260ae8b0235ce059e63f2949ba9e05943 # v2.9.4
+      with:
+        header: benchstat
+        path: delta.txt
+        recreate: true
+
+    - name: Gate on statistically significant regression
+      run: |
+        # Fail the job only when the U-test reports a delta with p < 0.05
+        # AND the change is a regression (positive % delta). Insignificant
+        # noise is ignored. This stops CI from chasing flaky 1-2 ns bumps
+        # but still catches real regressions.
+        if grep -E '\+[0-9]+(\.[0-9]+)?%\s+\(p=0\.0[0-4]' delta.txt; then
+          echo "::error::Statistically significant performance regression detected (see benchstat output above)"
+          exit 1
         fi
+        echo "::notice::No statistically significant regression."
 
   allocation-check:
     runs-on: ubuntu-latest
