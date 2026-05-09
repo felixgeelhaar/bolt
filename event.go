@@ -37,7 +37,7 @@ func (e *Event) Logger() *Logger {
 		contextBuf = contextBuf[1:]
 	}
 	// Create new logger with atomic level
-	newLogger := &Logger{handler: e.l.handler, context: contextBuf, errorHandler: e.l.errorHandler, hooks: e.l.hooks}
+	newLogger := &Logger{handler: e.l.handler, context: contextBuf, errorHandler: e.l.errorHandler, hooks: e.l.hooks, eventHooks: e.l.eventHooks}
 	atomic.StoreInt64(&newLogger.level, atomic.LoadInt64(&e.l.level))
 	return newLogger
 }
@@ -305,9 +305,21 @@ func (e *Event) Msg(message string) {
 		return
 	}
 
-	// Run hooks - if any returns false, suppress the event
+	// Run legacy hooks first; if any returns false, suppress the event.
 	for _, hook := range e.l.hooks {
 		if !hook.Run(e.level, message) {
+			e.buf = e.buf[:0]
+			e.l = nil
+			eventPool.Put(e)
+			return
+		}
+	}
+
+	// Run field-aware hooks. Same suppression semantics as legacy hooks.
+	// EventHooks may inspect the in-flight buffer via e.Buffer() / e.WalkFields()
+	// and may add fields by calling Str/Int/etc on the event.
+	for _, hook := range e.l.eventHooks {
+		if !hook.Run(e, message) {
 			e.buf = e.buf[:0]
 			e.l = nil
 			eventPool.Put(e)
@@ -799,4 +811,73 @@ func (e *Event) Printf(format string, args ...interface{}) {
 // Send is an alias for Msg for consistency with other logging libraries.
 func (e *Event) Send() {
 	e.Msg("")
+}
+
+// Level returns the event's log level. Intended for [EventHook]
+// implementations to inspect events mid-build.
+func (e *Event) Level() Level {
+	return e.level
+}
+
+// Buffer returns the in-flight JSON buffer. Intended for [EventHook]
+// implementations that need to inspect the encoded record before it
+// is written.
+//
+// The returned slice ALIASES the event's internal buffer; callers MUST
+// NOT mutate it. The buffer is partially-formed JSON of the shape
+// `{"level":"info","key":"value"...` (no closing brace, no message
+// field yet — those are appended by Msg after hooks run). Use
+// [Event.WalkFields] for structured field iteration.
+func (e *Event) Buffer() []byte {
+	return e.buf
+}
+
+// WalkFields invokes fn for each (key, value) pair already encoded into
+// the event. Iteration stops early if fn returns false. Returns the
+// number of fields visited.
+//
+// The key and value byte slices passed to fn alias the event's internal
+// buffer and are valid only for the duration of the call; copy them
+// before retaining. String values are presented WITHOUT the surrounding
+// quotes; non-string values (numbers, booleans, nested objects) are
+// returned as the raw JSON literal.
+//
+// Intended for [EventHook] implementations doing redaction screening,
+// cost accounting, sensitivity tagging, etc. Walking is O(buffer size),
+// so prefer using it from sampling/redaction hooks rather than from a
+// per-event metric counter.
+func (e *Event) WalkFields(fn func(key, value []byte) bool) int {
+	if len(e.buf) == 0 || e.buf[0] != '{' {
+		return 0
+	}
+	count := 0
+	i := 1 // skip opening '{'
+	for i < len(e.buf) {
+		i = skipWhitespace(e.buf, i)
+		if i >= len(e.buf) || e.buf[i] == '}' {
+			break
+		}
+		key, ni := extractJSONKey(e.buf, i)
+		if key == nil {
+			i++
+			continue
+		}
+		i = ni
+		i = skipWhitespace(e.buf, i)
+		if i < len(e.buf) && e.buf[i] == ':' {
+			i++
+		}
+		i = skipWhitespace(e.buf, i)
+		if i >= len(e.buf) {
+			break
+		}
+		value, ni := extractJSONValue(e.buf, i)
+		i = ni
+		count++
+		if !fn(key, value) {
+			return count
+		}
+		i = skipCommaIfPresent(e.buf, i)
+	}
+	return count
 }

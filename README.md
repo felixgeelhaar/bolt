@@ -169,8 +169,12 @@ sub.Info().Str("user", uid).Msg("login")
 
 ## Hooks and sampling
 
+Two hook interfaces are available: a simple level+message `Hook` and a
+field-aware `EventHook` for use cases like redaction, sensitive-content
+gating, and cost accounting.
+
 ```go
-// Hooks run before the event is written; returning false drops it.
+// Simple hook: sees level + message only. Returning false drops it.
 type metricsHook struct{}
 func (h *metricsHook) Run(level bolt.Level, msg string) bool {
     metrics.IncrementLogCounter(level.String())
@@ -178,12 +182,34 @@ func (h *metricsHook) Run(level bolt.Level, msg string) bool {
 }
 log.AddHook(&metricsHook{})
 
+// Field-aware EventHook: receives the *Event mid-build.
+type denySensitiveHook struct{}
+func (h *denySensitiveHook) Run(e *bolt.Event, _ string) bool {
+    allow := true
+    e.WalkFields(func(key, _ []byte) bool {
+        if string(key) == "password" || string(key) == "ssn" {
+            allow = false
+            return false // stop walking
+        }
+        return true
+    })
+    return allow
+}
+log.AddEventHook(&denySensitiveHook{})
+
 // Built-in: keep 1 of every N events at the same level.
 log.AddHook(bolt.NewSampleHook(100))
 ```
 
-The current `Hook` interface only sees level and message. A richer
-`*Event`-aware hook interface is on the roadmap (see `ROADMAP.md`).
+`EventHook` accessors:
+
+- `e.Level()` — the event's log level
+- `e.Buffer()` — read-only view of the in-flight JSON (do not mutate)
+- `e.WalkFields(fn)` — iterate already-encoded `(key, value)` pairs
+
+EventHooks may also add fields by calling the regular `e.Str(...)`,
+`e.Int(...)` etc. methods. They run after every legacy `Hook` succeeds;
+if any legacy hook returns false, EventHooks are skipped.
 
 ## Multi-output
 
