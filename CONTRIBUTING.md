@@ -272,11 +272,14 @@ Before requesting review, ensure:
 ### Review Process
 
 1. **Automated checks** run on every PR:
-   - Tests (multiple Go versions)
-   - Benchmarks
-   - Code coverage
-   - Linting (golangci-lint)
-   - Security scanning (gosec)
+   - Tests (Go 1.25 + 1.26, race detector on)
+   - Cross-platform build (ubuntu / macos / windows)
+   - benchstat-driven perf regression (Mann–Whitney U-test, α=0.05)
+   - Allocation regression gate (`BenchmarkZeroAllocation` must stay 0 allocs/op)
+   - Code coverage (Codecov)
+   - Linting (golangci-lint v2)
+   - Security scanning ([nox](https://github.com/nox-hq/nox) for OSV + secrets, gosec for Go-specific patterns)
+   - Strict examples build — every `examples/*/go.mod` must compile
 
 2. **Maintainer review:**
    - Code quality

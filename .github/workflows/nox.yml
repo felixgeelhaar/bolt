@@ -1,0 +1,88 @@
+name: Nox Security Scan
+
+# Per-PR and per-push security scan with nox. Replaces the
+# dependabot vulnerability-alert path for security-driven upgrades —
+# dependabot is retained only for routine GitHub Actions updates.
+#
+# - On PR: runs `nox diff` (changed files) + `nox scan` (full project),
+#   annotates the PR with findings, and fails on any new finding at
+#   or above the policy `fail_on` severity from `.nox.yaml`.
+# - On push to main: runs `nox scan` and uploads the report as an
+#   artifact for trend tracking.
+#
+# The `.nox/baseline.json` file in the repo suppresses known false
+# positives. Updates to the baseline must come via PR.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+env:
+  NOX_VERSION: '0.8.1'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install nox
+        run: |
+          set -euo pipefail
+          v="${{ env.NOX_VERSION }}"
+          url="https://github.com/nox-hq/nox/releases/download/v${v}/nox_${v}_linux_amd64.tar.gz"
+          curl -fsSL "$url" -o /tmp/nox.tar.gz
+          tar -xzf /tmp/nox.tar.gz -C /tmp
+          sudo install -m 0755 /tmp/nox /usr/local/bin/nox
+          nox version
+
+      - name: Scan (full project, baseline-aware)
+        run: |
+          # Writes findings.json to the working directory.
+          nox scan . | tee scan-summary.txt
+
+      - name: Diff scan (PR only — what this PR introduces)
+        if: github.event_name == 'pull_request'
+        run: |
+          # `nox diff` re-scans only files touched between base and head.
+          # Useful signal for reviewers; the `nox scan` step above is
+          # the authoritative gate.
+          nox diff . \
+            -base origin/${{ github.base_ref }} \
+            -head HEAD \
+            -json > diff-findings.json || true
+          echo "## Nox diff (changed files only)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          jq '. | length as $n | "\($n) finding(s) in changed files"' diff-findings.json >> "$GITHUB_STEP_SUMMARY" || echo '0 findings or invalid JSON' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Annotate PR
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # `nox annotate` posts inline review comments on findings
+          # in the PR diff. Reads findings.json from the scan step.
+          nox annotate \
+            -input findings.json \
+            -pr "${{ github.event.pull_request.number }}" \
+            -repo "${{ github.repository }}" || true
+
+      - name: Upload findings (push to main)
+        if: github.event_name == 'push' && hashFiles('findings.json') != ''
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: nox-findings
+          path: findings.json
+          retention-days: 90

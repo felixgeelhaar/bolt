@@ -6,6 +6,7 @@
   Zero-allocation `slog.Handler` for Go with first-class OpenTelemetry.
 
   [![Build](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml)
+  [![Nox Security](https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml)
   [![codecov](https://codecov.io/gh/felixgeelhaar/bolt/branch/main/graph/badge.svg)](https://codecov.io/gh/felixgeelhaar/bolt)
   [![Go Reference](https://pkg.go.dev/badge/github.com/felixgeelhaar/bolt.svg)](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
   [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt)
