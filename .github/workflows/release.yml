@@ -8,20 +8,29 @@ on:
 permissions:
   contents: write
   packages: write
+  # id-token: write is required for cosign keyless signing via Sigstore
+  # OIDC. Without it, cosign sign-blob falls back to interactive auth
+  # and fails in CI.
+  id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      # Base64-encoded digest line ("sha256-hex  filename") for the
+      # source archive. Consumed by the SLSA-3 provenance job to
+      # bind the attestation to the released artefact.
+      hashes: ${{ steps.hashes.outputs.hashes }}
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
-    
+
     - name: Set up Go
       uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
       with:
         go-version: '1.25'
-    
+
     - name: Validate module
       run: |
         go mod download
@@ -31,13 +40,13 @@ jobs:
           echo "go mod tidy resulted in changes. Please run 'go mod tidy' locally and commit."
           exit 1
         fi
-    
+
     - name: Run tests
       run: go test -v -race -short ./...
-    
+
     - name: Run benchmarks
       run: go test -bench=. -benchmem -run=^$
-    
+
     - name: Extract and validate version
       id: version
       run: |
@@ -45,63 +54,128 @@ jobs:
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
         echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
-        
-        # Validate module path for v2+ modules
         if [ "$MAJOR_VERSION" != "v1" ] && [ "$MAJOR_VERSION" != "v0" ]; then
           MODULE_PATH=$(grep "^module " go.mod | cut -d' ' -f2)
           if [[ ! "$MODULE_PATH" == *"/$MAJOR_VERSION" ]]; then
             echo "Error: Module path must include /$MAJOR_VERSION for versions > v1"
-            echo "Current module path: $MODULE_PATH"
-            echo "Expected suffix: /$MAJOR_VERSION"
             exit 1
           fi
         fi
-    
+
     - name: Generate changelog
       id: changelog
       run: |
-        # Generate changelog from git commits since last tag
         PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
         if [ -z "$PREV_TAG" ]; then
           COMMITS=$(git log --pretty=format:"- %s (%h)" HEAD)
         else
           COMMITS=$(git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD)
         fi
-        
-        # Save changelog to file
         echo "## Changes" > CHANGELOG.md
         echo "$COMMITS" >> CHANGELOG.md
-        
-        # Set output for GitHub release
         echo "changelog<<EOF" >> $GITHUB_OUTPUT
         cat CHANGELOG.md >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-    
+
+    # ----- Supply chain: deterministic source archive + signing -----
+    #
+    # We build the source archive ourselves rather than rely on GitHub's
+    # auto-generated tarball because:
+    #   * GitHub's tarball is recreated on every fetch (different mtime
+    #     each time — no stable digest)
+    #   * SLSA-3 provenance must bind to a digest we control
+    #   * cosign sign-blob needs a single concrete file
+    - name: Build source archive
+      id: archive
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        ARCHIVE="bolt_${VERSION}_source.tar.gz"
+        # `git archive` is deterministic given the same tree.
+        git archive --format=tar.gz --prefix="bolt-${VERSION#v}/" \
+          -o "$ARCHIVE" "${VERSION}"
+        echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
+        sha256sum "$ARCHIVE" | tee checksums.txt
+
+    - name: Generate SBOM (SPDX) via syft
+      uses: anchore/sbom-action@f5e124a5e5e1d497a692818ae907d3c45829d033 # v0.18.0
+      with:
+        path: .
+        format: spdx-json
+        output-file: bolt_${{ steps.version.outputs.version }}_sbom.spdx.json
+        upload-artifact: false
+
+    - name: Install cosign
+      uses: sigstore/cosign-installer@d7d6e4b9114ab297d4b2c1e1d0ac0d56f1e0abc7 # v3.7.0
+
+    - name: Sign source archive + SBOM (cosign keyless via OIDC)
+      env:
+        COSIGN_EXPERIMENTAL: "true"
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        ARCHIVE="${{ steps.archive.outputs.archive }}"
+        SBOM="bolt_${VERSION}_sbom.spdx.json"
+        # Sign each file blob; produces .sig + .pem per blob.
+        for blob in "$ARCHIVE" "$SBOM" checksums.txt; do
+          cosign sign-blob --yes \
+            --output-signature "${blob}.sig" \
+            --output-certificate "${blob}.pem" \
+            "$blob"
+        done
+        ls -lh *.sig *.pem
+
+    - name: Compute base64 digest for SLSA provenance
+      id: hashes
+      run: |
+        # The reusable SLSA-3 generic generator expects a base64-encoded
+        # newline-separated list of `<sha256-hex>  <filename>` lines.
+        # We bind the attestation to the source archive (the artefact
+        # downstream consumers will pull and verify).
+        ARCHIVE="${{ steps.archive.outputs.archive }}"
+        hashes=$(sha256sum "$ARCHIVE" | base64 -w0)
+        echo "hashes=$hashes" >> $GITHUB_OUTPUT
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
       with:
         body: |
           ${{ steps.changelog.outputs.changelog }}
-          
+
           ## Installation
-          
+
           ```bash
           go get github.com/felixgeelhaar/bolt${{ steps.version.outputs.major != 'v1' && steps.version.outputs.major != 'v0' && format('/{0}', steps.version.outputs.major) || '' }}@${{ steps.version.outputs.version }}
           ```
-          
+
           ## Documentation
 
           - 📖 [API Reference](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
           - 📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
           - 🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
 
+          ## Supply-chain verification
+
+          This release includes a reproducible source archive, an SPDX
+          SBOM, SHA-256 checksums, cosign keyless signatures (Sigstore
+          OIDC), and SLSA-3 provenance.
+
+          See [SECURITY.md](https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md#verifying-release-artefacts)
+          for end-to-end verification commands.
+
           ## Verification
 
-          This release has been automatically tested with:
-          - ✅ All unit tests passing with race detection
-          - ✅ Module validation (go mod verify)
-          - ✅ Performance benchmarks
-          - ✅ Cross-platform compatibility
+          Tested with race detection, `go mod verify`, performance
+          benchmarks, and the slogtest conformance suite on Go 1.25 and
+          1.26 across Linux, macOS, and Windows.
+        files: |
+          ${{ steps.archive.outputs.archive }}
+          ${{ steps.archive.outputs.archive }}.sig
+          ${{ steps.archive.outputs.archive }}.pem
+          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json
+          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json.sig
+          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json.pem
+          checksums.txt
+          checksums.txt.sig
+          checksums.txt.pem
         draft: false
         prerelease: ${{ contains(github.ref, '-') }}
         generate_release_notes: true
@@ -109,45 +183,42 @@ jobs:
 
     - name: Trigger pkg.go.dev refresh
       run: |
-        # Request pkg.go.dev to fetch the new version
         VERSION="${{ steps.version.outputs.version }}"
         MAJOR="${{ steps.version.outputs.major }}"
-        
-        # Determine module path based on version
         if [ "$MAJOR" = "v0" ] || [ "$MAJOR" = "v1" ]; then
           MODULE_PATH="github.com/${{ github.repository }}"
         else
           MODULE_PATH="github.com/${{ github.repository }}/$MAJOR"
         fi
-        
-        echo "📦 Triggering pkg.go.dev refresh for ${MODULE_PATH}@${VERSION}"
-        
-        # Trigger Go proxy to cache the module
         curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.info" || echo "Failed to fetch .info"
         curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.mod" || echo "Failed to fetch .mod"
         curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.zip" || echo "Failed to fetch .zip"
-        
-        # Request pkg.go.dev to fetch and index
         curl -sf "https://pkg.go.dev/${MODULE_PATH}@${VERSION}" > /dev/null || echo "Failed to trigger pkg.go.dev"
-        
-        # Give it a moment to process
-        sleep 5
-        
-        # Verify it's available
-        if curl -sf -I "https://pkg.go.dev/${MODULE_PATH}@${VERSION}" > /dev/null; then
-          echo "✅ Package successfully published to pkg.go.dev"
-          echo "🔗 View at: https://pkg.go.dev/${MODULE_PATH}@${VERSION}"
-        else
-          echo "⚠️ Package may still be processing on pkg.go.dev"
-        fi
+
+  # SLSA-3 provenance generation. Uses the generic reusable workflow
+  # which itself runs in a separate trusted environment (its own
+  # ephemeral runner with restricted permissions) — that's how it
+  # achieves the SLSA-3 isolation guarantees.
+  provenance:
+    needs: release
+    permissions:
+      actions: read       # required by the reusable workflow
+      id-token: write     # required for keyless signing
+      contents: write     # required to attach provenance to the release
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: ${{ needs.release.outputs.hashes }}
+      provenance-name: bolt.intoto.jsonl
+      upload-assets: true
+      upload-tag-name: ${{ github.ref_name }}
 
   notify:
-    needs: release
+    needs: [release, provenance]
     runs-on: ubuntu-latest
     if: success()
     steps:
     - name: Notify success
       run: |
-        echo "✅ Release ${{ github.ref_name }} published successfully!"
-        echo "📦 View release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-        echo "📚 View on pkg.go.dev: https://pkg.go.dev/github.com/${{ github.repository }}"
+        echo "✅ Release ${{ github.ref_name }} published with SLSA-3 provenance, SBOM, and cosign signatures"
+        echo "📦 https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+        echo "📚 https://pkg.go.dev/github.com/${{ github.repository }}"

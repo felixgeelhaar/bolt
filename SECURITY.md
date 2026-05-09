@@ -23,6 +23,54 @@ private advisory ID. Public escalation is the last resort, after
 private channels have lapsed. See [ADOPTERS.md](./ADOPTERS.md) for
 the broader governance posture.
 
+## 🔐 Verifying release artefacts
+
+Every release publishes:
+
+- `bolt_<version>_source.tar.gz` — deterministic source archive
+- `bolt_<version>_source.tar.gz.sig` + `.pem` — cosign keyless signature + cert
+- `bolt_<version>_sbom.spdx.json` — SPDX SBOM (and `.sig` / `.pem`)
+- `checksums.txt` — SHA-256 of the source archive (and `.sig` / `.pem`)
+- `bolt.intoto.jsonl` — SLSA-3 provenance attestation
+
+To verify a downloaded release:
+
+```bash
+VERSION=v1.4.0   # adjust
+GH_REPO=felixgeelhaar/bolt
+
+# 1. Download the archive + signature + cert
+gh release download "$VERSION" --repo "$GH_REPO" \
+  --pattern "bolt_${VERSION}_source.tar.gz*"
+
+# 2. Verify the cosign keyless signature (Sigstore OIDC)
+cosign verify-blob \
+  --certificate-identity "https://github.com/${GH_REPO}/.github/workflows/release.yml@refs/tags/${VERSION}" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  --certificate "bolt_${VERSION}_source.tar.gz.pem" \
+  --signature "bolt_${VERSION}_source.tar.gz.sig" \
+  "bolt_${VERSION}_source.tar.gz"
+
+# 3. Verify the SLSA-3 provenance attestation
+gh release download "$VERSION" --repo "$GH_REPO" \
+  --pattern "bolt.intoto.jsonl"
+slsa-verifier verify-artifact \
+  --provenance-path bolt.intoto.jsonl \
+  --source-uri "github.com/${GH_REPO}" \
+  --source-tag "$VERSION" \
+  "bolt_${VERSION}_source.tar.gz"
+
+# 4. (Optional) Inspect the SBOM
+gh release download "$VERSION" --repo "$GH_REPO" \
+  --pattern "bolt_${VERSION}_sbom.spdx.json"
+jq '.packages[] | {name, versionInfo, supplier}' \
+  "bolt_${VERSION}_sbom.spdx.json" | head
+```
+
+For the published Go module itself, `go mod download` against
+`proxy.golang.org` is checksum-protected by Go's transparency log;
+no separate verification step is needed.
+
 ## 🔒 Reporting Security Vulnerabilities
 
 **DO NOT** open public GitHub issues for security vulnerabilities.
