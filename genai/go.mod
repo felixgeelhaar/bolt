@@ -2,7 +2,7 @@ module github.com/felixgeelhaar/bolt/genai
 
 go 1.25.0
 
-require github.com/felixgeelhaar/bolt v1.3.0
+require github.com/felixgeelhaar/bolt v1.4.0
 
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
