@@ -34,8 +34,8 @@ A focused decision tree, not a feature shootout.
 |---|---|
 | The standard library API, no third-party dependency, no perf budget. | `log/slog` (stdlib) |
 | Zero-alloc speed, slog ergonomics, **and** first-class OTel trace/span injection. | **bolt** |
-| The `zerolog`-style chained API with the smallest production diff and a clear migration path from existing zerolog code. | **bolt** + `docs/migrate-from-zerolog.md` |
-| `zap`'s typed-constructor API. | bolt's chained API; see `docs/migrate-from-zap.md` |
+| The `zerolog`-style chained API with the smallest production diff and a clear migration path from existing zerolog code. | **bolt** + `docs/how-to/migrate-from-zerolog.md` |
+| `zap`'s typed-constructor API. | bolt's chained API; see `docs/how-to/migrate-from-zap.md` |
 
 Bolt is **not** trying to win a single-digit-nanosecond benchmark
 shootout. It's trying to be the slog handler you can ship into a
@@ -121,9 +121,9 @@ trace and span IDs from the context. No manual extraction.
 Concrete side-by-side guides with API mapping tables, worked examples,
 and honest "when not to migrate" notes:
 
-- [`docs/migrate-from-slog.md`](./docs/migrate-from-slog.md)
-- [`docs/migrate-from-zerolog.md`](./docs/migrate-from-zerolog.md)
-- [`docs/migrate-from-zap.md`](./docs/migrate-from-zap.md)
+- [`docs/how-to/migrate-from-slog.md`](./docs/how-to/migrate-from-slog.md)
+- [`docs/how-to/migrate-from-zerolog.md`](./docs/how-to/migrate-from-zerolog.md)
+- [`docs/how-to/migrate-from-zap.md`](./docs/how-to/migrate-from-zap.md)
 
 ## Field types
 

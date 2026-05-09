@@ -82,11 +82,11 @@ investment.
 
 | Status | Item | Notes |
 |---|---|---|
-| ⚪ | `bolt/genai` sub-module — own go.mod tracking OTel GenAI semconv 1:1 | `LLMCall`, `ToolCall`, `Step` helpers; field names compatible with Langfuse/Phoenix |
-| ⚪ | SLSA-3 release pipeline — re-enable goreleaser checksums, add cosign signing, syft SBOM, slsa-github-generator provenance | `goreleaser.yaml` currently disables checksums |
-| ⚪ | `ADOPTERS.md` + governance disclosure in `SECURITY.md` | "single-maintainer / MIT / response-time best-effort" disclosure |
-| ⚪ | Diataxis docs split on the GH Pages site | tutorial / how-to / reference / explanation |
-| ⚪ | OSS-Fuzz onboarding | continuous fuzzing > 120s/week in CI |
+| ✅ | `bolt/genai` sub-module — own go.mod tracking OTel GenAI semconv 1:1 | done in #60 (Call/ToolCall) and #64 (RedactHook + AdaptiveSampler) |
+| ✅ | SLSA-3 release pipeline — re-enable goreleaser checksums, add cosign signing, syft SBOM, slsa-github-generator provenance | done in #62 |
+| ✅ | `ADOPTERS.md` + governance disclosure in `SECURITY.md` | done in #52 |
+| ✅ | Diataxis docs split | tutorial / how-to / reference / explanation in `docs/`; GH Pages renderer choice deferred to a separate PR |
+| ⚪ | OSS-Fuzz onboarding | external maintainer action — submit project + Dockerfile + build.sh per OSS-Fuzz Go template |
 
 ## P4 — Discovery & Growth
 

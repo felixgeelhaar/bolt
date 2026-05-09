@@ -38,7 +38,7 @@ go run .
 - **OTel trace/span injection** — `Logger.Ctx(ctx)` automatically
   surfaces `trace_id` / `span_id`
 - **slog interop** — `bolt.NewSlogHandler` plugs into a stdlib
-  `*slog.Logger` (see `docs/migrate-from-slog.md`)
+  `*slog.Logger` (see `docs/how-to/migrate-from-slog.md`)
 - **Hooks and sampling** — `bolt.NewSampleHook(N)` and the `Hook`
   interface
 
