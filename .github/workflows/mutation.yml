@@ -1,0 +1,82 @@
+name: Mutation Testing
+
+# Gremlins-based mutation testing on the encoder + validation hot paths.
+# Mutation testing is expensive (each mutant is a full test run), so this
+# workflow is scheduled nightly rather than per-PR. The report is uploaded
+# as an artifact and surfaced in the job summary.
+#
+# Quality review motivation: line coverage ≠ test quality. Mutation testing
+# verifies that the test suite would actually catch regressions to the
+# critical functions (escape, level filter, validation), not just that
+# those functions are touched.
+
+on:
+  schedule:
+    # 03:14 UTC daily — off-peak for both EU and US runners.
+    - cron: '14 3 * * *'
+  workflow_dispatch:
+    inputs:
+      threshold-efficacy:
+        description: 'Minimum efficacy % (0-100). 0 = report only.'
+        required: false
+        default: '0'
+      threshold-mcoverage:
+        description: 'Minimum mutation coverage %. 0 = report only.'
+        required: false
+        default: '0'
+
+permissions:
+  contents: read
+
+jobs:
+  gremlins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: '1.25'
+
+      - name: Install gremlins
+        run: go install github.com/go-gremlins/gremlins/cmd/gremlins@latest
+        env:
+          GOTOOLCHAIN: auto
+
+      - name: Run gremlins on hot-path files
+        # Limit mutation to the encoder + handler + validator. The
+        # full file list is intentionally narrow: gremlins on every
+        # file would take hours and produce noise on the slog/event
+        # surface that already has property tests.
+        run: |
+          gremlins unleash \
+            --output gremlins-report.json \
+            --workers 4 \
+            --tags '!bench' \
+            --threshold-efficacy=${{ github.event.inputs.threshold-efficacy || '0' }} \
+            --threshold-mcoverage=${{ github.event.inputs.threshold-mcoverage || '0' }} \
+            ./encode.go ./handler.go || true
+
+      - name: Summarise report
+        if: always()
+        run: |
+          if [ -f gremlins-report.json ]; then
+            echo "## Gremlins mutation report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            # First 200 lines is plenty for the executive view; the
+            # full report is in the artifact.
+            head -200 gremlins-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::No gremlins report file produced."
+          fi
+
+      - name: Upload report
+        if: always() && hashFiles('gremlins-report.json') != ''
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: gremlins-report
+          path: gremlins-report.json
+          retention-days: 30
