@@ -210,6 +210,350 @@
       "file_path": "performance_test.go",
       "severity": "medium",
       "created_at": "2026-02-17T21:33:06.166553Z"
+    },
+    {
+      "fingerprint": "aa82267d64714e4dde890d3d67a6c1c434c1d8a7d68c0b971cdd93b8d473c822",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:39.303926Z"
+    },
+    {
+      "fingerprint": "b1b6ace1559679e6052e20d736a672409a6bad677df5345d806b62e421ccc3f5",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:43.478388Z"
+    },
+    {
+      "fingerprint": "322cddc7ea41d5b3cb4e85e983dd63442d2db2ecd8b5ec01fd61cd3a4f6d8373",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:45.433283Z"
+    },
+    {
+      "fingerprint": "25821f2994f331c04120c581ef89a1fafe53fd1f17891ca3313dc6b22c12f4cd",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:48.242594Z"
+    },
+    {
+      "fingerprint": "370cb771266fa127ee86fa05fb398a633a47b7255e1d369e2bc2236c8c81518d",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:50.577634Z"
+    },
+    {
+      "fingerprint": "eb4a65cebd1ad0d8020eb9f02a4443c6d45aa48b12ed5ee4f11fe6bfe86dd1ad",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:43:53.023905Z"
+    },
+    {
+      "fingerprint": "aab952e92caf62cbc363b4de4ce1d29d77531fb216c3d50fce2228b53d3153b4",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:04.146232Z"
+    },
+    {
+      "fingerprint": "70693c0c76dd8c468addc8165b040df531611613fbc94305219dba19fb54557b",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:06.515466Z"
+    },
+    {
+      "fingerprint": "c183a59d958c8de61519d044ea4ec141aaa87a9c28ff68b349371f2e974c7e9e",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:09.257861Z"
+    },
+    {
+      "fingerprint": "2d173fca9a544fccdbfafd19ae26206cdd39562b2f0ae772077ea6ed6869e509",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:11.652219Z"
+    },
+    {
+      "fingerprint": "65e0146b3ab5834c790a984a5ec579b65a16d96701d78c6153ffede54629392c",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:24.155126Z"
+    },
+    {
+      "fingerprint": "385915415475690d8262446e54ef41ca2c0c9da740cf75f9ef88c9389b013488",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:26.560918Z"
+    },
+    {
+      "fingerprint": "bfc3b1cd3091fb62a04a69c88c95a0ece261c4c49d64364e5a6581ca97a125d3",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:29.480736Z"
+    },
+    {
+      "fingerprint": "9e46fe06ba1f36eae9a5b73da3b13768e6d8e47a6f1e15c644b5a1b7bd90b862",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:32.994603Z"
+    },
+    {
+      "fingerprint": "5c204b2ae442b80bd6367a8fe02871bcd721d074ead5300c08525aaed42ac511",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:35.774655Z"
+    },
+    {
+      "fingerprint": "e2fffc1ac7ace0b9c4a06bd35e56582d790dfb4593b0bba367f76c450b54160a",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:38.346345Z"
+    },
+    {
+      "fingerprint": "1fcb9b5874951b8e6797b2e46c8bd8908c666f6fd6717983b2bf3f16af8a41cd",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:41.610909Z"
+    },
+    {
+      "fingerprint": "73fbbb15366ec7646b82731653691c896482dacd5a3f4cef12141571f36cfd0d",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:44.376602Z"
+    },
+    {
+      "fingerprint": "fd7b1080222b869af4bf7aa0648ec92bcae5f02b45cbffc6310e3d7c59256d26",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:46.415664Z"
+    },
+    {
+      "fingerprint": "b8b0476f16c452ca0217b20260196c1245243624155f88cc67c7f332199f7d69",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:44:48.407987Z"
+    },
+    {
+      "fingerprint": "493afa372df968bdbab6707cdb1a4e143bf5f4b017e3a361740a598f6ee9e22f",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:45:01.099068Z"
+    },
+    {
+      "fingerprint": "e0d9ee939ade43d9c2fe53ab16fac850d6035913f6768a15478bd2e049645984",
+      "rule_id": "SEC-680",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "go.sum module hash digest, not Prometheus API key",
+      "created_at": "2026-05-09T09:45:04.74504Z"
+    },
+    {
+      "fingerprint": "8add4f852ba5ff7d4b301245d2513224b068c22ca408e887aa53a9b6335bff67",
+      "rule_id": "SEC-629",
+      "file_path": "otel_test.go",
+      "severity": "high",
+      "reason": "test fixture string in otel_test.go, not a real LOB API key",
+      "created_at": "2026-05-09T09:45:06.968499Z"
+    },
+    {
+      "fingerprint": "2af1d505040845fa04a461f0dba0d084bdd68cc360e114c26694658ad1bb5559",
+      "rule_id": "SEC-659",
+      "file_path": "integration_test.go",
+      "severity": "high",
+      "reason": "test fixture string in integration_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:09.569719Z"
+    },
+    {
+      "fingerprint": "7b960c0c34cce4e81087556b518f2c7c9d0255ddad6f2b63b94db3b32676057d",
+      "rule_id": "SEC-659",
+      "file_path": "integration_test.go",
+      "severity": "high",
+      "reason": "test fixture string in integration_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:13.364331Z"
+    },
+    {
+      "fingerprint": "cafcdb333294fbb7c55efc552874001d902d454bccb8b33d7c3b3ca54456422a",
+      "rule_id": "SEC-659",
+      "file_path": "otel_test.go",
+      "severity": "high",
+      "reason": "test fixture string in otel_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:19.675933Z"
+    },
+    {
+      "fingerprint": "3fd50124b7569f2e88410f4b9303657c8900faf56bddb1e788143b3f1827d98b",
+      "rule_id": "SEC-659",
+      "file_path": "otel_test.go",
+      "severity": "high",
+      "reason": "test fixture string in otel_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:23.215888Z"
+    },
+    {
+      "fingerprint": "c67b71edb750886378ac0ea056ccac6bf9c7507d43ceeea24519d83765a087ae",
+      "rule_id": "SEC-659",
+      "file_path": "otel_test.go",
+      "severity": "high",
+      "reason": "test fixture string in otel_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:25.602332Z"
+    },
+    {
+      "fingerprint": "1f02394305ff99a5945ecae560d097ddf0a7e18af3be78438555cb867cf4a60b",
+      "rule_id": "SEC-659",
+      "file_path": "race_test.go",
+      "severity": "high",
+      "reason": "test fixture string in race_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:27.945053Z"
+    },
+    {
+      "fingerprint": "14a5309bc2d580e06ac09d2f94f2d09dfd4aa2388a995c24f21780ff6c576734",
+      "rule_id": "SEC-659",
+      "file_path": "race_test.go",
+      "severity": "high",
+      "reason": "test fixture string in race_test.go, not a real Split API key",
+      "created_at": "2026-05-09T09:45:30.45827Z"
+    },
+    {
+      "fingerprint": "e4f5e0d1f9512f24ad4638cf6115a1d1d60a32f6a42f12600fbb768c36254946",
+      "rule_id": "SEC-163",
+      "file_path": "encode.go",
+      "severity": "medium",
+      "reason": "hex digit constant in encoder hot path, not a secret",
+      "created_at": "2026-05-09T09:45:42.807821Z"
+    },
+    {
+      "fingerprint": "d6118d926de1bc6c6d2f3ea4e1c2442731ea330d589ee22cdbcc895089a04f4a",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:45:45.878039Z"
+    },
+    {
+      "fingerprint": "0ac41c0576916e96bc6747c6ad2262f5e68d08befcf8866f94e471077a617515",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:45:48.386933Z"
+    },
+    {
+      "fingerprint": "bf4af89a9ae459e1dd4d75d2a262702e0075835d50c3eec67cd3e8828f508a0c",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:45:52.590882Z"
+    },
+    {
+      "fingerprint": "cc37a510b9eb8f8d5036d8d3d00399d8db5aa9f721d276cfcb50486431e0f26c",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:45:55.000129Z"
+    },
+    {
+      "fingerprint": "eab38045d819dc74b4d49eb6ac32469b6ac1e8727319ab0977236d2649f6c18e",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:46:01.119448Z"
+    },
+    {
+      "fingerprint": "db08ca94e2cc2d56435f378182d5b3fdd5c52292f39b729b732f585805fc19c8",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:46:03.917643Z"
+    },
+    {
+      "fingerprint": "e49b7f4cae6aee53453db49944e37721d3f7a727ff187c3f83f77fd5e016f3e6",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:46:06.126401Z"
+    },
+    {
+      "fingerprint": "c9442bc94a257cb9a8f249c4d4fb7b3f8bf384ced3f749b351397a90f8708e64",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:46:09.931366Z"
+    },
+    {
+      "fingerprint": "ff8eba76f2d87d3092e8a9c4c85abad682d0ec2b6d0f8f25897d6d45e78841f4",
+      "rule_id": "SEC-163",
+      "file_path": "event.go",
+      "severity": "medium",
+      "reason": "hex literal in event encoding, not a secret",
+      "created_at": "2026-05-09T09:46:12.989235Z"
+    },
+    {
+      "fingerprint": "da65ab8d58010eb0134fae28a9747b9e70ed167904f86241a26e7f9a4d814d2e",
+      "rule_id": "SEC-163",
+      "file_path": "performance_test.go",
+      "severity": "medium",
+      "reason": "hex literal in performance test, not a secret",
+      "created_at": "2026-05-09T09:46:16.065837Z"
+    },
+    {
+      "fingerprint": "5928ea9eea48dc6cd1babc2a578b2995677169f681000bfceed86eb3a8532de8",
+      "rule_id": "AI-028",
+      "file_path": "fuzz_test.go",
+      "severity": "medium",
+      "reason": "false positive: rule misidentifies fuzz_test seed as LLM seed; this is Go testing/fuzz, not LLM",
+      "created_at": "2026-05-09T09:46:18.904021Z"
+    },
+    {
+      "fingerprint": "e67d61b82b202eee4ff88bfaac911dbdf7932213fa5ae6cd5163eaa5f35f14e7",
+      "rule_id": "AI-036",
+      "file_path": "assets/script.js",
+      "severity": "medium",
+      "reason": "benchmarks page asset (assets/script.js); not production code, not an AI-using path",
+      "created_at": "2026-05-09T09:46:21.268775Z"
     }
   ]
 }
