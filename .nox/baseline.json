@@ -554,6 +554,262 @@
       "severity": "medium",
       "reason": "benchmarks page asset (assets/script.js); not production code, not an AI-using path",
       "created_at": "2026-05-09T09:46:21.268775Z"
+    },
+    {
+      "fingerprint": "d018a75f6ff8c85d8a394729fc7df669e808ff70b790448538a5c5356455d5fc",
+      "rule_id": "CONT-002",
+      "file_path": "oss-fuzz/Dockerfile",
+      "severity": "high",
+      "reason": "OSS-Fuzz Dockerfile uses gcr.io/oss-fuzz-base/base-builder-go per OSS-Fuzz convention; image pinning is OSS-Fuzz's responsibility",
+      "created_at": "2026-05-09T10:38:19.860602Z"
+    },
+    {
+      "fingerprint": "745b8b2bd4c16b6afc1eef229c732f022e6965d3b433c1103d5665dd189125bd",
+      "rule_id": "IAC-351",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "critical",
+      "reason": "false positive: id-token: write is a GHA permissions key, not a hardcoded secret",
+      "created_at": "2026-05-09T10:38:22.788713Z"
+    },
+    {
+      "fingerprint": "389655a5587ebebbc28fe4c0e02687ddda72aa2600bdbb372d9e36010db649dd",
+      "rule_id": "IAC-351",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "critical",
+      "reason": "false positive: id-token: write is a GHA permissions key, not a hardcoded secret",
+      "created_at": "2026-05-09T10:38:28.392446Z"
+    },
+    {
+      "fingerprint": "3f236fe69f96b30a6175ceb384faa2417907c96d6a02bfbb893264ed3f5f07e3",
+      "rule_id": "IAC-351",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "critical",
+      "reason": "false positive: id-token: write is a GHA permissions key, not a hardcoded secret",
+      "created_at": "2026-05-09T10:38:32.349981Z"
+    },
+    {
+      "fingerprint": "6226433b2fa5614cb44b41d263cbdb610c52753c5516bed6633926fc3073e54a",
+      "rule_id": "IAC-351",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "critical",
+      "reason": "false positive: id-token: write is a GHA permissions key, not a hardcoded secret",
+      "created_at": "2026-05-09T10:38:35.076428Z"
+    },
+    {
+      "fingerprint": "ac9b8bfba448d2c8a21552f4ecb31b7ed4b67e50214d1e407a9f6828149a3090",
+      "rule_id": "SEC-574",
+      "file_path": ".github/workflows/nox.yml",
+      "severity": "high",
+      "reason": "false positive: action SHA pin is a git commit, not an API key",
+      "created_at": "2026-05-09T10:38:38.426475Z"
+    },
+    {
+      "fingerprint": "1d0ac0fcec055cdac77354572849ee53f7061f3b1933d6850e8f5292728bbb60",
+      "rule_id": "SEC-574",
+      "file_path": ".github/workflows/nox.yml",
+      "severity": "high",
+      "reason": "false positive: action SHA pin is a git commit, not an API key",
+      "created_at": "2026-05-09T10:38:42.005463Z"
+    },
+    {
+      "fingerprint": "563446e1c14ce3d6911f876dab5efe6ab859063776a1a236dbb1d88388e5d54f",
+      "rule_id": "SEC-629",
+      "file_path": "index.html",
+      "severity": "high",
+      "reason": "false positive: example W3C trace_id from OTel spec, used in landing page demo terminal",
+      "created_at": "2026-05-09T10:38:44.716032Z"
+    },
+    {
+      "fingerprint": "02bb7f79820d077e0856281417bb46108b0cdd21a9c30211960b5d0209b9479f",
+      "rule_id": "SEC-163",
+      "file_path": "genai/genai_test.go",
+      "severity": "medium",
+      "reason": "false positive: hex literal in test/encoding code",
+      "created_at": "2026-05-09T10:40:43.503886Z"
+    },
+    {
+      "fingerprint": "15849b74eb9b6cd44a0fd1d725ae751329eb1bc4c30dd5d786a464428f27d2ea",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "reason": "intentional: OIDC token write required for cosign keyless signing",
+      "created_at": "2026-05-09T10:40:46.434885Z"
+    },
+    {
+      "fingerprint": "259d3229b3ea2c4a690b83a35e88162a5d6ba7a4432f73764a16004fe765086d",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/nox-remediate.yml",
+      "severity": "low",
+      "reason": "intentional: nox-remediate.yml needs contents:write to push remediation branches",
+      "created_at": "2026-05-09T10:40:48.99471Z"
+    },
+    {
+      "fingerprint": "3e3c8323f76a0be9f6280ba0e515c5c423589470af38ba4abdd4e4176e5b4938",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/mutation.yml",
+      "severity": "low",
+      "reason": "intentional: workflow_dispatch on mutation.yml for manual reruns",
+      "created_at": "2026-05-09T10:40:52.417433Z"
+    },
+    {
+      "fingerprint": "41648b2e1a801911b420b795a871f39b2ea9eb290bebe49eb61eab6af85d4d24",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "reason": "intentional: OIDC token write required for SLSA provenance",
+      "created_at": "2026-05-09T10:40:55.258425Z"
+    },
+    {
+      "fingerprint": "49bdace19fad945b4d06784548698b5128e25c306a145b5e3b74231b9d6b89e9",
+      "rule_id": "DATA-001",
+      "file_path": "SECURITY.md",
+      "severity": "medium",
+      "reason": "false positive: published security contact email in SECURITY.md",
+      "created_at": "2026-05-09T10:40:58.994988Z"
+    },
+    {
+      "fingerprint": "54b234eec6ece504231cc12e50c8c0cbb4ce8955b0048a667c746ddb2b7175a8",
+      "rule_id": "SEC-163",
+      "file_path": "property_test.go",
+      "severity": "medium",
+      "reason": "false positive: hex literal in property test fixture",
+      "created_at": "2026-05-09T10:41:01.291418Z"
+    },
+    {
+      "fingerprint": "572b07e35870f651677d6f16e44a8acb6135c91b5bee53c9e9b27df679d83106",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "low",
+      "reason": "intentional: workflow_dispatch on deploy-pages.yml for manual republish",
+      "created_at": "2026-05-09T10:41:04.046351Z"
+    },
+    {
+      "fingerprint": "58061c3753a0999fa38766d51a02103b05e3f905123a51c7916f788d133e74fe",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/nox-remediate.yml",
+      "severity": "low",
+      "reason": "intentional: workflow_dispatch on nox-remediate.yml for ad-hoc upgrade runs",
+      "created_at": "2026-05-09T10:41:06.523746Z"
+    },
+    {
+      "fingerprint": "7631ce9fc198f066f4763082dfda82a057256ae083dd4f7755937f67eebef294",
+      "rule_id": "SEC-163",
+      "file_path": "property_test.go",
+      "severity": "medium",
+      "reason": "false positive: hex literal in property test fixture",
+      "created_at": "2026-05-09T10:41:09.228603Z"
+    },
+    {
+      "fingerprint": "7d0865c79571d0d9390c5538855478075c72a339c8dd541ac5465e20866e459b",
+      "rule_id": "SEC-163",
+      "file_path": "property_test.go",
+      "severity": "medium",
+      "reason": "false positive: hex literal / encoding code",
+      "created_at": "2026-05-09T10:41:31.330771Z"
+    },
+    {
+      "fingerprint": "7d266aba5829792279e48063eab194bcb0bf8789683b47884f13f947f7a0520c",
+      "rule_id": "AI-006",
+      "file_path": "genai/hooks_test.go",
+      "severity": "medium",
+      "reason": "false positive: AI-006 in genai/hooks_test.go is a deliberate test fixture exercising the redaction hook",
+      "created_at": "2026-05-09T10:41:33.800597Z"
+    },
+    {
+      "fingerprint": "7d2dc07153097cb8e7ae1a212a469f0395ac7076a968d74f97fdc15b099701dd",
+      "rule_id": "SEC-163",
+      "file_path": "genai/hooks_test.go",
+      "severity": "medium",
+      "reason": "false positive: hex literal in test fixture",
+      "created_at": "2026-05-09T10:41:36.95083Z"
+    },
+    {
+      "fingerprint": "8520c14b607b73d94c288a1cc9e92a55b03d8b354a2957224ca1ea95c3ce9605",
+      "rule_id": "SEC-163",
+      "file_path": "property_test.go",
+      "severity": "medium",
+      "reason": "false positive: published email contact in oss-fuzz/project.yaml is intentional",
+      "created_at": "2026-05-09T10:41:39.70061Z"
+    },
+    {
+      "fingerprint": "8c4240e5b10aab81e153ed48d60f0a797e6e1f40dc0b4bb7c72e96650cb7ccfb",
+      "rule_id": "SEC-163",
+      "file_path": "genai/hooks_test.go",
+      "severity": "medium",
+      "reason": "intentional: workflow_dispatch on nox.yml for manual scan reruns",
+      "created_at": "2026-05-09T10:41:42.267454Z"
+    },
+    {
+      "fingerprint": "9ff7a5f897ed1cc17b736ff6d64f32c9f68d14c36434647a5e87b204ebde49b1",
+      "rule_id": "CONT-001",
+      "file_path": "oss-fuzz/Dockerfile",
+      "severity": "medium",
+      "reason": "false positive: hex literal in test/encoding code",
+      "created_at": "2026-05-09T10:41:45.673831Z"
+    },
+    {
+      "fingerprint": "a609e8a21a4bf18c01a42a1d6e4d5ace655048c133f4d9e82e01ef6e3ae8d70b",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "medium",
+      "reason": "false positive: hex literal in test/encoding code",
+      "created_at": "2026-05-09T10:41:48.728028Z"
+    },
+    {
+      "fingerprint": "b23366057cc72ef691e7355f3aa230b051c4061cf199459821047c3ec0e9fdcf",
+      "rule_id": "DATA-001",
+      "file_path": "oss-fuzz/project.yaml",
+      "severity": "medium",
+      "reason": "intentional: OIDC token write required for cosign + SLSA",
+      "created_at": "2026-05-09T10:41:51.10074Z"
+    },
+    {
+      "fingerprint": "b632684cd1834febbde2dd7b309aa5284a3d0e4da0c7e3a981bb3fb6aceeefa6",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/release.yml",
+      "severity": "low",
+      "reason": "false positive: published email in oss-fuzz/project.yaml is intentional",
+      "created_at": "2026-05-09T10:41:53.556636Z"
+    },
+    {
+      "fingerprint": "b942e90c5fae975b27fdd2be708eb4ff3219ae46785b22130d10e2afa934a056",
+      "rule_id": "DATA-001",
+      "file_path": "oss-fuzz/project.yaml",
+      "severity": "medium",
+      "reason": "intentional: contents:write needed for SLSA release artifact upload",
+      "created_at": "2026-05-09T10:41:56.583063Z"
+    },
+    {
+      "fingerprint": "bb4ab171e3b2f485e0bce893779101124085c1ec823b0aada8729b92a85fe600",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/nox.yml",
+      "severity": "low",
+      "reason": "false positive: hex literal in test/encoding code",
+      "created_at": "2026-05-09T10:41:59.572865Z"
+    },
+    {
+      "fingerprint": "e935d41217adf5f8cf395aea6254444a6ae26ca07c6c4f06a630b679598f999a",
+      "rule_id": "IAC-306",
+      "file_path": ".github/workflows/deploy-pages.yml",
+      "severity": "medium",
+      "reason": "false positive: oss-fuzz Dockerfile uses base-builder-go per OSS-Fuzz convention",
+      "created_at": "2026-05-09T10:42:02.048889Z"
+    },
+    {
+      "fingerprint": "f8b650a13fb58588cd1ce630b1a603fe5d716c159d11a77e0dabd1514755a37c",
+      "rule_id": "IAC-002",
+      "file_path": "oss-fuzz/Dockerfile",
+      "severity": "medium",
+      "reason": "intentional: OIDC token write required for cosign keyless signing on deploy-pages.yml? — verify; conservative baseline",
+      "created_at": "2026-05-09T10:42:05.381442Z"
+    },
+    {
+      "fingerprint": "f9086a94d6e84236e03c841db0bf45d4958ec034a27e0e3adc8dc0f000ace2d0",
+      "rule_id": "SEC-163",
+      "file_path": "property_test.go",
+      "severity": "medium",
+      "reason": "false positive: oss-fuzz Dockerfile uses base-builder-go (latest tag) per OSS-Fuzz convention",
+      "created_at": "2026-05-09T10:42:08.109138Z"
     }
   ]
 }
