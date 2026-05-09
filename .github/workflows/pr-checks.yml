@@ -100,7 +100,7 @@ jobs:
 
     - name: Post benchstat comment on PR
       if: github.event_name == 'pull_request'
-      uses: marocchino/sticky-pull-request-comment@d2ad0de260ae8b0235ce059e63f2949ba9e05943 # v2.9.4
+      uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v2.9.4
       with:
         header: benchstat
         path: delta.txt
