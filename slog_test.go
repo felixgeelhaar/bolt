@@ -146,11 +146,15 @@ func TestSlogHandler_WithGroup(t *testing.T) {
 		t.Fatalf("invalid JSON: %v\nbuf: %s", err, buf.String())
 	}
 
-	if m["request.method"] != "POST" {
-		t.Errorf("expected request.method POST, got %v", m["request.method"])
+	req, ok := m["request"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected request to be nested object, got %T: %v", m["request"], m["request"])
 	}
-	if m["request.status"] != float64(201) {
-		t.Errorf("expected request.status 201, got %v", m["request.status"])
+	if req["method"] != "POST" {
+		t.Errorf("expected request.method POST, got %v", req["method"])
+	}
+	if req["status"] != float64(201) {
+		t.Errorf("expected request.status 201, got %v", req["status"])
 	}
 }
 

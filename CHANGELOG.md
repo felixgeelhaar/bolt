@@ -5,6 +5,51 @@ All notable changes to Bolt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **`Logger.Fatal()` now terminates the process** with `os.Exit(1)` after the
+  record is written, matching every other Go logger (zap, zerolog, logrus,
+  slog) and the documented intent. Previously the level was emitted but the
+  process kept running. Tests can override the exit hook via the unexported
+  `exitFunc` package variable; an `init()` in `fatal_test.go` shows the
+  pattern.
+- **`SlogHandler` now produces nested JSON objects for groups** instead of
+  dotted-key flattening (`"request.method"` → `"request":{"method":...}`).
+  This brings the handler into compliance with `testing/slogtest.TestHandler`
+  and the `slog.Handler` contract, including: empty groups omitted from
+  output, empty-key attrs ignored, and `WithAttrs` calls scoped to whichever
+  group was active when they were made. Callers that consumed the previous
+  dotted-key shape must update their JSON parsing.
+
+### Fixed
+
+- **`JSONHandler.Write` and `ConsoleHandler.Write` now serialize writes**
+  through a `sync.Mutex`. The previous reliance on `io.Writer.Write` being
+  atomic was only safe for writes ≤ `PIPE_BUF` (4–64 KB); a `MaxBufferSize`
+  (1 MB) event on a Linux pipe could interleave under concurrency.
+- **Event pool no longer retains oversized buffers**. Buffers grown beyond
+  `PoolBufferCap` (8 KB) are released to GC instead of being put back in the
+  pool, preventing a bursty 1 MB event from pinning that allocation forever.
+- **`examples/observability/opentelemetry`** now compiles. The flagship OTel
+  example referenced a non-existent `bolt.Logger` value type and `Level()`
+  method; replaced with `*bolt.Logger` and `SetLevel(bolt.INFO)`.
+
+### CI
+
+- **Examples job is now strict**. The `examples` workflow iterates every
+  `examples/*/go.mod` and fails the job on any build error outside the
+  documented skip list. Previously failures were swallowed by `|| echo`,
+  letting the broken OTel example go undetected.
+
+### Tests
+
+- Added `TestSlogConformance` running `testing/slogtest.TestHandler` against
+  `SlogHandler`.
+- Added `TestFatal_EmitsRecordBeforeExit` and `TestFatal_TerminatesProcess`
+  (subprocess pattern) covering the new Fatal semantics.
+
 - refactor!: remove /v3 module suffix for cleaner imports
 - fix: skip performance regression tests under -race detector
 - fix: relax complex event latency threshold to 500ns

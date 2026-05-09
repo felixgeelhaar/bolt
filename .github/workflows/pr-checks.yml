@@ -34,7 +34,10 @@ jobs:
           doesn't start with an uppercase character.
 
   check-fork:
-    if: github.actor != 'dependabot[bot]'
+    # Skip for dependabot and the repo owner. External contributors must use
+    # a fork per CONTRIBUTING.md; the solo-maintainer workflow pushes feature
+    # branches directly to the main repo.
+    if: github.actor != 'dependabot[bot]' && github.actor != github.repository_owner
     runs-on: ubuntu-latest
     steps:
     - name: Check if PR is from fork
