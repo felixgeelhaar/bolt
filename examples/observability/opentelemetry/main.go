@@ -30,7 +30,7 @@ import (
 
 // Application represents the main application with observability
 type Application struct {
-	logger bolt.Logger
+	logger *bolt.Logger
 	tracer trace.Tracer
 	meter  metric.Meter
 
@@ -66,7 +66,7 @@ func NewApplication() (*Application, error) {
 
 	// Create logger with OpenTelemetry integration
 	logger := bolt.New(bolt.NewJSONHandler(os.Stdout)).
-		Level(bolt.InfoLevel).
+		SetLevel(bolt.INFO).
 		With().
 		Str("service", "otel-demo").
 		Str("version", "v1.0.0").

@@ -80,34 +80,35 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
-    - name: Compile all examples
+    - name: Compile all examples (strict)
       run: |
-        echo "Compiling examples..."
-        for example in $(find examples -name "main.go" -type f); do
-          dir=$(dirname "$example")
-          # Skip grpc-interceptors (requires proto generation)
-          if echo "$dir" | grep -q "grpc-interceptors"; then
-            echo "Skipping $dir (requires proto generation)"
+        # Build every example module. Any failure outside the documented
+        # skip list fails the job — prevents flagship examples (e.g. OTel)
+        # from regressing into a broken state.
+        skip_dirs=(
+          "examples/microservices/grpc-interceptors"  # requires proto generation
+        )
+        is_skipped() {
+          local target="$1"
+          for s in "${skip_dirs[@]}"; do
+            if [[ "$target" == "$s" ]]; then return 0; fi
+          done
+          return 1
+        }
+        failed=0
+        while IFS= read -r modfile; do
+          dir="$(dirname "$modfile")"
+          if is_skipped "$dir"; then
+            echo "::notice::Skipping $dir (in skip list)"
             continue
           fi
-          echo "Building $dir..."
-          (cd "$dir" && go mod tidy && go build -v .) || echo "Failed to build $dir (may have external dependencies)"
-        done
-
-    - name: Test example compilation (strict)
-      run: |
-        # Only test examples that should compile without external dependencies
-        examples_to_test=(
-          "examples/microservices/http-middleware"
-        )
-        failed=0
-        for example in "${examples_to_test[@]}"; do
-          echo "Testing $example..."
-          if ! (cd "$example" && go mod tidy && go build -v .); then
-            echo "ERROR: $example failed to compile"
+          echo "::group::Building $dir"
+          if ! (cd "$dir" && go mod tidy && go build ./...); then
+            echo "::error::Build failed in $dir"
             failed=1
           fi
-        done
+          echo "::endgroup::"
+        done < <(find examples -name go.mod -type f)
         exit $failed
 
   benchmark:
