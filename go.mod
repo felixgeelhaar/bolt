@@ -24,4 +24,5 @@ require (
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
+	pgregory.net/rapid v1.3.0 // indirect
 )
