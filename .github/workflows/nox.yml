@@ -90,7 +90,19 @@ jobs:
       - name: Refresh nox grade badge (push to main)
         if: github.event_name == 'push' && hashFiles('findings.json') != ''
         run: |
-          nox badge -input findings.json -output assets/badge-nox.svg
+          # Grade against UN-BASELINED findings only — baselined entries
+          # are documented false positives or intentional CI patterns
+          # (workflow_dispatch, OIDC token write, etc.); counting them
+          # against the grade would punish honest documentation of
+          # known noise.
+          if [ -f .nox/baseline.json ]; then
+            jq --slurpfile bl <(jq -r '[.entries[].fingerprint]' .nox/baseline.json) \
+               '.findings |= map(select(.Fingerprint as $f | $bl[0] | index($f) | not))' \
+               findings.json > /tmp/findings-filtered.json
+            nox badge -input /tmp/findings-filtered.json -output assets/badge-nox.svg
+          else
+            nox badge -input findings.json -output assets/badge-nox.svg
+          fi
           if ! git diff --quiet assets/badge-nox.svg; then
             git config user.name 'github-actions[bot]'
             git config user.email 'github-actions[bot]@users.noreply.github.com'
