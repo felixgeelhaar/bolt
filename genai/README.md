@@ -117,6 +117,56 @@ arguments / result body. Tool calls routinely contain user-supplied
 data — logging the body unconditionally is a PII trap. Bring your own
 redaction hook (`bolt.AddEventHook`) if you want the contents.
 
+## Pre-built EventHooks
+
+Two hooks ship with this package for the most common AI workload
+concerns identified in the multi-expert review.
+
+### Redaction (deny-list suppression)
+
+```go
+log := bolt.New(bolt.NewJSONHandler(os.Stdout)).
+    AddEventHook(genai.NewRedactHook())  // uses genai.DefaultDenyKeys
+
+// Drops any event with a "prompt", "completion", "messages", "input",
+// "output", "api_key", "token", or "authorization" field.
+```
+
+Pass a custom list to override the defaults:
+
+```go
+log.AddEventHook(genai.NewRedactHook("internal_secret", "session_id"))
+```
+
+The hook **suppresses** the event entirely — it does not redact in
+place (bolt's `EventHook` contract is read-only). If you need a
+sanitised variant of the event to ship anyway, log it explicitly
+before the sensitive event reaches the hook.
+
+### Adaptive sampling (always keep gen_ai + errors)
+
+```go
+log := bolt.New(bolt.NewJSONHandler(os.Stdout)).
+    AddEventHook(genai.NewAdaptiveSampler(100))
+
+// Keeps every event whose level is >= ERROR, every event whose fields
+// include any "gen_ai.*" key, and 1 of every 100 other events.
+```
+
+Token-stream debug logs are typically 10–100× the volume of the
+structured GenAI breadcrumbs that downstream tools (Langfuse / Phoenix
+/ Braintrust) actually want. `AdaptiveSampler` lets you sample the
+noise without losing the breadcrumbs.
+
+The defaults are configurable on the returned struct:
+
+```go
+s := genai.NewAdaptiveSampler(100)
+s.AlwaysKeepLevel = bolt.LevelWarn   // also keep WARN and above
+s.AlwaysKeepPrefixes = []string{"gen_ai.", "internal."}
+log.AddEventHook(s)
+```
+
 ## Compatibility
 
 The field names match the OTel GenAI semconv as of the latest stable.
@@ -128,8 +178,5 @@ emitted via this package directly.
 
 - `genai.Step` for agent multi-step trajectories — deferred until the
   OTel agent semconv stabilises
-- Adaptive sampling helper that always-keeps `error` and `gen_ai.*`
-  fields — needs `bolt.EventHook` (shipped) plus a small policy
-  helper here
 - Tighter typing for `FinishReason` (currently a `string`; semconv
   defines a small enum)
