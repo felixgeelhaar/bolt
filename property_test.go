@@ -114,7 +114,9 @@ func TestRapid_MultipleStrFieldsRoundtrip(t *testing.T) {
 }
 
 // TestRapid_IntFieldRoundtrip — any int produces a JSON number whose
-// decoded value matches the input.
+// decoded value matches the input. Uses json.Decoder.UseNumber() so
+// values larger than 2^53 (max safe integer in float64) round-trip
+// without precision loss.
 func TestRapid_IntFieldRoundtrip(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
 		key := rapid.StringMatching(`[a-zA-Z_][a-zA-Z0-9_]{0,30}`).Draw(t, "key")
@@ -124,16 +126,24 @@ func TestRapid_IntFieldRoundtrip(t *testing.T) {
 		logger := New(NewJSONHandler(&buf))
 		logger.Info().Int(key, value).Msg("test")
 
+		dec := json.NewDecoder(&buf)
+		dec.UseNumber()
 		var got map[string]any
-		if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+		if err := dec.Decode(&got); err != nil {
 			t.Fatalf("invalid JSON %q: %v (key=%q value=%d)", buf.String(), err, key, value)
 		}
-		// json.Unmarshal decodes JSON numbers into float64 unless
-		// json.Number is requested.
-		if f, ok := got[key].(float64); !ok {
-			t.Errorf("Int field decoded as %T, want float64", got[key])
-		} else if int(f) != value {
-			t.Errorf("Int roundtrip: got=%v want=%d", f, value)
+		num, ok := got[key].(json.Number)
+		if !ok {
+			t.Errorf("Int field decoded as %T, want json.Number", got[key])
+			return
+		}
+		n, err := num.Int64()
+		if err != nil {
+			t.Errorf("Int field %q does not parse as int64: %v", num, err)
+			return
+		}
+		if n != int64(value) {
+			t.Errorf("Int roundtrip: got=%d want=%d", n, value)
 		}
 	})
 }
