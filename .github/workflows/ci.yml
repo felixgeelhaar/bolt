@@ -37,11 +37,15 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
+    # Restrict tests to the library package; the examples/ subtree
+    # contains demo apps (some with go.mod, some without) that drag
+    # coverage to ~42% and aren't part of the public API surface we
+    # gate on.
     - name: Run tests
-      run: go test -v -race -short -coverprofile=coverage.out ./...
+      run: go test -v -race -short -coverprofile=coverage.out $(go list ./... | grep -v '/examples/')
 
     - name: Run tests with count flag (detect flaky tests)
-      run: go test -v -short -count=5 ./...
+      run: go test -v -short -count=5 $(go list ./... | grep -v '/examples/')
 
     # Coverage gate + badge refresh via coverctl (replaces Codecov).
     # The .coverctl.yaml policy enforces minimums per domain; the
@@ -58,7 +62,7 @@ jobs:
       run: |
         mkdir -p .cover
         cp coverage.out .cover/coverage.out
-        coverctl check --fromProfile -p .cover/coverage.out
+        coverctl check --from-profile --profile .cover/coverage.out
 
     - name: Refresh coverage badge (push to main only)
       if: matrix.go-version == '1.25' && github.event_name == 'push' && github.ref == 'refs/heads/main'

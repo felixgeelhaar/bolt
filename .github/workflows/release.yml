@@ -97,7 +97,7 @@ jobs:
         sha256sum "$ARCHIVE" | tee checksums.txt
 
     - name: Generate SBOM (SPDX) via syft
-      uses: anchore/sbom-action@f5e124a5e5e1d497a692818ae907d3c45829d033 # v0.18.0
+      uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0.18.0
       with:
         path: .
         format: spdx-json
@@ -105,7 +105,7 @@ jobs:
         upload-artifact: false
 
     - name: Install cosign
-      uses: sigstore/cosign-installer@d7d6e4b9114ab297d4b2c1e1d0ac0d56f1e0abc7 # v3.7.0
+      uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
     - name: Sign source archive + SBOM (cosign keyless via OIDC)
       env:
@@ -135,7 +135,7 @@ jobs:
         echo "hashes=$hashes" >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v2
+      uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
       with:
         body: |
           ${{ steps.changelog.outputs.changelog }}
