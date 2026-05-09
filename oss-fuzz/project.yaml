@@ -1,0 +1,11 @@
+homepage: "https://github.com/felixgeelhaar/bolt"
+language: go
+primary_contact: "felix@felixgeelhaar.de"
+auto_ccs:
+  - "felix@felixgeelhaar.de"
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
+main_repo: "https://github.com/felixgeelhaar/bolt"
+file_github_issue: true
