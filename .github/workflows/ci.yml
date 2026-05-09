@@ -58,7 +58,7 @@ jobs:
       run: |
         mkdir -p .cover
         cp coverage.out .cover/coverage.out
-        coverctl check --fromProfile -p .cover/coverage.out
+        coverctl check --from-profile --profile .cover/coverage.out
 
     - name: Refresh coverage badge (push to main only)
       if: matrix.go-version == '1.25' && github.event_name == 'push' && github.ref == 'refs/heads/main'
