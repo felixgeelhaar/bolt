@@ -342,6 +342,14 @@ pre code { background: transparent; padding: 0; border-radius: 0; font-size: 0.8
 }
 .cta-primary:hover { background: var(--accent-hover); color: var(--accent-fg); text-decoration: none; transform: translateY(-1px); }
 
+.badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+.badges-row img { display: block; height: 20px; }
+
 .trust-strip {
   list-style: none;
   display: flex;
