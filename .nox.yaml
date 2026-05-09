@@ -5,7 +5,12 @@ scan:
     - "examples/"
     - ".relicta/"
     - ".cover/"
+    - ".nox/"
+    - ".roady/"
+    - ".git/"
     - "findings.json"
+    - "go.sum"
+    - "**/go.sum"
 
   rules:
     disable: []

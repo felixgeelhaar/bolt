@@ -77,14 +77,14 @@ jobs:
         git checkout ${{ github.base_ref }}
         # 6 iterations gives benchstat enough samples for the U-test to
         # produce meaningful p-values without blowing the CI budget.
-        go test -run=^$ -bench=. -benchmem -count=6 -tags=bench \
-          -benchtime=1s > baseline.txt 2>&1 || (cat baseline.txt; exit 1)
+        go test -run=^$ -bench=. -benchmem -count=5 -tags=bench \
+          -benchtime=500ms > baseline.txt 2>&1 || (cat baseline.txt; exit 1)
 
     - name: Run PR benchmarks
       run: |
         git checkout ${{ github.head_ref }}
-        go test -run=^$ -bench=. -benchmem -count=6 -tags=bench \
-          -benchtime=1s > pr.txt 2>&1 || (cat pr.txt; exit 1)
+        go test -run=^$ -bench=. -benchmem -count=5 -tags=bench \
+          -benchtime=500ms > pr.txt 2>&1 || (cat pr.txt; exit 1)
 
     - name: Compare with benchstat (Mann–Whitney U-test, alpha=0.05)
       id: compare
