@@ -126,6 +126,10 @@ const (
 	DefaultBufferSize = 2048
 	// MaxBufferSize is the maximum allowed buffer size to prevent unbounded growth
 	MaxBufferSize = 1024 * 1024 // 1MB
+	// PoolBufferCap is the maximum buffer capacity that may be returned to the
+	// event pool. Buffers larger than this are dropped so the pool cannot retain
+	// rare oversized allocations indefinitely.
+	PoolBufferCap = 8192 // 8KB
 	// StackTraceBufferSize is the buffer size for stack traces
 	StackTraceBufferSize = 64 * 1024 // 64KB
 	// DefaultFilePermissions for log files
@@ -135,6 +139,10 @@ const (
 	// MaxValueLength is the maximum allowed value length
 	MaxValueLength = 64 * 1024 // 64KB
 )
+
+// exitFunc is called by Fatal-level events to terminate the process.
+// Overridable for tests. Defaults to os.Exit.
+var exitFunc = os.Exit
 
 // Level string constants
 const (
@@ -1087,14 +1095,29 @@ func (e *Event) Msg(message string) {
 		e.l.errorHandler(fmt.Errorf("handler write failed: %w", err))
 	}
 
-	// Reset the buffer and put the event back into the pool.
-	e.buf = e.buf[:0]
+	// Capture FATAL before recycling so we can exit after the buffer is freed.
+	fatal := e.level == FATAL
+
+	// Reset the buffer and put the event back into the pool. Drop oversized
+	// buffers so the pool cannot retain rare 1MB allocations forever.
+	if cap(e.buf) > PoolBufferCap {
+		e.buf = nil
+	} else {
+		e.buf = e.buf[:0]
+	}
 	e.l = nil // Clear logger reference
 	eventPool.Put(e)
+
+	if fatal {
+		exitFunc(1)
+	}
 }
 
-// JSONHandler formats logs as JSON.
+// JSONHandler formats logs as JSON. Safe for concurrent use by multiple
+// goroutines: writes to the underlying io.Writer are serialized so log records
+// never interleave (io.Writer.Write is only guaranteed atomic up to PIPE_BUF).
 type JSONHandler struct {
+	mu  sync.Mutex
 	out io.Writer
 }
 
@@ -1105,12 +1128,17 @@ func NewJSONHandler(out io.Writer) *JSONHandler {
 
 // Write handles the log event.
 func (h *JSONHandler) Write(e *Event) error {
+	h.mu.Lock()
 	_, err := h.out.Write(e.buf)
+	h.mu.Unlock()
 	return err
 }
 
-// ConsoleHandler formats logs for human-readable console output.
+// ConsoleHandler formats logs for human-readable console output. Safe for
+// concurrent use by multiple goroutines: each event's worth of output is
+// written under a single mutex so colorized records never interleave.
 type ConsoleHandler struct {
+	mu  sync.Mutex
 	out io.Writer
 }
 
@@ -1121,6 +1149,8 @@ func NewConsoleHandler(out io.Writer) *ConsoleHandler {
 
 // Write handles the log event with zero allocations by streaming JSON parsing.
 func (h *ConsoleHandler) Write(e *Event) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
 	// Extract level and message without unmarshaling (zero-allocation)
 	level := extractJSONField(e.buf, "level")
 	message := extractJSONField(e.buf, "message")
