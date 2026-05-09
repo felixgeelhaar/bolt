@@ -40,3 +40,9 @@ demo/
 # Build artifacts
 dist/
 build/
+
+# Local planning state (Roady)
+.roady/
+
+# Built example binaries (named after their directory)
+examples/observability/opentelemetry/opentelemetry
