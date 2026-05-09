@@ -67,8 +67,14 @@ announce:
   skip: false
 
 # Verification
+# SHA256 checksum file is published alongside the release artefacts so
+# downstream consumers can verify the source archive byte-for-byte. The
+# previous setting (disable: true) actively turned this protection off,
+# which is unusual for a logging library imported into every service.
 checksum:
-  disable: true
+  disable: false
+  algorithm: sha256
+  name_template: 'checksums.txt'
 
 # Source archive
 source:

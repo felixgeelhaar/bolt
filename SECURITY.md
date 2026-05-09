@@ -1,5 +1,28 @@
 # Security Policy
 
+## ⚠️ Project governance and response-time disclosure
+
+Bolt is maintained by a **single maintainer** (Felix Geelhaar) under the
+MIT licence. Response times are best-effort, not contractual. The SLAs
+below describe target windows the maintainer commits to operating
+against; if a hard guarantee is required for your use case, please
+reach out before depending on bolt for incident-critical logging or
+contact the maintainer to discuss commercial support.
+
+| Concern | Target window | Notes |
+|---|---|---|
+| Acknowledge a security report | 24 hours | initial reply confirming receipt |
+| Validate / reproduce | 3 business days | preliminary triage |
+| Patch a critical vulnerability | 48 hours after validation | priority over feature work |
+| Patch a high-severity vulnerability | 7 days after validation | |
+| Patch a medium/low vulnerability | next minor release | bundled with other fixes |
+
+**Escalation path** if the standard channels do not respond within the
+target window: open a GitHub issue tagged `security` referencing the
+private advisory ID. Public escalation is the last resort, after
+private channels have lapsed. See [ADOPTERS.md](./ADOPTERS.md) for
+the broader governance posture.
+
 ## 🔒 Reporting Security Vulnerabilities
 
 **DO NOT** open public GitHub issues for security vulnerabilities.
