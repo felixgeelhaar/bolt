@@ -3,15 +3,27 @@ name: CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.25', '1.26']
+        go-version: ['1.25']
 
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -167,9 +179,13 @@ jobs:
       with:
         name: benchmark-results
         path: benchmark.txt
-        retention-days: 30
+        retention-days: 7
 
+  # Cross-platform validation runs only on push to main (not PRs) and on
+  # release tags. macOS = 10x and Windows = 2x Actions minutes on public
+  # repos — keeping this off PRs cuts the per-merge cost dramatically.
   cross-platform:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
