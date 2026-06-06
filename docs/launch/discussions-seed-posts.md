@@ -7,7 +7,7 @@ edits are visible and contributors can suggest tweaks.
 
 ## How to use
 
-1. Open the repository's [Discussions tab](https://github.com/felixgeelhaar/bolt/discussions).
+1. Open the repository's [Discussions tab](https://github.com/klarlabs-studio/bolt/discussions).
 2. For each section below, create a new Discussion in the matching
    category (Q&A or Show and tell as noted), pasting the title +
    body.
@@ -35,7 +35,7 @@ This is the question every evaluator asks first. Short answer:
 - You want first-class OpenTelemetry integration: `Logger.Ctx(ctx)` automatically attaches `trace_id` and `span_id`. With slog you'd write that helper yourself.
 - You're already on zerolog or zap and the chained-builder API is in your team's muscle memory; bolt's chained API is intentionally close to zerolog's.
 
-This is the question the README also leads with — the table at <https://github.com/felixgeelhaar/bolt#why-bolt-vs-slog--zerolog--zap>.
+This is the question the README also leads with — the table at <https://github.com/klarlabs-studio/bolt#why-bolt-vs-slog--zerolog--zap>.
 
 Edge cases worth flagging in this thread:
 - Custom levels (between Info and Warn etc.) — slog supports `slog.Level(N)`; bolt doesn't first-class them.
@@ -53,9 +53,9 @@ Reply with your situation if you're not sure which side you fall on; happy to ta
 **Body**:
 
 ```markdown
-The migration guide at [docs/how-to/migrate-from-zerolog.md](https://github.com/felixgeelhaar/bolt/blob/main/docs/how-to/migrate-from-zerolog.md) covers the API mapping. Real-world gotchas the guide doesn't yet have first-hand reports on:
+The migration guide at [docs/how-to/migrate-from-zerolog.md](https://github.com/klarlabs-studio/bolt/blob/main/docs/how-to/migrate-from-zerolog.md) covers the API mapping. Real-world gotchas the guide doesn't yet have first-hand reports on:
 
-- Hooks. zerolog's `Hook` sees the event; bolt v1's `Hook` only sees level + message. For redaction or per-event metric extraction, use `EventHook` (added in v1.4) — see [Hook v2 design notes](https://github.com/felixgeelhaar/bolt/blob/main/docs/explanation/hook-v2.md).
+- Hooks. zerolog's `Hook` sees the event; bolt v1's `Hook` only sees level + message. For redaction or per-event metric extraction, use `EventHook` (added in v1.4) — see [Hook v2 design notes](https://github.com/klarlabs-studio/bolt/blob/main/docs/explanation/hook-v2.md).
 - `RawJSON` is not yet in the bolt API. If you used it for embedding pre-marshalled JSON, current workaround is `Bytes` (copies) or open an issue.
 - Float precision. bolt's `Float64` uses `strconv.AppendFloat('g', -1)` matching `encoding/json`. zerolog had a different default precision for some sub-cases. If you assert exact JSON output in tests, expect to update fixtures.
 - Sub-loggers. Both libraries use `Logger.With()...Logger()`; chain shape is identical.
@@ -72,7 +72,7 @@ If you've done the migration, please reply with what you hit. The guide gets bet
 **Body**:
 
 ```markdown
-The flagship example at [`examples/observability/opentelemetry/`](https://github.com/felixgeelhaar/bolt/tree/main/examples/observability/opentelemetry) wires bolt to OTel tracing + Prometheus metrics. The pattern that did the most for our debugging experience: `Logger.Ctx(ctx)` automatically attaches `trace_id` and `span_id` so log shippers (Loki, Datadog, etc.) can jump from a log line to the trace it belongs to without bespoke glue.
+The flagship example at [`examples/observability/opentelemetry/`](https://github.com/klarlabs-studio/bolt/tree/main/examples/observability/opentelemetry) wires bolt to OTel tracing + Prometheus metrics. The pattern that did the most for our debugging experience: `Logger.Ctx(ctx)` automatically attaches `trace_id` and `span_id` so log shippers (Loki, Datadog, etc.) can jump from a log line to the trace it belongs to without bespoke glue.
 
 ```go
 log := bolt.New(bolt.NewJSONHandler(os.Stdout))
@@ -111,7 +111,7 @@ measured locally:
 - M-series Mac: ~60-80 ns/op
 - ubuntu-latest GHA runner: ~150-300 ns/op (shared infra noise)
 
-**Regression guard**: the [pr-checks workflow](https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/pr-checks.yml) runs `benchstat -delta-test=utest` (Mann-Whitney U-test, alpha=0.05) comparing baseline (target branch) vs PR. The job fails only on statistically significant regressions, not on routine ±50% noise on shared runners. The previous wall-clock thresholds in `performance_test.go` were retired because they produced false positives that got muted into noise — the worst kind of test.
+**Regression guard**: the [pr-checks workflow](https://github.com/klarlabs-studio/bolt/blob/main/.github/workflows/pr-checks.yml) runs `benchstat -delta-test=utest` (Mann-Whitney U-test, alpha=0.05) comparing baseline (target branch) vs PR. The job fails only on statistically significant regressions, not on routine ±50% noise on shared runners. The previous wall-clock thresholds in `performance_test.go` were retired because they produced false positives that got muted into noise — the worst kind of test.
 
 If you've done your own benchmark and the numbers surprise you (in either direction), share the methodology and I'll try to reproduce.
 ```
@@ -134,7 +134,7 @@ The new `EventHook` interface (v1.4+) sees the `*Event` mid-build, so you can:
 
 What are you using it for? If your hook is generic, consider PRing it into the `bolt/genai` sub-module so others can use it.
 
-Bad use cases — covered in the [Hook v2 design notes](https://github.com/felixgeelhaar/bolt/blob/main/docs/explanation/hook-v2.md):
+Bad use cases — covered in the [Hook v2 design notes](https://github.com/klarlabs-studio/bolt/blob/main/docs/explanation/hook-v2.md):
 
 - In-place buffer mutation. The `Buffer()` accessor is read-only; mutation corrupts the in-flight record.
 - Surrogate-pair-aware redaction of UTF-8 prompts. Doable in a hook but expensive; better placed in the OTel collector.

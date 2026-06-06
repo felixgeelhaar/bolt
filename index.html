@@ -8,14 +8,14 @@
   <meta name="theme-color" content="#0B0F19">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="stylesheet" href="assets/style.css">
-  <link rel="canonical" href="https://felixgeelhaar.github.io/bolt/">
+  <link rel="canonical" href="https://klarlabs-studio.github.io/bolt/">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Bolt — slog handler that closes the logs↔traces loop">
   <meta property="og:description" content="Zero-allocation slog.Handler for Go with first-class OpenTelemetry trace/span injection.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://felixgeelhaar.github.io/bolt/">
-  <meta property="og:image" content="https://felixgeelhaar.github.io/bolt/assets/bolt_logo.png">
+  <meta property="og:url" content="https://klarlabs-studio.github.io/bolt/">
+  <meta property="og:image" content="https://klarlabs-studio.github.io/bolt/assets/bolt_logo.png">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -30,10 +30,10 @@
         <a href="#why">Why bolt</a>
         <a href="#trace">Trace-correlated</a>
         <a href="#start">Quick start</a>
-        <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs">Docs</a>
-        <a href="https://pkg.go.dev/github.com/felixgeelhaar/bolt">API</a>
+        <a href="https://github.com/klarlabs-studio/bolt/tree/main/docs">Docs</a>
+        <a href="https://pkg.go.dev/go.klarlabs.de/bolt">API</a>
       </nav>
-      <a href="https://github.com/felixgeelhaar/bolt" class="github-cta" rel="noopener">
+      <a href="https://github.com/klarlabs-studio/bolt" class="github-cta" rel="noopener">
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
         Star
       </a>
@@ -61,19 +61,19 @@
           <div class="hero-actions">
             <div class="install" data-copy-target="install-cmd">
               <span class="install-prompt" aria-hidden="true">$</span>
-              <code id="install-cmd">go get github.com/felixgeelhaar/bolt</code>
+              <code id="install-cmd">go get go.klarlabs.de/bolt</code>
               <button class="copy-btn" type="button" data-copy="install-cmd" aria-label="Copy install command">Copy</button>
             </div>
-            <a class="cta-primary" href="https://github.com/felixgeelhaar/bolt/blob/main/docs/tutorial/quickstart.md">
+            <a class="cta-primary" href="https://github.com/klarlabs-studio/bolt/blob/main/docs/tutorial/quickstart.md">
               5-min quickstart →
             </a>
           </div>
 
           <p class="badges-row" aria-label="Project signals">
-            <a href="https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml">
+            <a href="https://github.com/klarlabs-studio/bolt/actions/workflows/nox.yml">
               <img src="assets/badge-nox.svg" alt="Nox security grade" height="20">
             </a>
-            <a href="https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml">
+            <a href="https://github.com/klarlabs-studio/bolt/actions/workflows/ci.yml">
               <img src="assets/badge-coverage.svg" alt="Test coverage" height="20">
             </a>
           </p>
@@ -82,7 +82,7 @@
             <li>Go 1.24+</li>
             <li>0 direct deps</li>
             <li>SLSA-3 signed</li>
-            <li><a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md">Security policy</a></li>
+            <li><a href="https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md">Security policy</a></li>
           </ul>
         </div>
 
@@ -113,19 +113,19 @@
         <p class="whatsnew-label">Recently shipped</p>
         <ul class="whatsnew-list">
           <li>
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/explanation/hook-v2.md">
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/docs/explanation/hook-v2.md">
               <strong>Hook v2 / EventHook</strong>
               <span>Field-aware interception for redaction, tagging, cost accounting.</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/felixgeelhaar/bolt/tree/main/genai">
+            <a href="https://github.com/klarlabs-studio/bolt/tree/main/genai">
               <strong>bolt/genai sub-module</strong>
               <span>OTel GenAI semconv field names. Langfuse / Phoenix / Braintrust ingest direct.</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md#-verifying-release-artefacts">
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md#-verifying-release-artefacts">
               <strong>SLSA-3 signed releases</strong>
               <span>cosign keyless · SPDX SBOM · slsa-github-generator provenance.</span>
             </a>
@@ -154,7 +154,7 @@
               drop-in replacement that auto-attaches trace context
               and keeps the encoder zero-alloc.
             </p>
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/how-to/migrate-from-slog.md">
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/docs/how-to/migrate-from-slog.md">
               Migrate from slog →
             </a>
           </article>
@@ -170,7 +170,7 @@
               equivalent — but as a v2 alongside the legacy
               interface).
             </p>
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/how-to/migrate-from-zerolog.md">
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/docs/how-to/migrate-from-zerolog.md">
               Migrate from zerolog →
             </a>
           </article>
@@ -186,7 +186,7 @@
               direct into Langfuse, Arize Phoenix, Braintrust, or the
               OTel Collector's GenAI processor.
             </p>
-            <a href="https://github.com/felixgeelhaar/bolt/tree/main/genai">
+            <a href="https://github.com/klarlabs-studio/bolt/tree/main/genai">
               See bolt/genai →
             </a>
           </article>
@@ -229,7 +229,7 @@ logger.<span class="tk-fn">InfoContext</span>(ctx, <span class="tk-str">"order p
 
           <figure class="diff-pane diff-pane-after">
             <figcaption>bolt</figcaption>
-<pre><code><span class="tk-kw">import</span> <span class="tk-str">"github.com/felixgeelhaar/bolt"</span>
+<pre><code><span class="tk-kw">import</span> <span class="tk-str">"go.klarlabs.de/bolt"</span>
 
 logger := bolt.<span class="tk-fn">New</span>(bolt.<span class="tk-fn">NewJSONHandler</span>(os.Stdout))
 
@@ -266,7 +266,7 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
     <span class="tk-str">"log/slog"</span>
     <span class="tk-str">"os"</span>
 
-    <span class="tk-str">"github.com/felixgeelhaar/bolt"</span>
+    <span class="tk-str">"go.klarlabs.de/bolt"</span>
 )
 
 <span class="tk-kw">func</span> <span class="tk-fn">main</span>() {
@@ -286,7 +286,7 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
 <span class="tk-kw">import</span> (
     <span class="tk-str">"os"</span>
 
-    <span class="tk-str">"github.com/felixgeelhaar/bolt"</span>
+    <span class="tk-str">"go.klarlabs.de/bolt"</span>
 )
 
 <span class="tk-kw">func</span> <span class="tk-fn">main</span>() {
@@ -301,10 +301,10 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
 
         <p class="next-steps">
           Next:
-          <a href="https://github.com/felixgeelhaar/bolt/blob/main/docs/tutorial/quickstart.md">tutorial</a> ·
-          <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/how-to">migration guides</a> ·
-          <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/reference">reference</a> ·
-          <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs/explanation">design rationale</a>
+          <a href="https://github.com/klarlabs-studio/bolt/blob/main/docs/tutorial/quickstart.md">tutorial</a> ·
+          <a href="https://github.com/klarlabs-studio/bolt/tree/main/docs/how-to">migration guides</a> ·
+          <a href="https://github.com/klarlabs-studio/bolt/tree/main/docs/reference">reference</a> ·
+          <a href="https://github.com/klarlabs-studio/bolt/tree/main/docs/explanation">design rationale</a>
         </p>
       </div>
     </section>
@@ -315,10 +315,10 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
         <h2>Performance receipts.</h2>
         <p class="section-lede">
           Numbers vary by hardware. The CI gate
-          (<a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/ci.yml"><code>ci.yml</code></a>)
+          (<a href="https://github.com/klarlabs-studio/bolt/blob/main/.github/workflows/ci.yml"><code>ci.yml</code></a>)
           requires <strong>0 allocs/op</strong> on
           <code>BenchmarkZeroAllocation</code>. The
-          <a href="https://github.com/felixgeelhaar/bolt/blob/main/.github/workflows/pr-checks.yml"><code>benchstat</code> regression workflow</a>
+          <a href="https://github.com/klarlabs-studio/bolt/blob/main/.github/workflows/pr-checks.yml"><code>benchstat</code> regression workflow</a>
           fails the PR on statistically significant deltas
           (Mann–Whitney U-test, α=0.05).
         </p>
@@ -356,7 +356,7 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
           <p>
             cosign keyless signatures · SPDX SBOM · SLSA-3 provenance
             attestation per release. Verification commands in
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md#-verifying-release-artefacts">SECURITY.md</a>.
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md#-verifying-release-artefacts">SECURITY.md</a>.
           </p>
         </div>
         <div>
@@ -372,8 +372,8 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
           <h3>Governance</h3>
           <p>
             Solo maintainer, MIT, response-time SLAs documented
-            in <a href="https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md">SECURITY.md</a>.
-            <a href="https://github.com/felixgeelhaar/bolt/blob/main/ADOPTERS.md">ADOPTERS.md</a>
+            in <a href="https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md">SECURITY.md</a>.
+            <a href="https://github.com/klarlabs-studio/bolt/blob/main/ADOPTERS.md">ADOPTERS.md</a>
             currently empty — PR yourself in if you ship bolt.
           </p>
         </div>
@@ -388,12 +388,12 @@ logger.<span class="tk-fn">Ctx</span>(ctx).<span class="tk-fn">Info</span>().<sp
         <span>bolt — maintained by <a href="https://github.com/felixgeelhaar">Felix Geelhaar</a></span>
       </div>
       <nav class="footer-links" aria-label="Footer">
-        <a href="https://github.com/felixgeelhaar/bolt">GitHub</a>
-        <a href="https://pkg.go.dev/github.com/felixgeelhaar/bolt">pkg.go.dev</a>
-        <a href="https://github.com/felixgeelhaar/bolt/tree/main/docs">Docs</a>
-        <a href="https://github.com/felixgeelhaar/bolt/blob/main/ROADMAP.md">Roadmap</a>
-        <a href="https://github.com/felixgeelhaar/bolt/blob/main/CHANGELOG.md">Changelog</a>
-        <a href="https://github.com/felixgeelhaar/bolt/blob/main/LICENSE">License</a>
+        <a href="https://github.com/klarlabs-studio/bolt">GitHub</a>
+        <a href="https://pkg.go.dev/go.klarlabs.de/bolt">pkg.go.dev</a>
+        <a href="https://github.com/klarlabs-studio/bolt/tree/main/docs">Docs</a>
+        <a href="https://github.com/klarlabs-studio/bolt/blob/main/ROADMAP.md">Roadmap</a>
+        <a href="https://github.com/klarlabs-studio/bolt/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/klarlabs-studio/bolt/blob/main/LICENSE">License</a>
       </nav>
     </div>
   </footer>

@@ -11,7 +11,7 @@ lost in a private notes app.
 Insert under `## Logging` in alphabetical order:
 
 ```markdown
-* [bolt](https://github.com/felixgeelhaar/bolt) - Zero-allocation `slog.Handler` for Go with first-class OpenTelemetry trace/span injection. Passes `testing/slogtest.TestHandler` conformance.
+* [bolt](https://github.com/klarlabs-studio/bolt) - Zero-allocation `slog.Handler` for Go with first-class OpenTelemetry trace/span injection. Passes `testing/slogtest.TestHandler` conformance.
 ```
 
 ## PR title
@@ -27,7 +27,7 @@ Copy as the awesome-go PR description:
 ```markdown
 ## What
 
-Adding [bolt](https://github.com/felixgeelhaar/bolt) under Logging.
+Adding [bolt](https://github.com/klarlabs-studio/bolt) under Logging.
 
 ## Description
 
@@ -37,9 +37,9 @@ Adding [bolt](https://github.com/felixgeelhaar/bolt) under Logging.
 
 * Fills a gap between `log/slog` (stdlib, no perf budget) and `zerolog` / `zap` (older chained or typed-constructor APIs without first-class slog conformance).
 * Standard `testing/slogtest.TestHandler` conformance — slog group nesting, `WithAttrs` scoping, empty-group elision, `LogValuer` resolution all verified.
-* MIT licensed, Go 1.24+, single maintainer, response-time SLA documented in [SECURITY.md](https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md).
+* MIT licensed, Go 1.24+, single maintainer, response-time SLA documented in [SECURITY.md](https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md).
 * Supply-chain hardening: cosign-signed artefacts, SPDX SBOM, SLSA-3 provenance attestation per release.
-* Migration guides from zerolog, zap, slog: [docs/how-to/](https://github.com/felixgeelhaar/bolt/tree/main/docs/how-to).
+* Migration guides from zerolog, zap, slog: [docs/how-to/](https://github.com/klarlabs-studio/bolt/tree/main/docs/how-to).
 
 ## Quality checklist
 

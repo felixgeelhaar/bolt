@@ -23,7 +23,7 @@ the rest.
 ### Run any of them
 
 ```bash
-git clone https://github.com/felixgeelhaar/bolt.git
+git clone https://github.com/klarlabs-studio/bolt.git
 cd bolt/examples/rest-api
 go mod tidy
 go run .

@@ -40,7 +40,7 @@ package genai
 import (
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"go.klarlabs.de/bolt"
 )
 
 // OTel GenAI semantic-convention field names. Pinned here so that future

@@ -23,7 +23,7 @@ TARGETS=(
 )
 
 for target in "${TARGETS[@]}"; do
-  compile_native_go_fuzzer github.com/felixgeelhaar/bolt "$target" "$target"
+  compile_native_go_fuzzer go.klarlabs.de/bolt "$target" "$target"
 
   # Seed corpus, if present.
   corpus_dir="testdata/fuzz/${target}"

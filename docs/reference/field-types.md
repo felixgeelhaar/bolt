@@ -3,7 +3,7 @@
 Canonical reference is [pkg.go.dev][godoc]. This page is the short
 in-repo lookup, sorted by category.
 
-[godoc]: https://pkg.go.dev/github.com/felixgeelhaar/bolt
+[godoc]: https://pkg.go.dev/go.klarlabs.de/bolt
 
 All field methods on `*Event` return `*Event` for chaining. They are
 zero-allocation unless flagged otherwise. Every method validates its

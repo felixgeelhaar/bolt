@@ -29,7 +29,7 @@
 //
 //	import (
 //	    "os"
-//	    "github.com/felixgeelhaar/bolt"
+//	    "go.klarlabs.de/bolt"
 //	)
 //
 //	func main() {

@@ -13,7 +13,7 @@ policy:
   domains:
     - name: core
       match:
-        - github.com/felixgeelhaar/bolt
+        - go.klarlabs.de/bolt
       min: 80
 history:
   enabled: true

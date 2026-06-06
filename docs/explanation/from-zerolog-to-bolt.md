@@ -137,6 +137,6 @@ That's it for that file. Mechanical.
 ---
 
 *This post lives in the bolt repo at
-[`docs/explanation/from-zerolog-to-bolt.md`](https://github.com/felixgeelhaar/bolt/blob/main/docs/explanation/from-zerolog-to-bolt.md).
+[`docs/explanation/from-zerolog-to-bolt.md`](https://github.com/klarlabs-studio/bolt/blob/main/docs/explanation/from-zerolog-to-bolt.md).
 PRs welcome from teams who do a similar port and want to add their
 own numbers.*

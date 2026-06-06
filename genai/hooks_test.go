@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/felixgeelhaar/bolt"
-	"github.com/felixgeelhaar/bolt/genai"
+	"go.klarlabs.de/bolt"
+	"go.klarlabs.de/bolt/genai"
 )
 
 func TestRedactHook_DefaultDenyList(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/felixgeelhaar/bolt
+module go.klarlabs.de/bolt
 
 go 1.25.0
 

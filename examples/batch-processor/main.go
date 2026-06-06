@@ -19,7 +19,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"go.klarlabs.de/bolt"
 )
 
 // BatchProcessor handles concurrent batch processing

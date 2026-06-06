@@ -143,7 +143,7 @@ func main() {
 package main
 
 import (
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
     "github.com/google/uuid"
     "net/http"
     "os"

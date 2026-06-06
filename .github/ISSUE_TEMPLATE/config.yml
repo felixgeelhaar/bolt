@@ -1,14 +1,14 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 GitHub Discussions
-    url: https://github.com/felixgeelhaar/bolt/discussions
+    url: https://github.com/klarlabs-studio/bolt/discussions
     about: Ask questions and discuss ideas with the community
   - name: 🔒 Security Vulnerability
-    url: https://github.com/felixgeelhaar/bolt/security/advisories/new
+    url: https://github.com/klarlabs-studio/bolt/security/advisories/new
     about: Report security vulnerabilities privately (DO NOT open public issues)
   - name: 📚 Documentation
-    url: https://github.com/felixgeelhaar/bolt#-documentation
+    url: https://github.com/klarlabs-studio/bolt#-documentation
     about: Browse the comprehensive documentation and guides
   - name: 📊 Performance Benchmarks
-    url: https://felixgeelhaar.github.io/bolt/
+    url: https://klarlabs-studio.github.io/bolt/
     about: View live performance benchmarks and comparisons

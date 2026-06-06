@@ -3,7 +3,7 @@
 #   https://google.github.io/oss-fuzz/getting-started/new-project-guide/go-lang/
 FROM gcr.io/oss-fuzz-base/base-builder-go
 
-RUN git clone --depth 1 https://github.com/felixgeelhaar/bolt $SRC/bolt
+RUN git clone --depth 1 https://github.com/klarlabs-studio/bolt $SRC/bolt
 
 WORKDIR $SRC/bolt
 

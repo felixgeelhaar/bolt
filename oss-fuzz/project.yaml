@@ -1,4 +1,4 @@
-homepage: "https://github.com/felixgeelhaar/bolt"
+homepage: "https://github.com/klarlabs-studio/bolt"
 language: go
 primary_contact: "felix@felixgeelhaar.de"
 auto_ccs:
@@ -7,5 +7,5 @@ fuzzing_engines:
   - libfuzzer
 sanitizers:
   - address
-main_repo: "https://github.com/felixgeelhaar/bolt"
+main_repo: "https://github.com/klarlabs-studio/bolt"
 file_github_issue: true

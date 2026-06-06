@@ -44,7 +44,7 @@ body:
         
         import (
             "testing"
-            "github.com/felixgeelhaar/bolt"
+            "go.klarlabs.de/bolt"
         )
         
         func BenchmarkYourCase(b *testing.B) {

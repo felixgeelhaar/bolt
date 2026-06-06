@@ -18,7 +18,7 @@ the [reference](../reference/) instead.
 ```bash
 mkdir bolt-tutorial && cd bolt-tutorial
 go mod init example.com/bolt-tutorial
-go get github.com/felixgeelhaar/bolt
+go get go.klarlabs.de/bolt
 ```
 
 ## Step 2: a one-line first log
@@ -31,7 +31,7 @@ package main
 import (
     "os"
 
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
 )
 
 func main() {
@@ -95,7 +95,7 @@ import (
     "os"
     "time"
 
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
     "github.com/google/uuid"
 )
 

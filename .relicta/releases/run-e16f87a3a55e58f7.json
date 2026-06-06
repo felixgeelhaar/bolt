@@ -1,7 +1,7 @@
 {
   "id": "run-e16f87a3a55e58f7",
   "plan_hash": "fb4717d0af3cf3a76bf3459af11fdf503ff9f970600104e1eba92dd48712e7e6",
-  "repo_id": "https://github.com/felixgeelhaar/bolt.git",
+  "repo_id": "https://github.com/klarlabs-studio/bolt.git",
   "repo_root": "/Users/felixgeelhaar/Developer/projects/open_source/bolt",
   "base_ref": "v1.2.1",
   "head_sha": "0c7c0b26b61bdf8e1dde6452a7f483e1a587db02",
@@ -160,7 +160,7 @@
         "author": "Felix Geelhaar",
         "author_email": "felix@felixgeelhaar.de",
         "date": "2026-02-17T22:57:33+01:00",
-        "raw_message": "refactor!: remove /v3 module suffix for cleaner imports\n\nBREAKING CHANGE: Module path changed from github.com/felixgeelhaar/bolt/v3\nto github.com/felixgeelhaar/bolt. All import paths must be updated.\n\n- Replace github.com/felixgeelhaar/bolt/v3 with github.com/felixgeelhaar/bolt\n  across all Go source files, go.mod files, and documentation\n- Update version references from v3.0.0 to v1.2.1 in example/benchmark modules\n- Run go mod tidy on all modules\n"
+        "raw_message": "refactor!: remove /v3 module suffix for cleaner imports\n\nBREAKING CHANGE: Module path changed from go.klarlabs.de/bolt/v3\nto go.klarlabs.de/bolt. All import paths must be updated.\n\n- Replace go.klarlabs.de/bolt/v3 with go.klarlabs.de/bolt\n  across all Go source files, go.mod files, and documentation\n- Update version references from v3.0.0 to v1.2.1 in example/benchmark modules\n- Run go mod tidy on all modules\n"
       },
       {
         "hash": "21bd97e2a381122b9f2304cdf68b3e1fdb7adae8",
@@ -322,7 +322,7 @@
         "author": "Felix Geelhaar",
         "author_email": "felix@felixgeelhaar.de",
         "date": "2026-01-03T20:00:34+01:00",
-        "raw_message": "feat: add /v3 suffix to module path for Go semantic import versioning\n\nUpdates the module path from github.com/felixgeelhaar/bolt to\ngithub.com/felixgeelhaar/bolt/v3 to comply with Go's semantic import\nversioning requirement for modules v2+.\n\nChanges include:\n- Update root go.mod module declaration\n- Update all submodule go.mod require and replace directives\n- Update all import statements in Go source files\n- Update installation instructions and code examples in documentation\n- Update badge URLs to use v3 path\n\nThis enables users to properly import the module using:\n  go get github.com/felixgeelhaar/bolt/v3\n\nCloses #5\n"
+        "raw_message": "feat: add /v3 suffix to module path for Go semantic import versioning\n\nUpdates the module path from go.klarlabs.de/bolt to\ngo.klarlabs.de/bolt/v3 to comply with Go's semantic import\nversioning requirement for modules v2+.\n\nChanges include:\n- Update root go.mod module declaration\n- Update all submodule go.mod require and replace directives\n- Update all import statements in Go source files\n- Update installation instructions and code examples in documentation\n- Update badge URLs to use v3 path\n\nThis enables users to properly import the module using:\n  go get go.klarlabs.de/bolt/v3\n\nCloses #5\n"
       },
       {
         "hash": "af325d5350a8d3a603fd99b3fa6f394d9dc7f80b",

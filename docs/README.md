@@ -26,7 +26,7 @@ neither audience well — split it.
 - [Migrate from zap](./how-to/migrate-from-zap.md)
 
 ### Reference
-- [API reference (pkg.go.dev)](https://pkg.go.dev/github.com/felixgeelhaar/bolt) — generated GoDoc; canonical
+- [API reference (pkg.go.dev)](https://pkg.go.dev/go.klarlabs.de/bolt) — generated GoDoc; canonical
 - [Field types](./reference/field-types.md)
 - [Levels and configuration](./reference/levels-and-config.md)
 
