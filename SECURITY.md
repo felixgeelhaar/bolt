@@ -28,18 +28,18 @@ the broader governance posture.
 Every release publishes:
 
 - `bolt_<version>_source.tar.gz` — deterministic source archive
-- `bolt_<version>_source.tar.gz.sig` + `.pem` — cosign keyless signature + cert
-- `bolt_<version>_sbom.spdx.json` — SPDX SBOM (and `.sig` / `.pem`)
-- `checksums.txt` — SHA-256 of the source archive (and `.sig` / `.pem`)
+- `bolt_<version>_source.tar.gz.sigstore.json` — cosign keyless Sigstore bundle
+- `bolt_<version>_sbom.spdx.json` — SPDX SBOM (and `.sigstore.json`)
+- `checksums.txt` — SHA-256 of the source archive (and `.sigstore.json`)
 - `bolt.intoto.jsonl` — SLSA-3 provenance attestation
 
 To verify a downloaded release:
 
 ```bash
-VERSION=v1.4.0   # adjust
+VERSION=v1.5.1   # adjust
 GH_REPO=klarlabs-studio/bolt
 
-# 1. Download the archive + signature + cert
+# 1. Download the archive + Sigstore bundle
 gh release download "$VERSION" --repo "$GH_REPO" \
   --pattern "bolt_${VERSION}_source.tar.gz*"
 
@@ -47,8 +47,7 @@ gh release download "$VERSION" --repo "$GH_REPO" \
 cosign verify-blob \
   --certificate-identity "https://github.com/${GH_REPO}/.github/workflows/release.yml@refs/tags/${VERSION}" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  --certificate "bolt_${VERSION}_source.tar.gz.pem" \
-  --signature "bolt_${VERSION}_source.tar.gz.sig" \
+  --bundle "bolt_${VERSION}_source.tar.gz.sigstore.json" \
   "bolt_${VERSION}_source.tar.gz"
 
 # 3. Verify the SLSA-3 provenance attestation
