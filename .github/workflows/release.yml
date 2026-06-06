@@ -114,14 +114,13 @@ jobs:
         VERSION="${{ steps.version.outputs.version }}"
         ARCHIVE="${{ steps.archive.outputs.archive }}"
         SBOM="bolt_${VERSION}_sbom.spdx.json"
-        # Sign each file blob; produces .sig + .pem per blob.
+        # Sign each file blob; cosign v3+ emits a Sigstore bundle per blob.
         for blob in "$ARCHIVE" "$SBOM" checksums.txt; do
           cosign sign-blob --yes \
-            --output-signature "${blob}.sig" \
-            --output-certificate "${blob}.pem" \
+            --bundle "${blob}.sigstore.json" \
             "$blob"
         done
-        ls -lh *.sig *.pem
+        ls -lh *.sigstore.json
 
     - name: Compute base64 digest for SLSA provenance
       id: hashes
@@ -168,14 +167,11 @@ jobs:
           1.26 across Linux, macOS, and Windows.
         files: |
           ${{ steps.archive.outputs.archive }}
-          ${{ steps.archive.outputs.archive }}.sig
-          ${{ steps.archive.outputs.archive }}.pem
+          ${{ steps.archive.outputs.archive }}.sigstore.json
           bolt_${{ steps.version.outputs.version }}_sbom.spdx.json
-          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json.sig
-          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json.pem
+          bolt_${{ steps.version.outputs.version }}_sbom.spdx.json.sigstore.json
           checksums.txt
-          checksums.txt.sig
-          checksums.txt.pem
+          checksums.txt.sigstore.json
         draft: false
         prerelease: ${{ contains(github.ref, '-') }}
         generate_release_notes: true
