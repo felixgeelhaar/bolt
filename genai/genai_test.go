@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
-	"github.com/felixgeelhaar/bolt/genai"
+	"go.klarlabs.de/bolt"
+	"go.klarlabs.de/bolt/genai"
 )
 
 func decode(t *testing.T, raw []byte) map[string]any {

@@ -37,7 +37,7 @@ changelog:
 # Release configuration
 release:
   github:
-    owner: felixgeelhaar
+    owner: klarlabs-studio
     name: bolt
   
   # Custom release notes
@@ -50,17 +50,17 @@ release:
     ## Installation
     
     ```bash
-    go get github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}
+    go get go.klarlabs.de/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}
     ```
     
     ## Documentation
     
-    📚 [pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}](https://pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }})
-    📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
-    🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
+    📚 [pkg.go.dev/go.klarlabs.de/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}](https://pkg.go.dev/go.klarlabs.de/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }})
+    📊 [Live Benchmarks](https://klarlabs-studio.github.io/bolt/)
+    🎯 [Examples](https://github.com/klarlabs-studio/bolt/tree/main/examples)
 
     ---
-    **Full Changelog**: https://github.com/felixgeelhaar/bolt/compare/{{ .PreviousTag }}...{{ .Tag }}
+    **Full Changelog**: https://github.com/klarlabs-studio/bolt/compare/{{ .PreviousTag }}...{{ .Tag }}
 
 # Announce the release
 announce:
@@ -91,7 +91,7 @@ milestones:
 publishers:
   - name: pkg.go.dev
     cmd: |
-      curl -sf "https://proxy.golang.org/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}/@v/{{ .Tag }}.info" &&
-      curl -sf "https://pkg.go.dev/github.com/felixgeelhaar/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}"
+      curl -sf "https://proxy.golang.org/go.klarlabs.de/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}/@v/{{ .Tag }}.info" &&
+      curl -sf "https://pkg.go.dev/go.klarlabs.de/bolt{{ if ne .Major 1 }}/v{{ .Major }}{{ end }}@{{ .Tag }}"
     env:
       - PATH={{ .Env.PATH }}

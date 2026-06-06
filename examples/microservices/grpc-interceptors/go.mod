@@ -1,9 +1,9 @@
-module github.com/felixgeelhaar/bolt/examples/microservices/grpc-interceptors
+module go.klarlabs.de/bolt/examples/microservices/grpc-interceptors
 
 go 1.25.0
 
 require (
-	github.com/felixgeelhaar/bolt v1.2.1
+	go.klarlabs.de/bolt v1.2.1
 	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.81.0
 	google.golang.org/protobuf v1.36.11
@@ -17,4 +17,4 @@ require (
 )
 
 // Local development - replace with actual module path in production
-replace github.com/felixgeelhaar/bolt => ../../..
+replace go.klarlabs.de/bolt => ../../..

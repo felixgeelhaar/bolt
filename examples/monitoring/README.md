@@ -403,7 +403,7 @@ Create custom metrics from logs in DataDog:
 
 ```go
 import (
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
     "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
@@ -443,7 +443,7 @@ func main() {
 
 ```go
 import (
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
     "github.com/newrelic/go-agent/v3/newrelic"
 )
 

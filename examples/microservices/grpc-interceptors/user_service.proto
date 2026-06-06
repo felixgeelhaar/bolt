@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package userservice;
 
-option go_package = "github.com/felixgeelhaar/bolt/examples/microservices/grpc-interceptors/proto";
+option go_package = "go.klarlabs.de/bolt/examples/microservices/grpc-interceptors/proto";
 
 // UserService provides user management functionality
 service UserService {

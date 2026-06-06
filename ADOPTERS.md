@@ -22,7 +22,7 @@ publicly, please open a [GitHub Discussion][disc] or file an issue.
 Sharing your migration questions in public benefits future evaluators
 even when you decide bolt isn't a fit.
 
-[disc]: https://github.com/felixgeelhaar/bolt/discussions
+[disc]: https://github.com/klarlabs-studio/bolt/discussions
 
 ## Why this file matters
 

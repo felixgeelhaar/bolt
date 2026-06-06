@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felixgeelhaar/bolt"
+	"go.klarlabs.de/bolt"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/felixgeelhaar/bolt/examples/microservices/grpc-interceptors/proto"
+	pb "go.klarlabs.de/bolt/examples/microservices/grpc-interceptors/proto"
 )
 
 // Server implements the UserService gRPC server with logging

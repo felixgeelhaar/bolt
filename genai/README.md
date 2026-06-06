@@ -32,7 +32,7 @@ ingest bolt logs without a translation layer.
 ## Install
 
 ```bash
-go get github.com/felixgeelhaar/bolt/genai
+go get go.klarlabs.de/bolt/genai
 ```
 
 The package re-exports nothing — `bolt` itself is your logger entry
@@ -48,8 +48,8 @@ import (
     "os"
     "time"
 
-    "github.com/felixgeelhaar/bolt"
-    "github.com/felixgeelhaar/bolt/genai"
+    "go.klarlabs.de/bolt"
+    "go.klarlabs.de/bolt/genai"
 )
 
 func main() {

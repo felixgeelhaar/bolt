@@ -15,8 +15,8 @@ changelog:
   includedate: true
   linkcommits: true
   linkissues: true
-  repositoryurl: https://github.com/felixgeelhaar/bolt
-  issueurl: https://github.com/felixgeelhaar/bolt/issues
+  repositoryurl: https://github.com/klarlabs-studio/bolt
+  issueurl: https://github.com/klarlabs-studio/bolt/issues
   exclude:
     - chore
     - ci
@@ -40,7 +40,7 @@ plugins:
     config:
       draft: false
       token: ${GITHUB_TOKEN}
-      owner: felixgeelhaar
+      owner: klarlabs-studio
       repo: bolt
 versioning:
   strategy: conventional

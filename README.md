@@ -5,11 +5,11 @@
 
   Zero-allocation `slog.Handler` for Go with first-class OpenTelemetry.
 
-  [![Build](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml/badge.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml)
-  [![Nox security grade](https://raw.githubusercontent.com/felixgeelhaar/bolt/main/assets/badge-nox.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/nox.yml)
-  [![Coverage](https://raw.githubusercontent.com/felixgeelhaar/bolt/main/assets/badge-coverage.svg)](https://github.com/felixgeelhaar/bolt/actions/workflows/ci.yml)
-  [![Go Reference](https://pkg.go.dev/badge/github.com/felixgeelhaar/bolt.svg)](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/felixgeelhaar/bolt)](https://goreportcard.com/report/github.com/felixgeelhaar/bolt)
+  [![Build](https://github.com/klarlabs-studio/bolt/actions/workflows/ci.yml/badge.svg)](https://github.com/klarlabs-studio/bolt/actions/workflows/ci.yml)
+  [![Nox security grade](https://raw.githubusercontent.com/klarlabs-studio/bolt/main/assets/badge-nox.svg)](https://github.com/klarlabs-studio/bolt/actions/workflows/nox.yml)
+  [![Coverage](https://raw.githubusercontent.com/klarlabs-studio/bolt/main/assets/badge-coverage.svg)](https://github.com/klarlabs-studio/bolt/actions/workflows/ci.yml)
+  [![Go Reference](https://pkg.go.dev/badge/go.klarlabs.de/bolt.svg)](https://pkg.go.dev/go.klarlabs.de/bolt)
+  [![Go Report Card](https://goreportcard.com/badge/go.klarlabs.de/bolt)](https://goreportcard.com/report/go.klarlabs.de/bolt)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
 
@@ -46,7 +46,7 @@ correlation, or the slog ergonomics other teams already learned.
 ## Install
 
 ```bash
-go get github.com/felixgeelhaar/bolt
+go get go.klarlabs.de/bolt
 ```
 
 Requires Go 1.24 or newer.
@@ -62,7 +62,7 @@ import (
     "log/slog"
     "os"
 
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
 )
 
 func main() {
@@ -86,7 +86,7 @@ package main
 import (
     "os"
 
-    "github.com/felixgeelhaar/bolt"
+    "go.klarlabs.de/bolt"
 )
 
 func main() {
@@ -106,7 +106,7 @@ analyser is on the roadmap).
 ### OpenTelemetry trace/span correlation
 
 ```go
-import "github.com/felixgeelhaar/bolt"
+import "go.klarlabs.de/bolt"
 
 // Anywhere you have a context.Context:
 log := bolt.New(bolt.NewJSONHandler(os.Stdout))
@@ -153,7 +153,7 @@ log.Info().
 `Any(key, v)` falls back to `encoding/json` reflection — convenient,
 not zero-alloc.
 
-[godoc]: https://pkg.go.dev/github.com/felixgeelhaar/bolt
+[godoc]: https://pkg.go.dev/go.klarlabs.de/bolt
 
 ## Logger composition
 

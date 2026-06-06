@@ -143,14 +143,14 @@ jobs:
           ## Installation
 
           ```bash
-          go get github.com/felixgeelhaar/bolt${{ steps.version.outputs.major != 'v1' && steps.version.outputs.major != 'v0' && format('/{0}', steps.version.outputs.major) || '' }}@${{ steps.version.outputs.version }}
+          go get go.klarlabs.de/bolt${{ steps.version.outputs.major != 'v1' && steps.version.outputs.major != 'v0' && format('/{0}', steps.version.outputs.major) || '' }}@${{ steps.version.outputs.version }}
           ```
 
           ## Documentation
 
-          - 📖 [API Reference](https://pkg.go.dev/github.com/felixgeelhaar/bolt)
-          - 📊 [Live Benchmarks](https://felixgeelhaar.github.io/bolt/)
-          - 🎯 [Examples](https://github.com/felixgeelhaar/bolt/tree/main/examples)
+          - 📖 [API Reference](https://pkg.go.dev/go.klarlabs.de/bolt)
+          - 📊 [Live Benchmarks](https://klarlabs-studio.github.io/bolt/)
+          - 🎯 [Examples](https://github.com/klarlabs-studio/bolt/tree/main/examples)
 
           ## Supply-chain verification
 
@@ -158,7 +158,7 @@ jobs:
           SBOM, SHA-256 checksums, cosign keyless signatures (Sigstore
           OIDC), and SLSA-3 provenance.
 
-          See [SECURITY.md](https://github.com/felixgeelhaar/bolt/blob/main/SECURITY.md#verifying-release-artefacts)
+          See [SECURITY.md](https://github.com/klarlabs-studio/bolt/blob/main/SECURITY.md#verifying-release-artefacts)
           for end-to-end verification commands.
 
           ## Verification

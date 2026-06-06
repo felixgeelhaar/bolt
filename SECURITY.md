@@ -37,7 +37,7 @@ To verify a downloaded release:
 
 ```bash
 VERSION=v1.4.0   # adjust
-GH_REPO=felixgeelhaar/bolt
+GH_REPO=klarlabs-studio/bolt
 
 # 1. Download the archive + signature + cert
 gh release download "$VERSION" --repo "$GH_REPO" \
@@ -79,7 +79,7 @@ Instead, please report security issues responsibly through one of these channels
 
 ### Preferred: GitHub Security Advisories
 
-1. Go to the [Security Advisories page](https://github.com/felixgeelhaar/bolt/security/advisories/new)
+1. Go to the [Security Advisories page](https://github.com/klarlabs-studio/bolt/security/advisories/new)
 2. Click "Report a vulnerability"
 3. Fill in the details of the vulnerability
 4. Submit the report
@@ -258,7 +258,7 @@ When contributing code:
 ## 🚨 Security Advisories
 
 Published security advisories can be found at:
-https://github.com/felixgeelhaar/bolt/security/advisories
+https://github.com/klarlabs-studio/bolt/security/advisories
 
 Subscribe to security notifications:
 1. Go to the repository

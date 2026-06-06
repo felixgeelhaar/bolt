@@ -6,7 +6,7 @@ import (
 
 	"log/slog"
 
-	"github.com/felixgeelhaar/bolt"
+	"go.klarlabs.de/bolt"
 	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

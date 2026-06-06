@@ -1,10 +1,10 @@
-module github.com/felixgeelhaar/bolt/examples/observability/opentelemetry
+module go.klarlabs.de/bolt/examples/observability/opentelemetry
 
 go 1.25.0
 
 require (
-	github.com/felixgeelhaar/bolt v1.2.1
 	github.com/google/uuid v1.6.0
+	go.klarlabs.de/bolt v1.2.1
 	go.opentelemetry.io/otel v1.43.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.43.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.64.0
@@ -32,8 +32,8 @@ require (
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
@@ -42,4 +42,4 @@ require (
 )
 
 // Local development - replace with actual module path in production
-replace github.com/felixgeelhaar/bolt => ../../..
+replace go.klarlabs.de/bolt => ../../..

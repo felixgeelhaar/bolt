@@ -319,7 +319,7 @@ docs: ## Generate documentation
 	@echo "Generating documentation..."
 	@command -v godoc >/dev/null 2>&1 || { echo "Installing godoc..."; go install golang.org/x/tools/cmd/godoc@latest; }
 	@echo "Starting local documentation server..."
-	@echo "Documentation available at: http://localhost:6060/pkg/github.com/felixgeelhaar/bolt/"
+	@echo "Documentation available at: http://localhost:6060/pkg/go.klarlabs.de/bolt/"
 	@godoc -http=:6060
 
 # CI/CD helpers

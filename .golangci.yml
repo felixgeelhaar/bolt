@@ -32,7 +32,7 @@ linters:
       check-type-assertions: true
       check-blank: true
       exclude-functions:
-        - (*github.com/felixgeelhaar/bolt.Logger).Sync
+        - (*go.klarlabs.de/bolt.Logger).Sync
         - fmt.Fprintf
         - fmt.Fprintln
         - (*os.File).Close
@@ -134,7 +134,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/felixgeelhaar/bolt
+        - go.klarlabs.de/bolt
   exclusions:
     generated: lax
     paths:

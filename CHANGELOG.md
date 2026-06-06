@@ -216,7 +216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 4. **Default Logger**: New comprehensive test coverage ensures reliability
 
 **Migration Steps**:
-1. Update dependency: `go get -u github.com/felixgeelhaar/bolt@v1.2.2`
+1. Update dependency: `go get -u go.klarlabs.de/bolt@v1.2.2`
 2. Review Float64 usage if precision >6 decimals is required
 3. Run tests to ensure thread-safe SetLevel behavior
 4. Optional: Add default logger tests to your codebase using our examples
@@ -238,8 +238,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed plans:
 
 ---
 
-[1.2.2]: https://github.com/felixgeelhaar/bolt/compare/v1.2.1...v1.2.2
-[1.2.1]: https://github.com/felixgeelhaar/bolt/compare/v1.2.0...v1.2.1
-[1.2.0]: https://github.com/felixgeelhaar/bolt/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/felixgeelhaar/bolt/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/felixgeelhaar/bolt/releases/tag/v1.0.0
+[1.2.2]: https://github.com/klarlabs-studio/bolt/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/klarlabs-studio/bolt/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/klarlabs-studio/bolt/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/klarlabs-studio/bolt/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/klarlabs-studio/bolt/releases/tag/v1.0.0

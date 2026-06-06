@@ -63,8 +63,8 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 LABEL maintainer="Bolt Team" \
       version="1.0.0" \
       description="Bolt Kubernetes Demo Application" \
-      org.opencontainers.image.source="https://github.com/felixgeelhaar/bolt" \
-      org.opencontainers.image.documentation="https://github.com/felixgeelhaar/bolt/blob/main/examples/README.md"
+      org.opencontainers.image.source="https://github.com/klarlabs-studio/bolt" \
+      org.opencontainers.image.documentation="https://github.com/klarlabs-studio/bolt/blob/main/examples/README.md"
 
 # Run the application
 ENTRYPOINT ["./main"]
