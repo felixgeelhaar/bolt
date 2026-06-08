@@ -341,7 +341,8 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 	defer resp.Body.Close()
 
 	// Determine health based on status code
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+	switch {
+	case resp.StatusCode >= 200 && resp.StatusCode < 300:
 		if backend.Health == Unhealthy {
 			lb.logger.Info().
 				Str("health_check_id", healthCheckID).
@@ -352,10 +353,10 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 		}
 		backend.Health = Healthy
 		backend.FailCount = 0
-	} else if resp.StatusCode >= 500 {
+	case resp.StatusCode >= 500:
 		backend.Health = Unhealthy
 		backend.FailCount++
-	} else {
+	default:
 		backend.Health = Degraded
 	}
 
