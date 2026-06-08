@@ -304,7 +304,7 @@ func (l *Logger) With() *Event {
 		levelValue = int64(INFO) // Default to INFO if somehow corrupted
 	}
 	// Safe conversion after bounds check
-	level := Level(levelValue) // #nosec G115 - bounds already checked above
+	level := Level(levelValue)
 	return &Event{buf: append([]byte{}, l.context...), level: level, l: l}
 }
 
@@ -331,7 +331,7 @@ func (l *Logger) log(level Level) *Event {
 		levelValue = int64(INFO) // Default to INFO if somehow corrupted
 	}
 	// Safe conversion after bounds check
-	currentLevel := Level(levelValue) // #nosec G115 - bounds already checked above
+	currentLevel := Level(levelValue)
 	if level < currentLevel {
 		return nil
 	}

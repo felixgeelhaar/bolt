@@ -54,7 +54,7 @@ const (
 
 	// Request fields
 	keyRequestModel       = "gen_ai.request.model"
-	keyRequestMaxTokens   = "gen_ai.request.max_tokens" // #nosec G101 -- OTel semconv field name, not a credential
+	keyRequestMaxTokens   = "gen_ai.request.max_tokens"
 	keyRequestTemperature = "gen_ai.request.temperature"
 	keyRequestTopP        = "gen_ai.request.top_p"
 
@@ -64,9 +64,9 @@ const (
 	keyResponseFinishReason = "gen_ai.response.finish_reasons"
 
 	// Usage fields
-	keyInputTokens  = "gen_ai.usage.input_tokens"  // #nosec G101 -- OTel semconv field name, not a credential
-	keyOutputTokens = "gen_ai.usage.output_tokens" // #nosec G101 -- OTel semconv field name, not a credential
-	keyTotalTokens  = "gen_ai.usage.total_tokens"  // #nosec G101 -- OTel semconv field name, not a credential
+	keyInputTokens  = "gen_ai.usage.input_tokens"
+	keyOutputTokens = "gen_ai.usage.output_tokens"
+	keyTotalTokens  = "gen_ai.usage.total_tokens"
 
 	// Timing
 	keyDuration = "gen_ai.client.operation.duration"
