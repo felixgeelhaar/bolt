@@ -1,242 +1,30 @@
+# Thin caller for the shared klarlabs-studio Go CI bar.
+# All gate logic lives in the reusable workflow — bump versions / add jobs
+# there, once, org-wide. bolt is a perf-sensitive logging library, so it
+# opts into benchmark + cross-platform on top of the standard gate.
 name: CI
 
 on:
   push:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
   pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: ['1.25']
-
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: ${{ matrix.go-version }}
-
-    - name: Cache Go modules
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-${{ matrix.go-version }}-
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Verify dependencies
-      run: go mod verify
-
-    # Restrict tests to the library package; the examples/ subtree
-    # contains demo apps (some with go.mod, some without) that drag
-    # coverage to ~42% and aren't part of the public API surface we
-    # gate on.
-    - name: Run tests
-      run: go test -v -race -short -coverprofile=coverage.out $(go list ./... | grep -v '/examples/')
-
-    - name: Run tests with count flag (detect flaky tests)
-      run: go test -v -short -count=5 $(go list ./... | grep -v '/examples/')
-
-    # Coverage gate + badge refresh via coverctl (replaces Codecov).
-    # The .coverctl.yaml policy enforces minimums per domain; the
-    # generated SVG lives in assets/ and is referenced from README +
-    # the GH Pages landing.
-    - name: Install coverctl
-      if: matrix.go-version == '1.25'
-      run: go install go.klarlabs.de/coverctl/cmd/coverctl@latest
-      env:
-        GOTOOLCHAIN: auto
-
-    - name: Coverctl gate
-      if: matrix.go-version == '1.25'
-      run: |
-        mkdir -p .cover
-        cp coverage.out .cover/coverage.out
-        coverctl check --from-profile --profile .cover/coverage.out
-
-    - name: Refresh coverage badge (push to main only)
-      if: matrix.go-version == '1.25' && github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        coverctl badge -p .cover/coverage.out -o assets/badge-coverage.svg --label coverage
-        if ! git diff --quiet assets/badge-coverage.svg; then
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add assets/badge-coverage.svg
-          git commit -m "ci(badge): refresh coverage badge [skip ci]"
-          git push origin HEAD:main || echo "::warning::badge push blocked by branch protection"
-        fi
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: '1.25'
-
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
-      with:
-        version: latest
-        args: --timeout=5m
-
-  examples:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: '1.25'
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Compile all examples (strict)
-      run: |
-        # Build every example module. Any failure outside the documented
-        # skip list fails the job — prevents flagship examples (e.g. OTel)
-        # from regressing into a broken state.
-        skip_dirs=(
-          "examples/microservices/grpc-interceptors"  # requires proto generation
-        )
-        is_skipped() {
-          local target="$1"
-          for s in "${skip_dirs[@]}"; do
-            if [[ "$target" == "$s" ]]; then return 0; fi
-          done
-          return 1
-        }
-        failed=0
-        while IFS= read -r modfile; do
-          dir="$(dirname "$modfile")"
-          if is_skipped "$dir"; then
-            echo "::notice::Skipping $dir (in skip list)"
-            continue
-          fi
-          echo "::group::Building $dir"
-          if ! (cd "$dir" && go mod tidy && go build ./...); then
-            echo "::error::Build failed in $dir"
-            failed=1
-          fi
-          echo "::endgroup::"
-        done < <(find examples -name go.mod -type f)
-        exit $failed
-
-  benchmark:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: '1.25'
-
-    - name: Download dependencies
-      run: go mod download
-
-    - name: Run benchmarks
-      run: |
-        # Run benchmarks with build tags and capture output
-        if go test -bench=. -benchmem -count=3 -tags=bench > benchmark.txt 2>&1; then
-          echo "Benchmarks completed successfully"
-          cat benchmark.txt
-        else
-          echo "Benchmarks failed, running without tags as fallback"
-          go test -bench=. -benchmem -count=3 > benchmark.txt 2>&1 || true
-          cat benchmark.txt
-        fi
-
-    - name: Upload benchmark results
-      if: hashFiles('benchmark.txt') != ''
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      with:
-        name: benchmark-results
-        path: benchmark.txt
-        retention-days: 7
-
-  # Cross-platform validation runs only on push to main (not PRs) and on
-  # release tags. macOS = 10x and Windows = 2x Actions minutes on public
-  # repos — keeping this off PRs cuts the per-merge cost dramatically.
-  cross-platform:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        go-version: ['1.25']
-
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: ${{ matrix.go-version }}
-
-    - name: Run tests
-      run: go test -v -short ./...
-
-    - name: Build
-      run: go build -v ./...
-
-  security:
-    runs-on: ubuntu-latest
+  ci:
+    uses: klarlabs-studio/.github/.github/workflows/go-ci.yml@main
     permissions:
-      actions: read
       contents: read
       security-events: write
-    steps:
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-    - name: Set up Go
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-      with:
-        go-version: '1.25'
-
-    - name: Install gosec
-      run: go install github.com/securego/gosec/v2/cmd/gosec@v2.22.11
-      env:
-        GOTOOLCHAIN: auto
-
-    - name: Run Gosec Security Scanner
-      run: |
-        gosec -fmt sarif -out results.sarif \
-          -exclude-dir=examples \
-          -exclude-dir=benchmark \
-          -exclude-dir=migrate \
-          -exclude-dir=infrastructure \
-          -exclude-dir=vendor \
-          ./...
-
-    - name: Upload SARIF file
-      if: always() && hashFiles('results.sarif') != ''
-      uses: github/codeql-action/upload-sarif@87557b9c84dde89fdd9b10e88954ac2f4248e463 # v3
-      with:
-        sarif_file: results.sarif
+      pull-requests: write
+    secrets: inherit
+    with:
+      benchmark: true        # bolt cares about perf
+      cross-platform: true   # keep multi-OS on push-to-main
+      coverage: true

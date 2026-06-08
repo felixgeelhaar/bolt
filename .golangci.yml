@@ -20,6 +20,14 @@ linters:
     - staticcheck
     - unconvert
     - unparam
+    # Shared org engineering bar (klarlabs-studio/.github golangci.reference.yml).
+    # gocritic is non-negotiable; the rest align bolt with the org gate.
+    - errcheck
+    - gocritic
+    - govet
+    - ineffassign
+    - misspell
+    - unused
   disable:
     - exhaustive
     - funlen

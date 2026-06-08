@@ -1,6 +1,16 @@
 scan:
   exclude:
     - "vendor/"
+    # CI workflows: pinned commit SHAs + GITHUB_TOKEN refs look like secrets
+    # to entropy rules (workflow security is a separate tool's concern).
+    - ".github/workflows/*.yml"
+    # Docs: example snippets / placeholder tokens.
+    - "README.md"
+    - "CHANGELOG.md"
+    - "docs/*.md"
+    - "**/README.md"
+    # Baseline file is itself a list of finding fingerprints (hashes).
+    - ".nox/baseline.json"
     - "benchmarks/"
     - "examples/"
     - ".relicta/"
