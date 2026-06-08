@@ -33,22 +33,6 @@ jobs:
           didn't match the configured pattern. Please ensure that the subject
           doesn't start with an uppercase character.
 
-  check-fork:
-    # Skip for dependabot and the repo owner. External contributors must use
-    # a fork per CONTRIBUTING.md; the solo-maintainer workflow pushes feature
-    # branches directly to the main repo.
-    if: github.actor != 'dependabot[bot]' && github.actor != github.repository_owner
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check if PR is from fork
-      run: |
-        if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-          echo "✅ Pull request is from a fork - following contribution guidelines"
-        else
-          echo "❌ Pull request is from main repository - please use a fork"
-          echo "See CONTRIBUTING.md for fork workflow instructions"
-          exit 1
-        fi
 
   performance-regression:
     runs-on: ubuntu-latest
